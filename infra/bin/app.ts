@@ -25,7 +25,6 @@ new AppStack(app, `${prefix}-App`, {
   config,
   vpc: network.vpc,
   appSecurityGroup: network.appSecurityGroup,
-  albSecurityGroup: network.albSecurityGroup,
   database: data.database,
 });
 

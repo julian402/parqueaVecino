@@ -25,6 +25,11 @@ export const prod: EnvironmentConfig = {
     destroyOnRemoval: true,
   },
 
+  domain: {
+    name: 'parquea-vecino.duckdns.org',
+    duckdnsSubdomain: 'parquea-vecino',
+  },
+
   app: {
     cpu: 256,
     memoryMiB: 1024,

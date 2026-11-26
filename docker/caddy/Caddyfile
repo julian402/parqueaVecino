@@ -1,0 +1,16 @@
+# Proxy de entrada en AWS: HTTPS automático (Let's Encrypt) y enrutamiento a la web y la API,
+# que corren en la misma tarea Fargate (comparten localhost).
+# Los certificados se guardan en /data, montado sobre EFS: sobreviven a cada despliegue.
+{$APP_DOMAIN} {
+	encode zstd gzip
+
+	handle /{$API_PREFIX}/* {
+		reverse_proxy localhost:{$API_PORT}
+	}
+	handle /health {
+		reverse_proxy localhost:{$API_PORT}
+	}
+	handle {
+		reverse_proxy localhost:{$WEB_PORT}
+	}
+}

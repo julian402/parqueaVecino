@@ -57,7 +57,15 @@ Webhooks de Stripe (modo test): crea `docker/.env` con `STRIPE_SECRET_KEY=sk_tes
 - **CD:** cada push a `main` corre el CI y, si pasa, `.github/workflows/deploy.yml` despliega con CDK
   usando OIDC (sin llaves guardadas). Variables del repo en GitHub (Settings → Variables):
   `AWS_DEPLOY_ROLE_ARN`, `AWS_REGION=us-east-2` y opcional `BUDGET_EMAIL`.
-- Infra: CloudFront (HTTPS) → ALB → Fargate (web + api) → RDS PostgreSQL 17 + PostGIS (`db.t4g.micro`).
+- URL: **https://parquea-vecino.duckdns.org**
+- Infra: DuckDNS → Fargate (Caddy con HTTPS de Let's Encrypt + web + api) → RDS PostgreSQL 17 + PostGIS (`db.t4g.micro`).
+- **Token de DuckDNS** (una sola vez, nunca en el repo): cópialo de duckdns.org y guárdalo en el secreto
+  `DuckDnsSecretName` que imprime el despliegue:
+
+  ```bash
+  aws secretsmanager put-secret-value --secret-id <DuckDnsSecretName> --secret-string <token>     --profile <perfil> --region us-east-2
+  aws ecs update-service --cluster <ClusterName> --service <ServiceName> --force-new-deployment     --profile <perfil> --region us-east-2
+  ```
 
 - Región: **`us-east-2` (Ohio)**. La organización de la cuenta bloquea las demás regiones.
 - Configura tu perfil con `aws configure --profile <perfil>` (región `us-east-2`) y úsalo con

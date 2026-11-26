@@ -7,12 +7,10 @@ import {
   Stack,
   type StackProps,
 } from 'aws-cdk-lib';
-import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
-import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import { Platform } from 'aws-cdk-lib/aws-ecr-assets';
 import * as ecs from 'aws-cdk-lib/aws-ecs';
-import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+import * as efs from 'aws-cdk-lib/aws-efs';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import type * as rds from 'aws-cdk-lib/aws-rds';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
@@ -23,26 +21,49 @@ export interface AppStackProps extends StackProps {
   config: EnvironmentConfig;
   vpc: ec2.IVpc;
   appSecurityGroup: ec2.ISecurityGroup;
-  albSecurityGroup: ec2.ISecurityGroup;
   database: rds.DatabaseInstance;
 }
 
 const REPO_ROOT = path.join(import.meta.dirname, '..', '..', '..');
+const HTTP_PORT = 80;
+const HTTPS_PORT = 443;
+/** Donde Caddy guarda certificados (XDG_DATA_HOME de la imagen oficial). */
+const CADDY_DATA_PATH = '/data';
+
+/** Health check de contenedor con el fetch de Node (las imágenes no traen curl). */
+function httpHealthCheck(url: string, startPeriod: Duration): ecs.HealthCheck {
+  return {
+    command: [
+      'CMD',
+      'node',
+      '-e',
+      `fetch('${url}').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))`,
+    ],
+    interval: Duration.seconds(15),
+    timeout: Duration.seconds(5),
+    retries: 3,
+    startPeriod,
+  };
+}
 
 /**
- * Web + API en una sola tarea Fargate detrás de un ALB, con CloudFront delante (HTTPS gratis).
- *   CloudFront ──► ALB ──► /api/*  → contenedor api
- *                      └─► resto   → contenedor web
- * Al compartir origen, las cookies de sesión son de primera parte y no se necesita CORS.
+ * Una tarea Fargate con tres contenedores que comparten localhost:
+ *
+ *   Internet ──► caddy :80/:443 ──► /api/*, /health → api :3001
+ *                (HTTPS, Let's Encrypt)  └──────────► resto → web :3000
+ *
+ * Sin ALB ni CloudFront (DuckDNS solo admite IPs): la tarea publica su IP en DuckDNS al arrancar.
+ * Web y API comparten origen, así que las cookies son de primera parte y no se necesita CORS.
+ * Limitación aceptada: una sola tarea; durante un despliegue hay segundos de cambio de IP.
  */
 export class AppStack extends Stack {
   constructor(scope: Construct, id: string, props: AppStackProps) {
     super(scope, id, props);
-    const { app, appSettings } = props.config;
+    const { app, appSettings, domain } = props.config;
     const dbSecret = props.database.secret;
     if (!dbSecret) throw new Error('La base de datos debe tener secreto generado');
 
-    // ---------- Secretos generados (nunca en el código ni en el repo) ----------
+    // ---------- Secretos (nunca en el código ni en el repo) ----------
     const jwtSecret = new secretsmanager.Secret(this, 'JwtSecret', {
       description: 'Firma de los access tokens (JWT)',
       generateSecretString: { passwordLength: 64, excludePunctuation: true },
@@ -53,8 +74,42 @@ export class AppStack extends Stack {
       generateSecretString: { passwordLength: 20, excludePunctuation: true },
       removalPolicy: RemovalPolicy.DESTROY,
     });
+    // Se crea con un valor provisional; el token real de DuckDNS se carga a mano (ver README).
+    const duckDnsSecret = new secretsmanager.Secret(this, 'DuckDnsToken', {
+      description: `Token de DuckDNS para ${domain.name}`,
+      generateSecretString: { passwordLength: 36, excludePunctuation: true },
+      removalPolicy: RemovalPolicy.DESTROY,
+    });
 
-    // ---------- Tarea: web + api ----------
+    // ---------- Almacenamiento de certificados (EFS) ----------
+    const efsSecurityGroup = new ec2.SecurityGroup(this, 'CertsSecurityGroup', {
+      vpc: props.vpc,
+      description: 'EFS de certificados: solo la app',
+      allowAllOutbound: false,
+    });
+    efsSecurityGroup.addIngressRule(props.appSecurityGroup, ec2.Port.tcp(2049), 'App hacia EFS');
+    const certificates = new efs.FileSystem(this, 'Certificates', {
+      vpc: props.vpc,
+      vpcSubnets: { subnetType: ec2.SubnetType.PUBLIC },
+      securityGroup: efsSecurityGroup,
+      encrypted: true,
+      removalPolicy: RemovalPolicy.DESTROY,
+    });
+
+    // ---------- Entrada pública: solo HTTP/HTTPS hacia Caddy ----------
+    // Reglas declaradas en este stack para no tocar el de red en cada cambio de la app.
+    for (const port of [HTTP_PORT, HTTPS_PORT]) {
+      new ec2.CfnSecurityGroupIngress(this, `PublicIngress${port}`, {
+        groupId: props.appSecurityGroup.securityGroupId,
+        cidrIp: '0.0.0.0/0',
+        ipProtocol: 'tcp',
+        fromPort: port,
+        toPort: port,
+        description: `Internet hacia Caddy (${port})`,
+      });
+    }
+
+    // ---------- Tarea ----------
     const logGroup = new logs.LogGroup(this, 'Logs', {
       retention: app.logRetentionDays as logs.RetentionDays,
       removalPolicy: RemovalPolicy.DESTROY,
@@ -68,16 +123,27 @@ export class AppStack extends Stack {
         operatingSystemFamily: ecs.OperatingSystemFamily.LINUX,
       },
     });
+    taskDefinition.addVolume({
+      name: 'certificates',
+      efsVolumeConfiguration: {
+        fileSystemId: certificates.fileSystemId,
+        transitEncryption: 'ENABLED',
+        authorizationConfig: { iam: 'ENABLED' },
+      },
+    });
+    certificates.grantRootAccess(taskDefinition.taskRole);
 
     const imageOptions = { ignoreMode: IgnoreMode.DOCKER, platform: Platform.LINUX_AMD64 };
 
-    taskDefinition.addContainer('api', {
+    const api = taskDefinition.addContainer('api', {
       image: ecs.ContainerImage.fromAsset(REPO_ROOT, {
         ...imageOptions,
         file: 'apps/api/Dockerfile',
       }),
       portMappings: [{ containerPort: app.apiPort }],
       logging: ecs.LogDrivers.awsLogs({ logGroup, streamPrefix: 'api' }),
+      // Margen para migraciones + seed al arrancar.
+      healthCheck: httpHealthCheck(`http://localhost:${app.apiPort}/health`, Duration.minutes(3)),
       environment: {
         NODE_ENV: 'production',
         API_PORT: String(app.apiPort),
@@ -110,7 +176,7 @@ export class AppStack extends Stack {
       },
     });
 
-    taskDefinition.addContainer('web', {
+    const web = taskDefinition.addContainer('web', {
       image: ecs.ContainerImage.fromAsset(REPO_ROOT, {
         ...imageOptions,
         file: 'apps/web/Dockerfile',
@@ -123,8 +189,35 @@ export class AppStack extends Stack {
       }),
       portMappings: [{ containerPort: app.webPort }],
       logging: ecs.LogDrivers.awsLogs({ logGroup, streamPrefix: 'web' }),
+      healthCheck: httpHealthCheck(`http://localhost:${app.webPort}/`, Duration.minutes(1)),
       environment: { PORT: String(app.webPort) },
     });
+
+    const caddy = taskDefinition.addContainer('caddy', {
+      image: ecs.ContainerImage.fromAsset(path.join(REPO_ROOT, 'docker', 'caddy'), {
+        platform: Platform.LINUX_AMD64,
+      }),
+      portMappings: [{ containerPort: HTTP_PORT }, { containerPort: HTTPS_PORT }],
+      logging: ecs.LogDrivers.awsLogs({ logGroup, streamPrefix: 'caddy' }),
+      environment: {
+        APP_DOMAIN: domain.name,
+        DUCKDNS_SUBDOMAIN: domain.duckdnsSubdomain,
+        API_PREFIX: appSettings.apiPrefix,
+        API_PORT: String(app.apiPort),
+        WEB_PORT: String(app.webPort),
+      },
+      secrets: { DUCKDNS_TOKEN: ecs.Secret.fromSecretsManager(duckDnsSecret) },
+    });
+    caddy.addMountPoints({
+      sourceVolume: 'certificates',
+      containerPath: CADDY_DATA_PATH,
+      readOnly: false,
+    });
+    // El dominio solo apunta a esta tarea cuando la web y la API ya responden.
+    caddy.addContainerDependencies(
+      { container: api, condition: ecs.ContainerDependencyCondition.HEALTHY },
+      { container: web, condition: ecs.ContainerDependencyCondition.HEALTHY },
+    );
 
     const cluster = new ecs.Cluster(this, 'Cluster', { vpc: props.vpc });
     const service = new ecs.FargateService(this, 'Service', {
@@ -135,63 +228,15 @@ export class AppStack extends Stack {
       vpcSubnets: { subnetType: ec2.SubnetType.PUBLIC },
       securityGroups: [props.appSecurityGroup],
       circuitBreaker: { rollback: true },
-      // Margen para migraciones + seed antes de que el ALB evalúe la salud.
-      healthCheckGracePeriod: Duration.minutes(3),
       minHealthyPercent: 100,
       maxHealthyPercent: 200,
     });
 
-    // ---------- Balanceador (su grupo de seguridad vive en el stack de red) ----------
-    const alb = new elbv2.ApplicationLoadBalancer(this, 'Alb', {
-      vpc: props.vpc,
-      internetFacing: true,
-      securityGroup: props.albSecurityGroup,
-      vpcSubnets: { subnetType: ec2.SubnetType.PUBLIC },
+    new CfnOutput(this, 'Url', { value: `https://${domain.name}` });
+    new CfnOutput(this, 'DuckDnsSecretName', {
+      value: duckDnsSecret.secretName,
+      description: 'Cargar aquí el token real de DuckDNS',
     });
-    const listener = alb.addListener('Http', { port: 80, open: false });
-
-    listener.addTargets('Web', {
-      port: app.webPort,
-      protocol: elbv2.ApplicationProtocol.HTTP,
-      targets: [service.loadBalancerTarget({ containerName: 'web', containerPort: app.webPort })],
-      healthCheck: { path: '/', healthyHttpCodes: '200' },
-      deregistrationDelay: Duration.seconds(10),
-    });
-    listener.addTargets('Api', {
-      priority: 10,
-      conditions: [elbv2.ListenerCondition.pathPatterns([`/${appSettings.apiPrefix}/*`])],
-      port: app.apiPort,
-      protocol: elbv2.ApplicationProtocol.HTTP,
-      targets: [service.loadBalancerTarget({ containerName: 'api', containerPort: app.apiPort })],
-      healthCheck: { path: '/health', healthyHttpCodes: '200' },
-      deregistrationDelay: Duration.seconds(10),
-    });
-
-    // ---------- CloudFront: HTTPS con dominio *.cloudfront.net ----------
-    const albOrigin = new origins.LoadBalancerV2Origin(alb, {
-      protocolPolicy: cloudfront.OriginProtocolPolicy.HTTP_ONLY,
-    });
-    const distribution = new cloudfront.Distribution(this, 'Cdn', {
-      comment: `ParqueaVecino ${props.config.name}`,
-      priceClass: cloudfront.PriceClass.PRICE_CLASS_100,
-      defaultBehavior: {
-        origin: albOrigin,
-        viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-        allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
-        cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
-        originRequestPolicy: cloudfront.OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
-      },
-      additionalBehaviors: {
-        // Archivos con hash de Next: se pueden cachear sin riesgo.
-        '/_next/static/*': {
-          origin: albOrigin,
-          viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-          cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
-        },
-      },
-    });
-
-    new CfnOutput(this, 'Url', { value: `https://${distribution.distributionDomainName}` });
     new CfnOutput(this, 'SeedSecretName', {
       value: seedSecret.secretName,
       description: 'Contraseña del admin y usuarios demo',

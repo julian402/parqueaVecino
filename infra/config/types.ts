@@ -26,6 +26,15 @@ export interface EnvironmentConfig {
     destroyOnRemoval: boolean;
   };
 
+  /**
+   * Dominio público. DuckDNS solo admite registros A (IP), así que la tarea actualiza su IP
+   * al arrancar y Caddy obtiene el certificado HTTPS de Let's Encrypt.
+   */
+  domain: {
+    name: string;
+    duckdnsSubdomain: string;
+  };
+
   /** Una tarea Fargate con dos contenedores (web + api) para ahorrar costos. */
   app: {
     cpu: number;

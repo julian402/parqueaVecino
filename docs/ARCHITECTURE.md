@@ -156,12 +156,18 @@ Estados de reserva: `PENDING_PAYMENT → ACTIVE → EXPIRED | CANCELLED | REFUND
 Implementado (región `us-east-2`, única permitida por la organización):
 
 ```
-NetworkStack   VPC 2 AZ sin NAT; SG de la app y del ALB (este solo acepta CloudFront)
+NetworkStack   VPC 2 AZ sin NAT; grupo de seguridad de la app
 DataStack      RDS PostgreSQL 17 + PostGIS, db.t4g.micro, subred aislada, cifrada, credenciales en Secrets Manager
-AppStack       Fargate (1 tarea: contenedores web + api) + ALB + CloudFront (HTTPS); secretos JWT y seed
+AppStack       Fargate (1 tarea: caddy + web + api), EFS para certificados; secretos JWT, seed y DuckDNS
 CiStack        Rol OIDC para GitHub Actions (solo la rama main)
 OpsStack       AWS Budgets con alerta
 ```
+
+Dominio `parquea-vecino.duckdns.org`: DuckDNS solo admite registros A (sin CNAME) y la organización
+bloquea us-east-1 (certificados ACM para CloudFront). Por eso no hay ALB ni CloudFront: el contenedor
+Caddy publica la IP pública de la tarea en DuckDNS al arrancar (cuando web y API ya están sanas) y obtiene
+y renueva solo el certificado de Let's Encrypt, guardado en EFS para no repetirlo en cada despliegue.
+Límite aceptado: una sola tarea y unos segundos de cambio de IP en cada despliegue.
 
 Pendiente por fase: S3 (documentos/recibos), ElastiCache (tiempo real), worker de jobs.
 
