@@ -28,3 +28,4 @@ Thumbs.db
 # claude local
 CLAUDE.md
 .claude/
+*.tsbuildinfo
