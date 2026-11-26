@@ -1,0 +1,4 @@
+{
+  "extends": "@parqueavecino/config/tsconfig/library.json",
+  "include": ["src"]
+}

@@ -1,0 +1,18 @@
+packages:
+  - apps/*
+  - packages/*
+  - infra
+
+# Versiones compartidas: los paquetes las usan con "catalog:".
+catalog:
+  typescript: ~6.0.3
+
+# pnpm bloquea scripts de instalación por defecto; solo se permiten estos binarios nativos.
+allowBuilds:
+  esbuild: true
+  '@swc/core': true
+  sharp: true
+  unrs-resolver: true
+  # Telemetría de swagger-ui: bloqueada.
+  '@scarf/scarf': false
+  '@parcel/watcher': true

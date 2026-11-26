@@ -11,16 +11,16 @@ Leyenda: ☐ pendiente · ◐ en curso · ☑ hecho
 
 Objetivo: cualquier integrante clona, corre `pnpm i && pnpm dev` y tiene todo arriba.
 
-- ☐ Crear repositorio en GitHub (privado), rama `main` protegida (PR obligatorio, CI verde, squash merge)
-- ☐ Monorepo pnpm + Turborepo con `apps/web`, `apps/api`, `packages/{ui,contracts,utils,config}`, `infra/`
-- ☐ `packages/config`: tsconfig base (strict), ESLint, Prettier, preset Tailwind con tokens
-- ☐ Husky + lint-staged + commitlint (Conventional Commits) + hook que **rechaza `Co-authored-by`**
-- ☐ `docker/docker-compose.yml`: postgres+postgis, redis, minio, mailpit, stripe-cli
-- ☐ Validación de entorno con Zod en api y web; `.env.example` completos
-- ☐ CI en GitHub Actions: install → lint → typecheck → test → build (con caché de Turbo)
-- ☐ Plantillas de PR e issues; tablero de GitHub Projects con las historias de este plan
-- ☐ ADRs 0001–0006 (ver ARCHITECTURE.md §8)
-- ☐ Extraer tokens y componentes base de los mockups (Button, Pill, Badge, Card, Input, Stepper)
+- ◐ Crear repositorio en GitHub ☑ · proteger `main` (PR obligatorio, CI verde, squash merge) ☐
+- ☑ Monorepo pnpm + Turborepo con `apps/web`, `apps/api`, `packages/{ui,contracts,utils,config}`, `infra/`
+- ☑ `packages/config`: tsconfig base (strict), ESLint, Prettier; tokens Tailwind v4 en `packages/ui/src/styles/tokens.css`
+- ☑ Husky + lint-staged + commitlint (Conventional Commits) + hook que **rechaza `Co-authored-by`**
+- ☑ `docker/docker-compose.yml`: postgres+postgis, redis, s3mock, mailpit, stripe-cli
+- ☑ Validación de entorno con Zod en api y web; `.env.example` completos
+- ☑ CI en GitHub Actions: install → lint → typecheck → test → build (con caché de Turbo)
+- ◐ Plantillas de PR e issues; tablero de GitHub Projects con las historias de este plan _(falta el tablero de GitHub Projects)_
+- ☑ ADRs 0001–0006 (ver ARCHITECTURE.md §8)
+- ☑ Extraer tokens y componentes base de los mockups (Button, Pill, Badge, Card, Input, Stepper)
 
 **Entregable:** repo funcionando en local + CI verde.
 
@@ -96,12 +96,12 @@ Objetivo: cualquier integrante clona, corre `pnpm i && pnpm dev` y tiene todo ar
 
 ## Reparto sugerido (8 integrantes)
 
-| Rol | Personas | Foco |
-|---|---|---|
-| Líder técnico / DevOps | 1 | Monorepo, CI/CD, CDK, revisiones de PR |
-| Backend | 3 | Dominio, búsqueda, reservas, pagos, jobs |
-| Frontend | 3 | UI kit, pantallas conductor y aliado, mapa |
-| QA / Producto | 1 | Historias, criterios de aceptación, e2e, demo |
+| Rol                    | Personas | Foco                                          |
+| ---------------------- | -------- | --------------------------------------------- |
+| Líder técnico / DevOps | 1        | Monorepo, CI/CD, CDK, revisiones de PR        |
+| Backend                | 3        | Dominio, búsqueda, reservas, pagos, jobs      |
+| Frontend               | 3        | UI kit, pantallas conductor y aliado, mapa    |
+| QA / Producto          | 1        | Historias, criterios de aceptación, e2e, demo |
 
 ## Definición de Hecho (DoD)
 

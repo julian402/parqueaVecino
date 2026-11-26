@@ -8,29 +8,30 @@
 
 Un solo lenguaje (TypeScript) de punta a punta: front, back, contratos e infraestructura.
 
-| Capa | Tecnología | Por qué |
-|---|---|---|
-| Monorepo | **pnpm workspaces + Turborepo** | Paquetes compartidos (UI, contratos, utilidades), builds con caché, un solo `pnpm dev`. |
-| Frontend | **Next.js 15 (App Router) + React + TypeScript** | SSR/SEO para la parte pública, rutas por rol, responsive (los mockups son una sola app web para escritorio y celular). |
-| Estilos / UI | **Tailwind CSS + shadcn/ui (Radix)** en `packages/ui` | Componentes propios y reutilizables; tokens de diseño centralizados. |
-| Estado servidor | **TanStack Query** + cliente generado con **Orval** desde OpenAPI | Cero endpoints escritos a mano en el front; tipos sincronizados con la API. |
-| Formularios | **React Hook Form + Zod** | Validaciones compartidas con el backend. |
-| Textos | **next-intl** (`messages/es.json`) | Ningún texto de UI quemado en componentes. |
-| Mapa | **MapLibre GL** (tiles de Amazon Location Service en AWS; OSM/MapTiler en local) | Libre, sin lock-in; el proveedor de tiles es configuración. |
-| Backend | **NestJS 11** (módulos, inyección de dependencias) | Organización por módulos de dominio "de fábrica", guards por rol, OpenAPI automático. |
-| ORM / BD | **Prisma + PostgreSQL 16 + PostGIS** | Búsqueda geoespacial ("a 350 m de ti"), migraciones versionadas. |
-| Tiempo real | **Socket.IO (Gateway de NestJS) + Redis adapter** | Cupos libres en vivo en el mapa (atributo A2), escalable horizontalmente. |
-| Colas / jobs | **BullMQ sobre Redis** | Alertas de cupo (A3), correos, vencimientos de mensualidades y documentos. |
-| Pagos | **Stripe (modo test) + Stripe Connect Express** detrás de un puerto `PaymentProvider` | Marketplace con comisión (`application_fee`), webhooks, todo en sandbox. Cambiable a Wompi sin tocar el dominio. |
-| Archivos | **S3** (MinIO en local) con URLs prefirmadas | Fotos de parqueaderos y documentos de verificación (póliza, RUT). |
-| Correo | **Amazon SES** (Mailpit en local) | Confirmaciones y alertas. |
-| Auth | Módulo propio: **argon2 + JWT** (access corto + refresh en cookie httpOnly), roles `DRIVER`, `PARTNER`, `ADMIN` | Funciona igual en local y en AWS; Cognito queda como mejora opcional (ADR). |
-| Logs | **pino** (JSON) → CloudWatch | Estructurados, con `requestId`. |
-| Pruebas | **Vitest** (unit), **Supertest** (API), **Playwright** (e2e) | |
-| Infra como código | **AWS CDK (TypeScript)** | Mismo lenguaje que la app; stacks por capa y por ambiente. |
-| CI/CD | **GitHub Actions** + OIDC hacia AWS | Sin llaves de AWS guardadas en el repo ni en secretos de larga vida. |
+| Capa              | Tecnología                                                                                                      | Por qué                                                                                                                |
+| ----------------- | --------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Monorepo          | **pnpm workspaces + Turborepo**                                                                                 | Paquetes compartidos (UI, contratos, utilidades), builds con caché, un solo `pnpm dev`.                                |
+| Frontend          | **Next.js 15 (App Router) + React + TypeScript**                                                                | SSR/SEO para la parte pública, rutas por rol, responsive (los mockups son una sola app web para escritorio y celular). |
+| Estilos / UI      | **Tailwind CSS v4 + shadcn/ui (Radix)** en `packages/ui`                                                        | Componentes propios y reutilizables; tokens en `packages/ui/src/styles/tokens.css` (`@theme`).                         |
+| Estado servidor   | **TanStack Query** + cliente generado con **Orval** desde OpenAPI                                               | Cero endpoints escritos a mano en el front; tipos sincronizados con la API.                                            |
+| Formularios       | **React Hook Form + Zod**                                                                                       | Validaciones compartidas con el backend.                                                                               |
+| Textos            | **next-intl** (`messages/es.json`)                                                                              | Ningún texto de UI quemado en componentes.                                                                             |
+| Mapa              | **MapLibre GL** (tiles de Amazon Location Service en AWS; OSM/MapTiler en local)                                | Libre, sin lock-in; el proveedor de tiles es configuración.                                                            |
+| Backend           | **NestJS 11** (módulos, inyección de dependencias)                                                              | Organización por módulos de dominio "de fábrica", guards por rol, OpenAPI automático.                                  |
+| ORM / BD          | **Prisma + PostgreSQL 16 + PostGIS**                                                                            | Búsqueda geoespacial ("a 350 m de ti"), migraciones versionadas.                                                       |
+| Tiempo real       | **Socket.IO (Gateway de NestJS) + Redis adapter**                                                               | Cupos libres en vivo en el mapa (atributo A2), escalable horizontalmente.                                              |
+| Colas / jobs      | **BullMQ sobre Redis**                                                                                          | Alertas de cupo (A3), correos, vencimientos de mensualidades y documentos.                                             |
+| Pagos             | **Stripe (modo test) + Stripe Connect Express** detrás de un puerto `PaymentProvider`                           | Marketplace con comisión (`application_fee`), webhooks, todo en sandbox. Cambiable a Wompi sin tocar el dominio.       |
+| Archivos          | **S3** (S3Mock en local) con URLs prefirmadas                                                                   | Fotos de parqueaderos y documentos de verificación (póliza, RUT).                                                      |
+| Correo            | **Amazon SES** (Mailpit en local)                                                                               | Confirmaciones y alertas.                                                                                              |
+| Auth              | Módulo propio: **argon2 + JWT** (access corto + refresh en cookie httpOnly), roles `DRIVER`, `PARTNER`, `ADMIN` | Funciona igual en local y en AWS; Cognito queda como mejora opcional (ADR).                                            |
+| Logs              | **pino** (JSON) → CloudWatch                                                                                    | Estructurados, con `requestId`.                                                                                        |
+| Pruebas           | **Vitest** (unit), **Supertest** (API), **Playwright** (e2e)                                                    |                                                                                                                        |
+| Infra como código | **AWS CDK (TypeScript)**                                                                                        | Mismo lenguaje que la app; stacks por capa y por ambiente.                                                             |
+| CI/CD             | **GitHub Actions** + OIDC hacia AWS                                                                             | Sin llaves de AWS guardadas en el repo ni en secretos de larga vida.                                                   |
 
 ### Nota sobre pagos en Colombia
+
 Stripe no abre cuentas a comercios colombianos ni soporta PSE/Nequi. Como el proyecto **no va a
 producción**, Stripe en modo test sirve perfecto para demostrar el flujo completo (reserva → pago →
 comisión → webhook → recibo). Por eso el dominio solo conoce la interfaz `PaymentProvider`; el
@@ -48,9 +49,9 @@ parqueavecino/
 │  ├─ ui/                  Design system: componentes shadcn adaptados + tokens
 │  ├─ contracts/           Esquemas Zod, enums y tipos compartidos (Franja, EstadoReserva, Rol…)
 │  ├─ utils/               Dinero (COP en unidades menores), fechas (America/Bogota), helpers puros
-│  └─ config/              tsconfig, eslint, prettier y preset de Tailwind compartidos
+│  └─ config/              tsconfig y eslint compartidos
 ├─ infra/                  AWS CDK: stacks + config por ambiente
-├─ docker/                 docker-compose local: postgres+postgis, redis, minio, mailpit, stripe-cli
+├─ docker/                 docker-compose local: postgres+postgis, redis, s3mock, mailpit, stripe-cli
 ├─ docs/                   Este documento, PLAN.md, ADRs (docs/adr/NNNN-titulo.md)
 └─ .github/workflows/      CI (lint, typecheck, test, build) y CD (deploy a AWS)
 ```
@@ -68,23 +69,23 @@ Cada módulo es una carpeta autocontenida en `apps/api/src/modules/<modulo>/`:
 └─ infrastructure/   repositorios Prisma, adaptadores (Stripe, S3, SES)
 ```
 
-| Módulo | Responsabilidad | Pantalla / atributo Kano |
-|---|---|---|
-| `auth` | Registro, login, refresh, roles y guards | — |
-| `users` | Perfil del conductor, vehículos (placa, tipo) | 4, 6 |
-| `parking-lots` | Parqueadero: dirección, geolocalización, servicios, fotos | 3, 7 |
-| `offers` | Cupos por franja (DAY/NIGHT/FULL): total, precio, validación de tope tarifario | 3, 7 · A1 |
-| `search` | Búsqueda geoespacial + filtros (franja, vehículo, precio, techo) y orden | 1, 2 · N1 |
-| `availability` | Cupos libres en tiempo real (WebSocket + Redis pub/sub) | 2 · A2 |
-| `bookings` | Mensualidades: reserva, vigencia, renovar, cancelar, código de ingreso/QR | 4, 5, 6 |
-| `payments` | Puerto `PaymentProvider`, Stripe Connect, webhooks, libro de movimientos, comisión | 4 · N3 |
-| `verification` | Documentos del aliado (póliza RC, RUT, facturación), vencimientos, sello "Verificado" | 3, 7 · N2 |
-| `notifications` | Correos, alertas "se liberó un cupo en tu zona" (BullMQ) | 5 · A3 |
-| `receipts` | Recibo PDF con placa, vigencia y póliza (Ley 1801 art. 90) | 5 |
-| `partner-analytics` | Ocupación por franja/hora, ingreso extra, reservas nuevas | 7 |
-| `reviews` | Calificación y reseñas | 3 |
-| `admin` | Aprobación de aliados y documentos | — |
-| `settings` | Parámetros de negocio editables (ver §5) | transversal |
+| Módulo              | Responsabilidad                                                                       | Pantalla / atributo Kano |
+| ------------------- | ------------------------------------------------------------------------------------- | ------------------------ |
+| `auth`              | Registro, login, refresh, roles y guards                                              | —                        |
+| `users`             | Perfil del conductor, vehículos (placa, tipo)                                         | 4, 6                     |
+| `parking-lots`      | Parqueadero: dirección, geolocalización, servicios, fotos                             | 3, 7                     |
+| `offers`            | Cupos por franja (DAY/NIGHT/FULL): total, precio, validación de tope tarifario        | 3, 7 · A1                |
+| `search`            | Búsqueda geoespacial + filtros (franja, vehículo, precio, techo) y orden              | 1, 2 · N1                |
+| `availability`      | Cupos libres en tiempo real (WebSocket + Redis pub/sub)                               | 2 · A2                   |
+| `bookings`          | Mensualidades: reserva, vigencia, renovar, cancelar, código de ingreso/QR             | 4, 5, 6                  |
+| `payments`          | Puerto `PaymentProvider`, Stripe Connect, webhooks, libro de movimientos, comisión    | 4 · N3                   |
+| `verification`      | Documentos del aliado (póliza RC, RUT, facturación), vencimientos, sello "Verificado" | 3, 7 · N2                |
+| `notifications`     | Correos, alertas "se liberó un cupo en tu zona" (BullMQ)                              | 5 · A3                   |
+| `receipts`          | Recibo PDF con placa, vigencia y póliza (Ley 1801 art. 90)                            | 5                        |
+| `partner-analytics` | Ocupación por franja/hora, ingreso extra, reservas nuevas                             | 7                        |
+| `reviews`           | Calificación y reseñas                                                                | 3                        |
+| `admin`             | Aprobación de aliados y documentos                                                    | —                        |
+| `settings`          | Parámetros de negocio editables (ver §5)                                              | transversal              |
 
 Transversal en `apps/api/src/common/`: `ConfigModule` validado con Zod, logger, filtro de errores
 estándar, paginación, `RequestId`, health checks (`/health`).
@@ -109,16 +110,16 @@ Reglas: las páginas (`app/`) solo componen; la lógica vive en `features/`. Com
 
 ## 5. Nada quemado (no hardcode)
 
-| Qué | Dónde vive |
-|---|---|
-| URLs, credenciales, llaves Stripe, buckets, región | Variables de entorno validadas con Zod al arrancar (`.env.example` versionado, `.env` nunca). En AWS: Secrets Manager / SSM Parameter Store. |
-| Comisión (10 %), horarios de franjas, ventana de cancelación (24 h), tope tarifario (Decreto 098/2024), radio de búsqueda por defecto | Tabla `system_settings` + seed; editable por admin; leída vía `SettingsService` con caché. |
-| Textos de UI | `messages/es.json` |
-| Colores, espaciados, tipografía | Tokens en el preset de Tailwind (`packages/config`) |
-| Enums (franja, estado de reserva, rol, tipo de vehículo, tipo de documento) | `packages/contracts` (fuente única, usada por Prisma, API y web) |
-| Dinero | Entero en unidades menores + moneda; formateo solo con `packages/utils/money` |
-| Zona horaria | `APP_TIMEZONE=America/Bogota` |
-| Tamaños de infraestructura por ambiente | `infra/config/<ambiente>.ts` |
+| Qué                                                                                                                                   | Dónde vive                                                                                                                                   |
+| ------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| URLs, credenciales, llaves Stripe, buckets, región                                                                                    | Variables de entorno validadas con Zod al arrancar (`.env.example` versionado, `.env` nunca). En AWS: Secrets Manager / SSM Parameter Store. |
+| Comisión (10 %), horarios de franjas, ventana de cancelación (24 h), tope tarifario (Decreto 098/2024), radio de búsqueda por defecto | Tabla `system_settings` + seed; editable por admin; leída vía `SettingsService` con caché.                                                   |
+| Textos de UI                                                                                                                          | `messages/es.json`                                                                                                                           |
+| Colores, espaciados, tipografía                                                                                                       | Tokens `@theme` en `packages/ui/src/styles/tokens.css`                                                                                       |
+| Enums (franja, estado de reserva, rol, tipo de vehículo, tipo de documento)                                                           | `packages/contracts` (fuente única, usada por Prisma, API y web)                                                                             |
+| Dinero                                                                                                                                | Entero en unidades menores + moneda; formateo solo con `packages/utils/money`                                                                |
+| Zona horaria                                                                                                                          | `APP_TIMEZONE=America/Bogota`                                                                                                                |
+| Tamaños de infraestructura por ambiente                                                                                               | `infra/config/<ambiente>.ts`                                                                                                                 |
 
 ## 6. Flujo de pago (sandbox)
 
@@ -126,7 +127,7 @@ Reglas: las páginas (`app/`) solo componen; la lógica vive en `features/`. Com
 2. Conductor elige franja → `POST /bookings` crea reserva `PENDING_PAYMENT` y **bloquea el cupo**
    con TTL (Redis) para evitar sobreventa.
 3. API crea PaymentIntent/Checkout con `application_fee_amount = precio × comisión` (de `settings`)
-   y `transfer_data.destination = cuenta del aliado`, con *idempotency key*.
+   y `transfer_data.destination = cuenta del aliado`, con _idempotency key_.
 4. Webhook firmado (`payment_intent.succeeded` / `payment_failed`, `charge.refunded`,
    `account.updated`) → actualiza reserva a `ACTIVE`, registra movimientos, emite evento de
    disponibilidad, encola correo + recibo.
