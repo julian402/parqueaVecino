@@ -1,0 +1,56 @@
+name: Deploy
+
+# Despliega a AWS cuando el CI de main termina en verde.
+# Ambiente "prod" de pruebas: URL pública, Stripe en modo test (pagos ficticios).
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+# Un despliegue a la vez; uno nuevo espera al anterior (no lo cancela a medias).
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+permissions:
+  id-token: write # credenciales temporales por OIDC (sin llaves de AWS guardadas)
+  contents: read
+
+jobs:
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: prod
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: cdk deploy
+        working-directory: infra
+        env:
+          BUDGET_EMAIL: ${{ vars.BUDGET_EMAIL }}
+        run: >-
+          pnpm exec cdk deploy --all -c env=prod
+          --require-approval never --progress events
+          ${BUDGET_EMAIL:+-c budgetEmail=$BUDGET_EMAIL}
+
+      - name: URL publicada
+        run: aws cloudformation describe-stacks --stack-name ParqueaVecino-prod-App --query "Stacks[0].Outputs[?OutputKey=='Url'].OutputValue" --output text >> "$GITHUB_STEP_SUMMARY"

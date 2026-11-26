@@ -1,9 +1,11 @@
 name: CI
 
+# Calidad en cada push a develop/main (y en PRs, si alguien los usa).
+# El despliegue lo hace deploy.yml, solo cuando este workflow pasa en main.
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, develop]
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -27,9 +29,13 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Commits sin Co-authored-by y en formato convencional
+      - name: Commits sin Co-authored-by y en formato convencional (PR)
         if: github.event_name == 'pull_request'
         run: pnpm exec commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+
+      - name: Commits sin Co-authored-by y en formato convencional (push)
+        if: github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000'
+        run: pnpm exec commitlint --from ${{ github.event.before }} --to ${{ github.sha }} --verbose
 
       - run: pnpm format:check
       - run: pnpm lint
@@ -38,7 +44,38 @@ jobs:
       - name: Build
         run: pnpm build
         env:
-          NEXT_PUBLIC_API_URL: http://localhost:3001/api
+          NEXT_PUBLIC_API_URL: /api
           NEXT_PUBLIC_APP_LOCALE: es-CO
           NEXT_PUBLIC_APP_TIMEZONE: America/Bogota
           NEXT_PUBLIC_APP_CURRENCY: COP
+
+  e2e-api:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgis/postgis:17-3.5
+        env:
+          POSTGRES_USER: parqueavecino
+          POSTGRES_PASSWORD: parqueavecino
+          POSTGRES_DB: parqueavecino
+        # Mismo puerto que docker compose, para usar los valores de .env.example tal cual.
+        ports: ['5433:5432']
+        options: >-
+          --health-cmd "pg_isready -U parqueavecino"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Configuración de pruebas (valores de desarrollo, sin secretos reales)
+        run: cp apps/api/.env.example apps/api/.env
+      - run: pnpm turbo run build --filter=@parqueavecino/api^...
+      - run: pnpm --filter @parqueavecino/api generate
+      - run: pnpm --filter @parqueavecino/api test:e2e
