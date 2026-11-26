@@ -16,7 +16,8 @@
     "docker:up": "docker compose -f docker/docker-compose.yml up -d",
     "docker:down": "docker compose -f docker/docker-compose.yml down",
     "docker:stripe": "docker compose -f docker/docker-compose.yml --profile stripe up -d stripe-cli",
-    "prepare": "husky"
+    "prepare": "husky",
+    "setup:local": "node scripts/setup.mjs"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.4",
