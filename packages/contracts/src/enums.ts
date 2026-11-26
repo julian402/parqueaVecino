@@ -43,3 +43,22 @@ export const DocumentStatus = {
 } as const;
 export type DocumentStatus = (typeof DocumentStatus)[keyof typeof DocumentStatus];
 export const DOCUMENT_STATUSES = values(DocumentStatus);
+
+export const Amenity = {
+  ROOF: 'ROOF',
+  SECURITY_24H: 'SECURITY_24H',
+  CAMERAS: 'CAMERAS',
+  BIKE_SPOT: 'BIKE_SPOT',
+  EV_CHARGER: 'EV_CHARGER',
+} as const;
+export type Amenity = (typeof Amenity)[keyof typeof Amenity];
+export const AMENITIES = values(Amenity);
+
+export const ParkingLotStatus = {
+  DRAFT: 'DRAFT',
+  PENDING_VERIFICATION: 'PENDING_VERIFICATION',
+  ACTIVE: 'ACTIVE',
+  SUSPENDED: 'SUSPENDED',
+} as const;
+export type ParkingLotStatus = (typeof ParkingLotStatus)[keyof typeof ParkingLotStatus];
+export const PARKING_LOT_STATUSES = values(ParkingLotStatus);
