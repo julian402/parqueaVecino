@@ -6,7 +6,7 @@ Aplican a todo el equipo y a cualquier herramienta (incluida IA). Contexto: `ARC
 
 - Commits en Conventional Commits, en español: `tipo(alcance): descripción`.
 - **Nunca** agregar `Co-authored-by` ni ninguna atribución a IA en commits ni PRs. El único autor es la persona que hace el commit.
-- Trabajar en ramas `feat/…`, `fix/…`, `infra/…`; `main` solo por PR.
+- Ramas: el equipo trabaja en `develop`; solo el dueño del repo integra a `main`. Cada push a `main` despliega a AWS.
 
 ## Arquitectura
 

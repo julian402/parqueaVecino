@@ -56,7 +56,23 @@ parqueavecino/
 └─ .github/workflows/      CI (lint, typecheck, test, build) y CD (deploy a AWS)
 ```
 
-## 3. Módulos de la API (NestJS)
+## 3. Roles y multi-tenant
+
+Una sola base de datos compartida; el aislamiento es **por dueño de fila** (cada aliado es un tenant):
+
+| Rol       | Quién                       | Ve y gestiona                                                                                              | Panel web            |
+| --------- | --------------------------- | ---------------------------------------------------------------------------------------------------------- | -------------------- |
+| `ADMIN`   | Dueño de la plataforma      | Todo: aliados, parqueaderos, verificación, usuarios, accesos, estadísticas globales, parámetros de negocio | `/admin`             |
+| `PARTNER` | Dueño de cada parqueadero   | Solo sus parqueaderos, cupos, reservas, ingresos y documentos (`ownerId = user.id`)                        | `/aliados`           |
+| `DRIVER`  | Quien compra la mensualidad | Solo sus vehículos, mensualidades, pagos y recibos (`driverId = user.id`)                                  | `/mis-mensualidades` |
+
+- El aislamiento se aplica en los repositorios (`where: { ownerId }`) y se prueba en e2e
+  (un aliado no puede leer ni editar lo de otro: responde 404, no 403, para no revelar que existe).
+- El `ADMIN` no se registra: lo crea el seed (`SEED_ADMIN_*`). El registro público solo crea `DRIVER` o `PARTNER`.
+- Si en el futuro un parqueadero tuviera varios empleados, se agrega `organization` + membresías
+  sin cambiar el modelo de los demás módulos.
+
+## 4. Módulos de la API (NestJS)
 
 Cada módulo es una carpeta autocontenida en `apps/api/src/modules/<modulo>/`:
 
@@ -84,13 +100,13 @@ Cada módulo es una carpeta autocontenida en `apps/api/src/modules/<modulo>/`:
 | `receipts`          | Recibo PDF con placa, vigencia y póliza (Ley 1801 art. 90)                            | 5                        |
 | `partner-analytics` | Ocupación por franja/hora, ingreso extra, reservas nuevas                             | 7                        |
 | `reviews`           | Calificación y reseñas                                                                | 3                        |
-| `admin`             | Aprobación de aliados y documentos                                                    | —                        |
+| `admin`             | Panel del dueño: aliados, verificación, usuarios, accesos, estadísticas globales      | —                        |
 | `settings`          | Parámetros de negocio editables (ver §5)                                              | transversal              |
 
 Transversal en `apps/api/src/common/`: `ConfigModule` validado con Zod, logger, filtro de errores
 estándar, paginación, `RequestId`, health checks (`/health`).
 
-## 4. Frontend (Next.js)
+## 5. Frontend (Next.js)
 
 ```
 apps/web/src/
@@ -108,7 +124,7 @@ Reglas: las páginas (`app/`) solo componen; la lógica vive en `features/`. Com
 (Button, Card, Pill, Badge "Verificado", PriceTag, MapPin, StatCard, DataTable, Stepper) van en
 `packages/ui` y se identifican desde los mockups.
 
-## 5. Nada quemado (no hardcode)
+## 6. Nada quemado (no hardcode)
 
 | Qué                                                                                                                                   | Dónde vive                                                                                                                                   |
 | ------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -121,7 +137,7 @@ Reglas: las páginas (`app/`) solo componen; la lógica vive en `features/`. Com
 | Zona horaria                                                                                                                          | `APP_TIMEZONE=America/Bogota`                                                                                                                |
 | Tamaños de infraestructura por ambiente                                                                                               | `infra/config/<ambiente>.ts`                                                                                                                 |
 
-## 6. Flujo de pago (sandbox)
+## 7. Flujo de pago (sandbox)
 
 1. Aliado hace onboarding a Stripe Connect Express (modo test) desde su panel.
 2. Conductor elige franja → `POST /bookings` crea reserva `PENDING_PAYMENT` y **bloquea el cupo**
@@ -135,27 +151,30 @@ Reglas: las páginas (`app/`) solo componen; la lógica vive en `features/`. Com
 
 Estados de reserva: `PENDING_PAYMENT → ACTIVE → EXPIRED | CANCELLED | REFUNDED`.
 
-## 7. Infraestructura AWS (CDK)
+## 8. Infraestructura AWS (CDK)
+
+Implementado (región `us-east-2`, única permitida por la organización):
 
 ```
-NetworkStack   VPC 2 AZ, subredes públicas/privadas, security groups
-DataStack      RDS PostgreSQL 16 (PostGIS), ElastiCache (Valkey/Redis), S3 (uploads, recibos)
-AppStack       ECR, ECS Fargate: servicio api, servicio web, servicio worker; ALB + ACM
-EdgeStack      CloudFront (web + assets), Route 53 (si hay dominio)
-SecretsStack   Secrets Manager (BD, JWT, Stripe), SSM Parameters
-OpsStack       CloudWatch logs/alarmas, AWS Budgets (alerta de costo), Amazon Location (mapas)
-CiStack        Rol OIDC para GitHub Actions
+NetworkStack   VPC 2 AZ sin NAT; SG de la app y del ALB (este solo acepta CloudFront)
+DataStack      RDS PostgreSQL 17 + PostGIS, db.t4g.micro, subred aislada, cifrada, credenciales en Secrets Manager
+AppStack       Fargate (1 tarea: contenedores web + api) + ALB + CloudFront (HTTPS); secretos JWT y seed
+CiStack        Rol OIDC para GitHub Actions (solo la rama main)
+OpsStack       AWS Budgets con alerta
 ```
 
-- Ambientes: `dev` (sandbox, el que se demuestra) y opcional `staging`. Mismo código, distinta config.
-- Migraciones: tarea ECS de un solo uso (`prisma migrate deploy`) antes de actualizar servicios.
+Pendiente por fase: S3 (documentos/recibos), ElastiCache (tiempo real), worker de jobs.
+
+- Ambiente único `prod` de pruebas (Stripe test). El desarrollo se hace en local con Docker.
+- Migraciones y seed idempotente al arrancar el contenedor de la API (`RUN_MIGRATIONS_ON_START`);
+  con más de una réplica se moverían a una tarea ECS de un solo uso.
 - Escalabilidad: servicios stateless + autoscaling por CPU; sockets escalan por el adapter de Redis;
   jobs aislados en el worker.
 - **Costos de estudiante:** RDS `t4g.micro`, Fargate 0.25 vCPU, evitar NAT Gateway (≈ USD 32/mes)
   con NAT instance o tareas en subred pública con SG estrictos; `desiredCount=0` cuando no hay demo;
   presupuesto con alerta en AWS Budgets; `cdk destroy` al terminar el semestre.
 
-## 8. Decisiones (ADRs)
+## 9. Decisiones (ADRs)
 
 Toda decisión relevante se documenta en `docs/adr/NNNN-titulo.md` (contexto, decisión,
 consecuencias). Primeras ADRs: monorepo, NestJS, Prisma+PostGIS, Stripe detrás de puerto, auth

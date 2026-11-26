@@ -20,13 +20,24 @@ Proyecto de Innovación, Uniempresarial — Semestre IV.
 
 ## Arranque local
 
+Requisitos: Node 24, pnpm y Docker Desktop abierto.
+
 ```bash
+git clone https://github.com/julian402/parqueaVecino.git && cd parqueaVecino
+git switch develop
 pnpm install
-cp apps/api/.env.example apps/api/.env
-cp apps/web/.env.example apps/web/.env.local
-pnpm docker:up        # postgres+postgis, redis, s3 local, mailpit
+pnpm setup:local      # .env, CLAUDE.md local, Docker, migraciones y datos demo
 pnpm dev              # web en :3000, api en :3001
 ```
+
+`pnpm setup:local` es idempotente y nunca sobrescribe tus archivos locales. Crea:
+
+- `apps/api/.env` y `apps/web/.env.local` desde los `.env.example`.
+- `CLAUDE.md` y `.claude/settings.json` desde `tooling/claude/` (git los ignora; edítalos a tu gusto).
+- La base de datos local (PostgreSQL 17 + PostGIS en el puerto **5433**) con migraciones y datos demo:
+  admin, aliado y conductor demo (correos y contraseñas en `apps/api/.env`, variables `SEED_*`).
+
+Pruebas e2e de la API (usan una BD aparte, `parqueavecino_test`): `pnpm --filter @parqueavecino/api test:e2e`.
 
 | Servicio          | URL                            |
 | ----------------- | ------------------------------ |
@@ -40,7 +51,13 @@ pnpm dev              # web en :3000, api en :3001
 Webhooks de Stripe (modo test): crea `docker/.env` con `STRIPE_SECRET_KEY=sk_test_...` y ejecuta
 `pnpm docker:stripe`.
 
-## AWS
+## AWS y despliegue
+
+- **Un solo ambiente: `prod` de pruebas.** URL pública, pero Stripe en modo test (pagos ficticios) y datos demo.
+- **CD:** cada push a `main` corre el CI y, si pasa, `.github/workflows/deploy.yml` despliega con CDK
+  usando OIDC (sin llaves guardadas). Variables del repo en GitHub (Settings → Variables):
+  `AWS_DEPLOY_ROLE_ARN`, `AWS_REGION=us-east-2` y opcional `BUDGET_EMAIL`.
+- Infra: CloudFront (HTTPS) → ALB → Fargate (web + api) → RDS PostgreSQL 17 + PostGIS (`db.t4g.micro`).
 
 - Región: **`us-east-2` (Ohio)**. La organización de la cuenta bloquea las demás regiones.
 - Configura tu perfil con `aws configure --profile <perfil>` (región `us-east-2`) y úsalo con

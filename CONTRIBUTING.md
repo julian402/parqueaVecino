@@ -2,9 +2,16 @@
 
 ## Ramas
 
-- `main` está protegida: solo entra código por Pull Request con CI verde y al menos 1 aprobación.
-- Ramas cortas desde `main`: `feat/<tema>`, `fix/<tema>`, `chore/<tema>`, `docs/<tema>`, `infra/<tema>`.
-- Merge con **squash**. Borrar la rama al cerrar el PR.
+Solo hay dos ramas permanentes:
+
+| Rama      | Quién                  | Qué pasa al hacer push                                    |
+| --------- | ---------------------- | --------------------------------------------------------- |
+| `develop` | Todo el equipo         | CI (formato, lint, tipos, pruebas, build, e2e)            |
+| `main`    | Solo el dueño del repo | CI y, si pasa, **despliegue automático** a la URL pública |
+
+- El equipo trabaja y hace push a `develop` (siempre `git pull --rebase` antes de subir).
+- El dueño integra `develop` → `main` cuando el CI de `develop` está en verde.
+- Ramas temporales (`feat/…`) son opcionales y locales; no se suben al remoto.
 
 ## Commits
 
@@ -18,10 +25,9 @@
 - Commits pequeños y atómicos; nada de "cambios varios".
 - Nunca commitear `.env`, llaves, credenciales ni `node_modules`.
 
-## Pull Requests
+## Antes de subir
 
-- Título en formato de commit. Descripción: qué, por qué, cómo probarlo, capturas (si es UI).
-- Enlazar el issue (`Closes #N`).
+- `pnpm format && pnpm lint && pnpm typecheck && pnpm test` en verde.
 - Debe cumplir la Definición de Hecho de `docs/PLAN.md`.
 
 ## Código

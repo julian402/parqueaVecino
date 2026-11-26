@@ -26,15 +26,16 @@ Objetivo: cualquier integrante clona, corre `pnpm i && pnpm dev` y tiene todo ar
 
 ## Fase 1 — Núcleo de dominio + esqueleto en AWS (semanas 2–3)
 
-- ☐ Esquema Prisma: User, Vehicle, ParkingLot (geography Point), Offer (franja, total, precio), Booking, Payment, LedgerEntry, Document, Review, SystemSetting
-- ☐ Seed con datos de demo realistas (Chapinero, Calle 63, Cra 13…) y `system_settings`
-- ☐ Módulo `settings` + `SettingsService` cacheado
-- ☐ Módulo `auth` (registro/login/refresh, roles, guards) + `users` (vehículos)
-- ☐ Módulos `parking-lots` y `offers` (CRUD aliado, validación de tope tarifario)
-- ☐ OpenAPI → cliente Orval en `apps/web`
-- ☐ Web: layout responsive (nav escritorio / tab bar celular), login/registro
-- ☐ **Infra:** CDK `NetworkStack`, `DataStack`, `AppStack` mínimos; OIDC para GitHub; primer deploy de "hola mundo" api+web en `dev`
-- ☐ AWS Budgets con alerta de costo
+- ☑ Esquema Prisma: User, RefreshToken, Vehicle, ParkingLot, Offer, SystemSetting (Booking/Payment/Document/Review en sus fases)
+- ☑ Seed idempotente con datos demo (Chapinero, Calle 63, Cra 13…) y `system_settings`
+- ☑ Módulo `settings` + `SettingsService` cacheado
+- ☑ Módulo `auth` (cookies httpOnly, refresh rotativo, roles ADMIN/PARTNER/DRIVER, guards) + `users` (vehículos)
+- ☑ Módulo `parking-lots` con cupos por franja (CRUD del aliado aislado por dueño, tope tarifario)
+- ☑ OpenAPI → cliente Orval en `apps/web`
+- ☑ Web: layout responsive (nav escritorio / tab bar celular), login/registro, panel aliado inicial, colores del folleto
+- ☑ `pnpm setup:local` para levantar todo en un equipo nuevo
+- ◐ **Infra:** CDK Network/Data/App/Ci/Ops; CD a AWS en cada push a `main` (OIDC)
+- ☑ AWS Budgets con alerta de costo
 
 **Entregable:** login funcionando en local y la app vacía desplegada en AWS.
 
@@ -66,7 +67,9 @@ Objetivo: cualquier integrante clona, corre `pnpm i && pnpm dev` y tiene todo ar
 - ☐ Mis mensualidades: activas/vencidas, barra de vigencia, renovar, ver QR, cancelar, historial de pagos
 - ☐ Panel aliado: KPIs (ocupación día/noche, ingreso extra, reservas nuevas), editar cupos por franja
 - ☐ Gráfica de ocupación por hora (últimos 7 días) — `partner-analytics`
-- ☐ `verification`: carga de documentos a S3 (URL prefirmada), estados y vencimientos; panel admin para aprobar
+- ☐ `verification`: carga de documentos a S3 (URL prefirmada), estados y vencimientos
+- ☐ **Panel admin** (`/admin`, rol ADMIN): aprobar/suspender aliados y parqueaderos, usuarios y accesos,
+  estadísticas globales (reservas, ingresos, comisión, ocupación), editar `system_settings`
 - ☐ Jobs BullMQ: vencimiento de mensualidades y de documentos (aviso "vence en 20 días")
 
 **Entregable:** los dos lados del marketplace operan.
