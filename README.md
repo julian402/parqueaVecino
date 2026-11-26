@@ -40,6 +40,12 @@ pnpm dev              # web en :3000, api en :3001
 Webhooks de Stripe (modo test): crea `docker/.env` con `STRIPE_SECRET_KEY=sk_test_...` y ejecuta
 `pnpm docker:stripe`.
 
+## AWS
+
+- Región: **`us-east-2` (Ohio)**. La organización de la cuenta bloquea las demás regiones.
+- Configura tu perfil con `aws configure --profile <perfil>` (región `us-east-2`) y úsalo con
+  `AWS_PROFILE=<perfil>` antes de los comandos de CDK. Nunca subas llaves al repo.
+
 ## Scripts
 
 | Comando                                      | Qué hace                                  |
