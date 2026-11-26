@@ -8,6 +8,7 @@ import { AppConfigModule } from './config/app-config.module';
 import { AppConfigService } from './config/app-config.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { HealthModule } from './modules/health/health.module';
+import { GeocodingModule } from './modules/geocoding/geocoding.module';
 import { ParkingLotsModule } from './modules/parking-lots/parking-lots.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { UsersModule } from './modules/users/users.module';
@@ -39,6 +40,7 @@ const REQUEST_ID_HEADER = 'x-request-id';
     AuthModule,
     UsersModule,
     ParkingLotsModule,
+    GeocodingModule,
   ],
   providers: [{ provide: APP_FILTER, useClass: AllExceptionsFilter }],
 })

@@ -64,6 +64,18 @@ const defaultSettings: { [K in SettingKey]: { value: SettingValue<K>; descriptio
     value: 1500,
     description: 'Radio de búsqueda por defecto',
   },
+  'search.defaultCenter': {
+    value: { label: 'Chapinero, Bogotá', latitude: 4.6486, longitude: -74.0631 },
+    description: 'Punto inicial del mapa y sesgo del geocodificador',
+  },
+  'search.priceFiltersMinor': {
+    value: {
+      CAR: [money(150_000), money(200_000), money(250_000)],
+      MOTORCYCLE: [money(80_000), money(100_000), money(120_000)],
+      BICYCLE: [money(30_000), money(40_000), money(50_000)],
+    },
+    description: 'Opciones del filtro "Hasta $X" por tipo de vehículo',
+  },
 };
 
 async function seedSettings() {
@@ -99,18 +111,40 @@ async function upsertUser(data: {
   });
 }
 
-const demoLots = [
+type DemoOffer = {
+  shift: 'DAY' | 'NIGHT' | 'FULL';
+  vehicle?: 'CAR' | 'MOTORCYCLE' | 'BICYCLE';
+  total: number;
+  free: number;
+  price: number;
+};
+type DemoLot = {
+  name: string;
+  address: string;
+  neighborhood: string;
+  latitude: number;
+  longitude: number;
+  description?: string;
+  amenities: ('ROOF' | 'SECURITY_24H' | 'CAMERAS' | 'BIKE_SPOT' | 'EV_CHARGER')[];
+  offers: DemoOffer[];
+};
+
+/** Parqueaderos de demostración con ubicaciones reales de Bogotá (datos ficticios). */
+const demoLots: DemoLot[] = [
   {
     name: 'Parqueadero Calle 63',
     address: 'Cra 13 # 63-21',
     neighborhood: 'Chapinero',
     latitude: 4.6486,
     longitude: -74.0631,
-    amenities: ['ROOF', 'SECURITY_24H', 'CAMERAS', 'BIKE_SPOT'] as const,
+    description: 'Cubierto, a media cuadra de la Caracas. Ingreso con código QR.',
+    amenities: ['ROOF', 'SECURITY_24H', 'CAMERAS', 'BIKE_SPOT'],
     offers: [
       { shift: 'NIGHT', total: 40, free: 5, price: 170_000 },
       { shift: 'DAY', total: 40, free: 2, price: 190_000 },
       { shift: 'FULL', total: 10, free: 1, price: 340_000 },
+      { shift: 'NIGHT', vehicle: 'MOTORCYCLE', total: 15, free: 6, price: 85_000 },
+      { shift: 'DAY', vehicle: 'BICYCLE', total: 20, free: 12, price: 35_000 },
     ],
   },
   {
@@ -119,10 +153,11 @@ const demoLots = [
     neighborhood: 'Chapinero',
     latitude: 4.6425,
     longitude: -74.0655,
-    amenities: ['SECURITY_24H', 'CAMERAS'] as const,
+    amenities: ['SECURITY_24H', 'CAMERAS'],
     offers: [
       { shift: 'NIGHT', total: 25, free: 2, price: 190_000 },
       { shift: 'DAY', total: 25, free: 0, price: 210_000 },
+      { shift: 'FULL', total: 8, free: 2, price: 360_000 },
     ],
   },
   {
@@ -131,10 +166,145 @@ const demoLots = [
     neighborhood: 'Chapinero',
     latitude: 4.6497,
     longitude: -74.0598,
-    amenities: ['ROOF', 'SECURITY_24H'] as const,
-    offers: [{ shift: 'NIGHT', total: 30, free: 7, price: 160_000 }],
+    amenities: ['ROOF', 'SECURITY_24H'],
+    offers: [
+      { shift: 'NIGHT', total: 30, free: 7, price: 160_000 },
+      { shift: 'DAY', total: 30, free: 3, price: 180_000 },
+    ],
   },
-] as const;
+  {
+    name: 'Parqueadero Chapinero Central',
+    address: 'Cra 11 # 60-15',
+    neighborhood: 'Chapinero',
+    latitude: 4.6462,
+    longitude: -74.0641,
+    amenities: ['CAMERAS'],
+    offers: [
+      { shift: 'NIGHT', total: 20, free: 0, price: 175_000 },
+      { shift: 'DAY', total: 20, free: 0, price: 195_000 },
+    ],
+  },
+  {
+    name: 'Parqueadero Zona G',
+    address: 'Calle 69 # 5-40',
+    neighborhood: 'Chapinero Alto',
+    latitude: 4.6556,
+    longitude: -74.0567,
+    description: 'Ideal para quienes trabajan en la Zona G. Valet en horario diurno.',
+    amenities: ['ROOF', 'SECURITY_24H', 'CAMERAS', 'EV_CHARGER'],
+    offers: [
+      { shift: 'DAY', total: 30, free: 6, price: 230_000 },
+      { shift: 'NIGHT', total: 30, free: 9, price: 180_000 },
+      { shift: 'FULL', total: 10, free: 3, price: 390_000 },
+    ],
+  },
+  {
+    name: 'Park Quinta Camacho',
+    address: 'Cra 9 # 70-12',
+    neighborhood: 'Quinta Camacho',
+    latitude: 4.6582,
+    longitude: -74.0591,
+    amenities: ['ROOF', 'CAMERAS', 'BIKE_SPOT'],
+    offers: [
+      { shift: 'DAY', total: 18, free: 4, price: 200_000 },
+      { shift: 'NIGHT', total: 18, free: 10, price: 150_000 },
+      { shift: 'DAY', vehicle: 'MOTORCYCLE', total: 10, free: 3, price: 95_000 },
+      { shift: 'NIGHT', vehicle: 'BICYCLE', total: 15, free: 9, price: 30_000 },
+    ],
+  },
+  {
+    name: 'Parqueadero Marly',
+    address: 'Calle 50 # 13-30',
+    neighborhood: 'Marly',
+    latitude: 4.6371,
+    longitude: -74.0671,
+    amenities: ['SECURITY_24H'],
+    offers: [
+      { shift: 'DAY', total: 35, free: 11, price: 170_000 },
+      { shift: 'NIGHT', total: 35, free: 14, price: 140_000 },
+      { shift: 'NIGHT', vehicle: 'MOTORCYCLE', total: 20, free: 8, price: 75_000 },
+    ],
+  },
+  {
+    name: 'Estacionamiento Javeriana',
+    address: 'Cra 7 # 45-20',
+    neighborhood: 'Chapinero',
+    latitude: 4.6293,
+    longitude: -74.0646,
+    description: 'Frente a la universidad. Muy buscado por estudiantes y docentes de día.',
+    amenities: ['ROOF', 'CAMERAS', 'BIKE_SPOT'],
+    offers: [
+      { shift: 'DAY', total: 50, free: 1, price: 210_000 },
+      { shift: 'NIGHT', total: 50, free: 22, price: 130_000 },
+      { shift: 'DAY', vehicle: 'BICYCLE', total: 40, free: 15, price: 40_000 },
+    ],
+  },
+  {
+    name: 'Parqueadero Galerías',
+    address: 'Calle 53 # 24-10',
+    neighborhood: 'Galerías',
+    latitude: 4.6438,
+    longitude: -74.0762,
+    amenities: ['SECURITY_24H', 'CAMERAS'],
+    offers: [
+      { shift: 'DAY', total: 28, free: 7, price: 160_000 },
+      { shift: 'NIGHT', total: 28, free: 12, price: 135_000 },
+      { shift: 'FULL', total: 6, free: 2, price: 290_000 },
+    ],
+  },
+  {
+    name: 'Estacionamiento Teusaquillo',
+    address: 'Calle 39 # 20-30',
+    neighborhood: 'Teusaquillo',
+    latitude: 4.6281,
+    longitude: -74.0718,
+    amenities: ['ROOF', 'BIKE_SPOT'],
+    offers: [
+      { shift: 'NIGHT', total: 22, free: 5, price: 145_000 },
+      { shift: 'NIGHT', vehicle: 'BICYCLE', total: 25, free: 20, price: 30_000 },
+    ],
+  },
+  {
+    name: 'Parking Zona Rosa',
+    address: 'Calle 82 # 13-15',
+    neighborhood: 'El Retiro',
+    latitude: 4.6667,
+    longitude: -74.0539,
+    amenities: ['ROOF', 'SECURITY_24H', 'CAMERAS', 'EV_CHARGER'],
+    offers: [
+      { shift: 'DAY', total: 60, free: 8, price: 260_000 },
+      { shift: 'NIGHT', total: 60, free: 15, price: 210_000 },
+      { shift: 'FULL', total: 15, free: 4, price: 420_000 },
+    ],
+  },
+  {
+    name: 'Parqueadero Parque 93',
+    address: 'Calle 93 # 13-40',
+    neighborhood: 'Chicó',
+    latitude: 4.6766,
+    longitude: -74.0486,
+    amenities: ['ROOF', 'SECURITY_24H', 'CAMERAS'],
+    offers: [
+      { shift: 'DAY', total: 45, free: 5, price: 280_000 },
+      { shift: 'NIGHT', total: 45, free: 18, price: 220_000 },
+      { shift: 'DAY', vehicle: 'MOTORCYCLE', total: 15, free: 5, price: 110_000 },
+    ],
+  },
+  {
+    name: 'Biciparqueadero Calle 57',
+    address: 'Calle 57 # 9-20',
+    neighborhood: 'Chapinero',
+    latitude: 4.6421,
+    longitude: -74.0619,
+    description: 'Solo bicicletas y patinetas. Con lockers y ducha para ciclistas.',
+    amenities: ['ROOF', 'SECURITY_24H', 'BIKE_SPOT'],
+    offers: [
+      { shift: 'DAY', vehicle: 'BICYCLE', total: 60, free: 25, price: 45_000 },
+      { shift: 'NIGHT', vehicle: 'BICYCLE', total: 60, free: 40, price: 30_000 },
+      { shift: 'FULL', vehicle: 'BICYCLE', total: 20, free: 8, price: 60_000 },
+    ],
+  },
+];
 
 async function seedDemo(password: string) {
   const partner = await upsertUser({
@@ -165,25 +335,27 @@ async function seedDemo(password: string) {
           city: 'Bogotá',
           latitude: lot.latitude,
           longitude: lot.longitude,
-          amenities: [...lot.amenities],
+          description: lot.description,
+          amenities: lot.amenities,
           status: 'ACTIVE',
           verifiedAt: new Date(),
         },
       }));
 
     for (const offer of lot.offers) {
+      const vehicleType = offer.vehicle ?? 'CAR';
       await prisma.offer.upsert({
         where: {
           parkingLotId_shift_vehicleType: {
             parkingLotId: parkingLot.id,
             shift: offer.shift,
-            vehicleType: 'CAR',
+            vehicleType,
           },
         },
         create: {
           parkingLotId: parkingLot.id,
           shift: offer.shift,
-          vehicleType: 'CAR',
+          vehicleType,
           totalSpots: offer.total,
           availableSpots: offer.free,
           monthlyPriceMinor: money(offer.price),

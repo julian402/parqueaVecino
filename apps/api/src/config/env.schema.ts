@@ -54,6 +54,16 @@ export const envSchema = z.object({
   /** true cuando la app se sirve por HTTPS (en AWS va detrás de CloudFront). */
   COOKIE_SECURE: booleanFromString,
 
+  /** Geocodificador (Nominatim de OpenStreetMap por defecto: gratis, sin llave). */
+  GEOCODER_URL: z.url(),
+  /** Nominatim exige identificar la app; no incluir datos personales. */
+  GEOCODER_USER_AGENT: z.string().min(5),
+  GEOCODER_COUNTRY_CODES: z.string().min(2),
+  /** Media caja (en grados) alrededor de search.defaultCenter para priorizar resultados. */
+  GEOCODER_BIAS_DEGREES: z.coerce.number().positive().max(5),
+  GEOCODER_CACHE_TTL_SECONDS: z.coerce.number().int().min(0),
+  GEOCODER_TIMEOUT_MS: z.coerce.number().int().positive(),
+
   // ---- Se vuelven obligatorias cuando se use cada servicio (ver docs/PLAN.md) ----
   // Fase 2: fotos en S3.
   S3_REGION: z.string().min(1).optional(),

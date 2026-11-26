@@ -1,15 +1,35 @@
 import type {
+  Amenity,
   OfferInput,
   ParkingLot,
   ParkingLotInput,
   ParkingLotStatus,
   ParkingLotUpdate,
+  SearchResult,
+  SearchSort,
+  Shift,
+  VehicleType,
 } from '@parqueavecino/contracts';
 
 /** Parqueadero con el dueño, para validar permisos. */
 export type ParkingLotRecord = ParkingLot & { partnerId: string };
 
+/** Criterios ya resueltos (radio por defecto aplicado) para la búsqueda geoespacial. */
+export interface LotSearchCriteria {
+  latitude: number;
+  longitude: number;
+  radiusMeters: number;
+  shift: Shift;
+  vehicleType: VehicleType;
+  maxPriceMinor?: number;
+  amenities: Amenity[];
+  sort: SearchSort;
+  limit: number;
+}
+
 export abstract class ParkingLotsRepository {
+  /** Parqueaderos activos dentro del radio con cupo de esa franja y vehículo (incluye llenos). */
+  abstract search(criteria: LotSearchCriteria): Promise<SearchResult[]>;
   abstract create(
     partnerId: string,
     input: ParkingLotInput,

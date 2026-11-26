@@ -4,15 +4,19 @@ import {
   parkingLotInputSchema,
   parkingLotSchema,
   parkingLotUpdateSchema,
+  searchQuerySchema,
+  searchResponseSchema,
   upsertOffersSchema,
   UserRole,
   type ParkingLot,
   type ParkingLotInput,
   type ParkingLotUpdate,
+  type SearchQuery,
+  type SearchResponse,
   type UpsertOffersInput,
 } from '@parqueavecino/contracts';
 import { z } from 'zod';
-import { ApiZodResponse, UuidParam, ZodBody } from '../../../common/validation/zod';
+import { ApiZodResponse, UuidParam, ZodBody, ZodQuery } from '../../../common/validation/zod';
 import {
   CurrentUser,
   Public,
@@ -20,11 +24,23 @@ import {
   type AuthenticatedUser,
 } from '../../auth/presentation/auth.decorators';
 import { ParkingLotsService } from '../application/parking-lots.service';
+import { ParkingSearchService } from '../application/parking-search.service';
 
 @ApiTags('parking-lots')
 @Controller('parking-lots')
 export class ParkingLotsController {
-  constructor(private readonly lots: ParkingLotsService) {}
+  constructor(
+    private readonly lots: ParkingLotsService,
+    private readonly searchService: ParkingSearchService,
+  ) {}
+
+  /** Declarada antes de `:id` para que "search" no se interprete como un id. */
+  @Public()
+  @Get('search')
+  @ApiZodResponse(searchResponseSchema)
+  search(@ZodQuery(searchQuerySchema) query: SearchQuery): Promise<SearchResponse> {
+    return this.searchService.search(query);
+  }
 
   @Public()
   @Get(':id')

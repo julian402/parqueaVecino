@@ -1,5 +1,6 @@
 import type { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { Client } from 'pg';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { AppModule } from '../../src/app.module';
@@ -20,6 +21,31 @@ const lotInput = {
   longitude: -74.06,
   amenities: ['ROOF'],
 };
+
+/** Acceso directo a la BD de pruebas para lo que hoy solo hace un admin (verificar parqueaderos). */
+async function withDb<T>(run: (db: Client) => Promise<T>): Promise<T> {
+  const db = new Client({ connectionString: process.env.DATABASE_URL });
+  await db.connect();
+  try {
+    return await run(db);
+  } finally {
+    await db.end();
+  }
+}
+
+const idOfLot = (name: string) =>
+  withDb(async (db) => {
+    const { rows } = await db.query<{ id: string }>('SELECT id FROM parking_lots WHERE name = $1', [
+      name,
+    ]);
+    if (!rows[0]) throw new Error(`No existe el parqueadero ${name}`);
+    return rows[0].id;
+  });
+
+const activateLot = (id: string) =>
+  withDb((db) =>
+    db.query("UPDATE parking_lots SET status = 'ACTIVE', verified_at = now() WHERE id = $1", [id]),
+  );
 
 describe('API e2e', () => {
   let app: INestApplication;
@@ -124,6 +150,54 @@ describe('API e2e', () => {
 
       // Aún no verificado: no es visible al público.
       await request(server).get(`${API}/parking-lots/${lot.id}`).expect(404);
+    });
+  });
+
+  describe('búsqueda geoespacial', () => {
+    const near = { lat: 4.6505, lng: -74.0605, shift: 'NIGHT', vehicleType: 'CAR' };
+
+    it('solo muestra parqueaderos activos dentro del radio y aplica filtros', async () => {
+      const lotId = await idOfLot(lotInput.name);
+
+      // Pendiente de verificación: no aparece.
+      const before = await request(server)
+        .get(`${API}/parking-lots/search`)
+        .query(near)
+        .expect(200);
+      expect(before.body).toMatchObject({ totalLots: 0, results: [] });
+
+      await activateLot(lotId);
+
+      const found = await request(server).get(`${API}/parking-lots/search`).query(near).expect(200);
+      expect(found.body).toMatchObject({
+        totalLots: 1,
+        totalAvailableSpots: 4,
+        results: [{ id: lotId, offer: { shift: 'NIGHT', monthlyPriceMinor: 17_000_000 } }],
+      });
+      const [first] = (found.body as { results: { distanceMeters: number }[] }).results;
+      expect(first?.distanceMeters).toBeGreaterThan(0);
+      expect(first?.distanceMeters).toBeLessThan(500);
+
+      // Otra franja, precio máximo menor o radio corto: sin resultados.
+      for (const filter of [
+        { shift: 'DAY' },
+        { maxPriceMinor: 10_000_000 },
+        { radiusMeters: 50 },
+        { amenities: 'CAMERAS' },
+      ]) {
+        const response = await request(server)
+          .get(`${API}/parking-lots/search`)
+          .query({ ...near, ...filter })
+          .expect(200);
+        expect(response.body).toMatchObject({ totalLots: 0 });
+      }
+    });
+
+    it('valida la consulta', async () => {
+      await request(server)
+        .get(`${API}/parking-lots/search`)
+        .query({ ...near, lat: 200 })
+        .expect(400);
     });
   });
 

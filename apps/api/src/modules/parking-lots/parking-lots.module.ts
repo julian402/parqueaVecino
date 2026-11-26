@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { SettingsModule } from '../settings/settings.module';
 import { ParkingLotsService } from './application/parking-lots.service';
+import { ParkingSearchService } from './application/parking-search.service';
 import { ParkingLotsRepository } from './domain/parking-lots.repository';
 import { PrismaParkingLotsRepository } from './infrastructure/prisma-parking-lots.repository';
 import {
@@ -13,6 +14,7 @@ import {
   controllers: [ParkingLotsController, PartnerParkingLotsController],
   providers: [
     ParkingLotsService,
+    ParkingSearchService,
     { provide: ParkingLotsRepository, useClass: PrismaParkingLotsRepository },
   ],
   exports: [ParkingLotsService],
