@@ -1,0 +1,45 @@
+/**
+ * Enums del dominio: fuente única para Prisma, API y web.
+ * Se usan objetos `as const` (no `enum` de TS) para que sirvan también como valores de Zod.
+ */
+const values = <T extends Record<string, string>>(o: T) =>
+  Object.values(o) as [T[keyof T], ...T[keyof T][]];
+
+export const Shift = { DAY: 'DAY', NIGHT: 'NIGHT', FULL: 'FULL' } as const;
+export type Shift = (typeof Shift)[keyof typeof Shift];
+export const SHIFTS = values(Shift);
+
+export const VehicleType = { CAR: 'CAR', MOTORCYCLE: 'MOTORCYCLE', BICYCLE: 'BICYCLE' } as const;
+export type VehicleType = (typeof VehicleType)[keyof typeof VehicleType];
+export const VEHICLE_TYPES = values(VehicleType);
+
+export const UserRole = { DRIVER: 'DRIVER', PARTNER: 'PARTNER', ADMIN: 'ADMIN' } as const;
+export type UserRole = (typeof UserRole)[keyof typeof UserRole];
+export const USER_ROLES = values(UserRole);
+
+export const BookingStatus = {
+  PENDING_PAYMENT: 'PENDING_PAYMENT',
+  ACTIVE: 'ACTIVE',
+  EXPIRED: 'EXPIRED',
+  CANCELLED: 'CANCELLED',
+  REFUNDED: 'REFUNDED',
+} as const;
+export type BookingStatus = (typeof BookingStatus)[keyof typeof BookingStatus];
+export const BOOKING_STATUSES = values(BookingStatus);
+
+export const DocumentType = {
+  LIABILITY_POLICY: 'LIABILITY_POLICY',
+  RUT: 'RUT',
+  E_INVOICING: 'E_INVOICING',
+} as const;
+export type DocumentType = (typeof DocumentType)[keyof typeof DocumentType];
+export const DOCUMENT_TYPES = values(DocumentType);
+
+export const DocumentStatus = {
+  PENDING_REVIEW: 'PENDING_REVIEW',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  EXPIRED: 'EXPIRED',
+} as const;
+export type DocumentStatus = (typeof DocumentStatus)[keyof typeof DocumentStatus];
+export const DOCUMENT_STATUSES = values(DocumentStatus);
