@@ -9,6 +9,7 @@ export const buttonVariants = cva(
       variant: {
         primary: 'bg-ink text-ink-contrast hover:opacity-90',
         secondary: 'bg-surface text-ink hover:bg-fill',
+        accent: 'border-brand bg-brand text-ink hover:bg-brand-strong',
         ghost: 'border-transparent bg-transparent text-ink hover:bg-fill',
       },
       size: {

@@ -40,7 +40,7 @@ export function SearchHero() {
             ))}
           </div>
         </fieldset>
-        <Button size="lg" block>
+        <Button variant="accent" size="lg" block>
           {t('submit')}
         </Button>
       </Card>
