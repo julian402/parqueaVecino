@@ -1,0 +1,11 @@
+@import 'tailwindcss';
+@import '@parqueavecino/ui/styles.css';
+
+/* Tailwind debe escanear las clases usadas en el paquete de UI. */
+@source '../../../../packages/ui/src';
+
+@layer base {
+  body {
+    @apply bg-surface font-sans text-ink antialiased;
+  }
+}

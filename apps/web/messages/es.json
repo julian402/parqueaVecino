@@ -1,0 +1,26 @@
+{
+  "metadata": {
+    "title": "ParqueaVecino",
+    "description": "Tu mensualidad de parqueadero, solo en el horario que la usas."
+  },
+  "nav": {
+    "brand": "ParqueaVecino",
+    "search": "Buscar",
+    "howItWorks": "Cómo funciona",
+    "forPartners": "Para parqueaderos",
+    "signIn": "Ingresar"
+  },
+  "home": {
+    "title": "Tu mensualidad de parqueadero, solo en el horario que la usas",
+    "subtitle": "Paga menos eligiendo la franja de día o de noche en parqueaderos verificados.",
+    "whereLabel": "¿Dónde necesitas parquear?",
+    "wherePlaceholder": "Barrio, dirección o lugar de trabajo",
+    "shiftLabel": "Franja",
+    "vehicleLabel": "Vehículo",
+    "submit": "Buscar cupos"
+  },
+  "enums": {
+    "shift": { "DAY": "Día", "NIGHT": "Noche", "FULL": "24 h" },
+    "vehicleType": { "CAR": "Carro", "MOTORCYCLE": "Moto", "BICYCLE": "Bici" }
+  }
+}
