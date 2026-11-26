@@ -1,7 +1,8 @@
-import { useId, type InputHTMLAttributes } from 'react';
+import { useId, type ComponentProps } from 'react';
 import { cn } from '../lib/cn';
 
-export type InputProps = InputHTMLAttributes<HTMLInputElement> & {
+/** Incluye `ref` (React 19), necesario para react-hook-form. */
+export type InputProps = ComponentProps<'input'> & {
   label?: string;
   error?: string;
 };
