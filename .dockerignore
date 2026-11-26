@@ -1,0 +1,19 @@
+# Solo el código fuente entra al contexto de Docker.
+**/node_modules
+**/dist
+**/.next
+**/.turbo
+**/coverage
+**/cdk.out
+**/*.tsbuildinfo
+**/.env
+**/.env.*
+!**/.env.example
+.git
+.github
+.husky
+.claude
+CLAUDE.md
+docs
+infra
+docker
