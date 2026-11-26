@@ -16,3 +16,6 @@ allowBuilds:
   # Telemetría de swagger-ui: bloqueada.
   '@scarf/scarf': false
   '@parcel/watcher': true
+  argon2: true
+  '@prisma/engines': true
+  prisma: true
