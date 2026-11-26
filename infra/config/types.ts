@@ -63,6 +63,16 @@ export interface EnvironmentConfig {
     seedAdminEmail: string;
   };
 
+  /** Geocodificador (texto → coordenadas). Nominatim es gratis; ver su política de uso. */
+  geocoder: {
+    url: string;
+    userAgent: string;
+    countryCodes: string;
+    biasDegrees: number;
+    cacheTtlSeconds: number;
+    timeoutMs: number;
+  };
+
   /** Repositorio de GitHub autorizado a desplegar por OIDC. */
   github: {
     owner: string;

@@ -55,6 +55,15 @@ export const prod: EnvironmentConfig = {
     seedAdminEmail: 'admin@parqueavecino.local',
   },
 
+  geocoder: {
+    url: 'https://nominatim.openstreetmap.org/',
+    userAgent: 'ParqueaVecino/0.1 (proyecto academico)',
+    countryCodes: 'co',
+    biasDegrees: 0.3,
+    cacheTtlSeconds: 86_400,
+    timeoutMs: 5000,
+  },
+
   github: { owner: 'julian402', repo: 'parqueaVecino', deployBranch: 'main' },
 
   monthlyBudgetUsd: 30,

@@ -59,7 +59,7 @@ function httpHealthCheck(url: string, startPeriod: Duration): ecs.HealthCheck {
 export class AppStack extends Stack {
   constructor(scope: Construct, id: string, props: AppStackProps) {
     super(scope, id, props);
-    const { app, appSettings, domain } = props.config;
+    const { app, appSettings, domain, geocoder } = props.config;
     const dbSecret = props.database.secret;
     if (!dbSecret) throw new Error('La base de datos debe tener secreto generado');
 
@@ -163,6 +163,12 @@ export class AppStack extends Stack {
         RUN_SEED_ON_START: String(app.runSeedOnStart),
         SEED_ADMIN_EMAIL: appSettings.seedAdminEmail,
         SEED_DEMO_DATA: String(app.seedDemoData),
+        GEOCODER_URL: geocoder.url,
+        GEOCODER_USER_AGENT: geocoder.userAgent,
+        GEOCODER_COUNTRY_CODES: geocoder.countryCodes,
+        GEOCODER_BIAS_DEGREES: String(geocoder.biasDegrees),
+        GEOCODER_CACHE_TTL_SECONDS: String(geocoder.cacheTtlSeconds),
+        GEOCODER_TIMEOUT_MS: String(geocoder.timeoutMs),
       },
       secrets: {
         DB_HOST: ecs.Secret.fromSecretsManager(dbSecret, 'host'),
