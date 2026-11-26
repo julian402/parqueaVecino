@@ -1,4 +1,5 @@
 # Solo el código fuente entra al contexto de Docker.
+node_modules
 **/node_modules
 **/dist
 **/.next
@@ -8,7 +9,6 @@
 **/*.tsbuildinfo
 **/.env
 **/.env.*
-!**/.env.example
 .git
 .github
 .husky
