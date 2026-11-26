@@ -27,7 +27,7 @@
     "shiftLabel": "Franja",
     "vehicleLabel": "Vehículo",
     "submit": "Buscar cupos",
-    "searchSoon": "La búsqueda con mapa llega en la próxima fase.",
+    "searchSoon": "Mapa gratuito de Bogotá con cupos actualizados por cada parqueadero.",
     "stat": {
       "value": "60%",
       "label": "de los conductores pierde hasta 25 minutos al día buscando dónde parquear.",
@@ -137,11 +137,74 @@
       "CAR": "Carro",
       "MOTORCYCLE": "Moto",
       "BICYCLE": "Bici"
+    },
+    "amenity": {
+      "ROOF": "Techo",
+      "SECURITY_24H": "Vigilancia 24 h",
+      "CAMERAS": "Cámaras",
+      "BIKE_SPOT": "Cupo bici",
+      "EV_CHARGER": "Carga eléctrica"
+    },
+    "shiftPlural": {
+      "DAY": "diurnos",
+      "NIGHT": "nocturnos",
+      "FULL": "de 24 h"
     }
   },
   "footer": {
     "tagline": "Encontrar dónde estacionar no debería ser una carrera contra el tiempo.",
     "rights": "Proyecto académico · Uniempresarial",
     "demo": "Ambiente de pruebas: los pagos son ficticios."
+  },
+  "search": {
+    "placeholder": "Barrio, dirección o lugar de trabajo",
+    "useMyLocation": "Usar mi ubicación",
+    "locating": "Buscando tu ubicación…",
+    "locationDenied": "No pudimos acceder a tu ubicación. Escribe un barrio o dirección.",
+    "noPlaces": "No encontramos ese lugar en Bogotá.",
+    "summary": "{lots, plural, =0 {Sin parqueaderos} one {# parqueadero} other {# parqueaderos}} · {spots, plural, one {# cupo {shift} libre} other {# cupos {shift} libres}}",
+    "sortLabel": "Ordenar por",
+    "sort": {
+      "PRICE": "Precio",
+      "DISTANCE": "Distancia"
+    },
+    "priceUpTo": "Hasta {price}",
+    "anyPrice": "Cualquier precio",
+    "withRoof": "Con techo",
+    "emptyTitle": "No hay cupos con esos filtros",
+    "emptyHint": "Prueba otra franja, quita filtros o busca en otro barrio.",
+    "error": "No pudimos cargar los parqueaderos. Intenta de nuevo.",
+    "free": "{count, plural, one {# libre} other {# libres}}",
+    "full": "Lleno",
+    "perMonth": "/mes",
+    "verified": "Verificado",
+    "loading": "Buscando cupos…",
+    "mapLegend": "Cupos actualizados por cada parqueadero",
+    "viewMap": "Ver mapa",
+    "viewList": "Ver lista",
+    "myLocationLabel": "Mi ubicación",
+    "metaTitle": "Buscar parqueadero · Parquea Vecino"
+  },
+  "lot": {
+    "back": "Volver a resultados",
+    "chooseTitle": "Elige tu mensualidad",
+    "vehicleLabel": "Vehículo",
+    "spotsFree": "{count, plural, =0 {Sin cupos} one {# cupo libre} other {# cupos libres}}",
+    "traditional": "Tradicional",
+    "savings": "Ahorras {amount}/mes vs. 24 h",
+    "reserve": "Reservar y pagar 1er mes",
+    "reserveSoon": "La reserva con pago llega en la próxima fase (Stripe en modo de prueba).",
+    "noOffers": "Este parqueadero no tiene cupos para este vehículo.",
+    "location": "Ubicación",
+    "services": "Servicios",
+    "about": "Sobre el parqueadero",
+    "verifiedTitle": "Verificado por Parquea Vecino",
+    "verifiedDetail": "Póliza de responsabilidad civil, RUT y facturación revisados por nuestro equipo.",
+    "distance": "a {distance} de tu búsqueda",
+    "notFound": "Este parqueadero no existe o ya no está publicado.",
+    "openInMaps": "Cómo llegar",
+    "metaTitle": "Parqueadero · Parquea Vecino",
+    "perMonth": "al mes",
+    "error": "No pudimos cargar este parqueadero. Intenta de nuevo."
   }
 }

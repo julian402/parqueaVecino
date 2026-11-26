@@ -29,3 +29,6 @@ Thumbs.db
 CLAUDE.md
 .claude/
 *.tsbuildinfo
+
+# Worker de MapLibre copiado desde node_modules (scripts/copy-map-worker.mjs)
+apps/web/public/vendor/

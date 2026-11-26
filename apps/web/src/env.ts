@@ -10,6 +10,8 @@ const schema = z.object({
   NEXT_PUBLIC_APP_LOCALE: z.string().min(2),
   NEXT_PUBLIC_APP_TIMEZONE: z.string().min(1),
   NEXT_PUBLIC_APP_CURRENCY: z.string().length(3),
+  /** Estilo del mapa (MapLibre). OpenFreeMap: gratis, sin llave, basado en OpenStreetMap. */
+  NEXT_PUBLIC_MAP_STYLE_URL: z.url(),
 });
 
 const parsed = schema.safeParse({
@@ -17,6 +19,7 @@ const parsed = schema.safeParse({
   NEXT_PUBLIC_APP_LOCALE: process.env.NEXT_PUBLIC_APP_LOCALE,
   NEXT_PUBLIC_APP_TIMEZONE: process.env.NEXT_PUBLIC_APP_TIMEZONE,
   NEXT_PUBLIC_APP_CURRENCY: process.env.NEXT_PUBLIC_APP_CURRENCY,
+  NEXT_PUBLIC_MAP_STYLE_URL: process.env.NEXT_PUBLIC_MAP_STYLE_URL,
 });
 
 if (!parsed.success) {

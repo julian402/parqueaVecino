@@ -1,5 +1,5 @@
-import { Logo } from '@parqueavecino/ui';
 import { getTranslations } from 'next-intl/server';
+import { BrandLogo } from './brand-logo';
 
 export async function SiteFooter() {
   const t = await getTranslations();
@@ -7,7 +7,7 @@ export async function SiteFooter() {
     <footer className="bg-ink text-ink-contrast">
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 md:flex-row md:items-center md:justify-between md:px-7">
         <div className="flex flex-col gap-3">
-          <Logo name={t('nav.brand')} variant="dark" showVehicles />
+          <BrandLogo alt={t('nav.brand')} className="h-16" />
           <p className="max-w-sm text-sm text-soft">{t('footer.tagline')}</p>
         </div>
         <div className="flex flex-col gap-1 text-sm text-soft md:items-end">

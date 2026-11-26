@@ -21,7 +21,9 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
-  ParkingLotsGet200
+  ParkingLotsGet200,
+  ParkingLotsSearch200,
+  ParkingLotsSearchParams
 } from '../model';
 
 import { http } from '../../http';
@@ -45,6 +47,114 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getParkingLotsSearchUrl = (params: ParkingLotsSearchParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    const explodeParameters = ["amenities"];
+
+    if (Array.isArray(value) && explodeParameters.includes(key)) {
+      value.forEach((v) => {
+        normalizedParams.append(key, v === null ? 'null' : String(v));
+      });
+      return;
+    }
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/parking-lots/search?${stringifiedParams}` : `/parking-lots/search`
+}
+
+export const parkingLotsSearch = async (params: ParkingLotsSearchParams, options?: Parameters<typeof http>[1]): Promise<ParkingLotsSearch200> => {
+
+  return http<ParkingLotsSearch200>(getParkingLotsSearchUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getParkingLotsSearchQueryKey = (params?: ParkingLotsSearchParams,) => {
+    return [
+    `/parking-lots/search`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getParkingLotsSearchQueryOptions = <TData = Awaited<ReturnType<typeof parkingLotsSearch>>, TError = unknown>(params: ParkingLotsSearchParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof parkingLotsSearch>>, TError, TData>>, request?: SecondParameter<typeof http>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getParkingLotsSearchQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof parkingLotsSearch>>> = ({ signal }) => parkingLotsSearch(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof parkingLotsSearch>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ParkingLotsSearchQueryResult = NonNullable<Awaited<ReturnType<typeof parkingLotsSearch>>>
+export type ParkingLotsSearchQueryError = unknown
+
+
+export function useParkingLotsSearch<TData = Awaited<ReturnType<typeof parkingLotsSearch>>, TError = unknown>(
+ params: ParkingLotsSearchParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof parkingLotsSearch>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof parkingLotsSearch>>,
+          TError,
+          Awaited<ReturnType<typeof parkingLotsSearch>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useParkingLotsSearch<TData = Awaited<ReturnType<typeof parkingLotsSearch>>, TError = unknown>(
+ params: ParkingLotsSearchParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof parkingLotsSearch>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof parkingLotsSearch>>,
+          TError,
+          Awaited<ReturnType<typeof parkingLotsSearch>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useParkingLotsSearch<TData = Awaited<ReturnType<typeof parkingLotsSearch>>, TError = unknown>(
+ params: ParkingLotsSearchParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof parkingLotsSearch>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useParkingLotsSearch<TData = Awaited<ReturnType<typeof parkingLotsSearch>>, TError = unknown>(
+ params: ParkingLotsSearchParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof parkingLotsSearch>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getParkingLotsSearchQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
 
 export const getParkingLotsGetUrl = (id: string,) => {
 

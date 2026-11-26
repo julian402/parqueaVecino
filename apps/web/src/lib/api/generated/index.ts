@@ -1,4 +1,5 @@
 export * from './auth/auth';
+export * from './geocoding/geocoding';
 export * from './health/health';
 export * from './parking-lots/parking-lots';
 export * from './partner/partner';

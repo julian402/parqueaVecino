@@ -8,7 +8,7 @@ import { useTranslations } from 'next-intl';
 import { routes } from '@/lib/routes';
 
 const tabs = [
-  { href: routes.home, label: 'search', Icon: Search },
+  { href: routes.search, label: 'search', Icon: Search },
   { href: routes.myBookings, label: 'myBookings', Icon: CalendarCheck },
   { href: routes.profile, label: 'profile', Icon: UserRound },
 ] as const;

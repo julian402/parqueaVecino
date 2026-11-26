@@ -5,6 +5,8 @@
  * Mensualidades de parqueadero fraccionadas
  * OpenAPI spec version: 1.0
  */
+import type { SettingsGetPublic200SearchDefaultCenter } from './settingsGetPublic200SearchDefaultCenter';
+import type { SettingsGetPublic200SearchPriceFiltersMinor } from './settingsGetPublic200SearchPriceFiltersMinor';
 import type { SettingsGetPublic200ShiftSchedule } from './settingsGetPublic200ShiftSchedule';
 
 export type SettingsGetPublic200 = {
@@ -19,4 +21,6 @@ export type SettingsGetPublic200 = {
      * @exclusiveMinimum 0
      */
   'search.defaultRadiusMeters': number;
+  'search.defaultCenter': SettingsGetPublic200SearchDefaultCenter;
+  'search.priceFiltersMinor': SettingsGetPublic200SearchPriceFiltersMinor;
 };
