@@ -10,11 +10,14 @@ import { settingsSchemas, type SettingKey, type SettingValue } from '@parqueavec
 import { toMinorUnits } from '@parqueavecino/utils';
 import { hash } from 'argon2';
 import { z } from 'zod';
-import { PrismaClient } from '../src/generated/prisma/client';
+import { buildPoolConfig } from './common/database/prisma.service';
+import { PrismaClient } from './generated/prisma/client';
 
 const env = z
   .object({
     DATABASE_URL: z.url(),
+    DATABASE_SSL: z.enum(['disable', 'require', 'verify-full']).default('disable'),
+    DATABASE_SSL_CA_FILE: z.string().optional(),
     APP_CURRENCY: z.string().length(3),
     SEED_ADMIN_EMAIL: z.email(),
     SEED_ADMIN_PASSWORD: z.string().min(8),
@@ -23,7 +26,15 @@ const env = z
   })
   .parse(process.env);
 
-const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: env.DATABASE_URL }) });
+const prisma = new PrismaClient({
+  adapter: new PrismaPg(
+    buildPoolConfig({
+      url: env.DATABASE_URL,
+      sslMode: env.DATABASE_SSL,
+      caFile: env.DATABASE_SSL_CA_FILE,
+    }),
+  ),
+});
 const money = (amount: number) => toMinorUnits(amount, env.APP_CURRENCY);
 
 /** Valores iniciales; luego se editan en la BD sin tocar código. */

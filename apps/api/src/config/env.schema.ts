@@ -33,13 +33,18 @@ export const envSchema = z.object({
   API_PORT: z.coerce.number().int().positive(),
   API_PREFIX: z.string().min(1),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
-  CORS_ORIGINS: commaSeparatedList,
+  /** Solo si otra web (otro origen) consume la API. La web propia usa el mismo origen (/api). */
+  CORS_ORIGINS: commaSeparatedList.optional(),
   SWAGGER_ENABLED: booleanFromString,
   APP_TIMEZONE: z.string().min(1),
   APP_LOCALE: z.string().min(2),
   APP_CURRENCY: z.string().length(3),
 
   DATABASE_URL: z.url(),
+  /** disable (local) | require (cifra sin validar) | verify-full (cifra y valida con la CA). */
+  DATABASE_SSL: z.enum(['disable', 'require', 'verify-full']).default('disable'),
+  /** Certificado de la CA (p. ej. bundle de RDS). Obligatorio con verify-full. */
+  DATABASE_SSL_CA_FILE: z.string().optional(),
   /** Segundos que se cachean los parámetros de negocio (system_settings). */
   SETTINGS_CACHE_TTL_SECONDS: z.coerce.number().int().min(0),
 
@@ -70,8 +75,16 @@ export const envSchema = z.object({
 
 export type Env = z.infer<typeof envSchema>;
 
+const refinedEnvSchema = envSchema.refine(
+  (env) => env.DATABASE_SSL !== 'verify-full' || Boolean(env.DATABASE_SSL_CA_FILE),
+  {
+    message: 'DATABASE_SSL_CA_FILE es obligatorio con verify-full',
+    path: ['DATABASE_SSL_CA_FILE'],
+  },
+);
+
 export function validateEnv(raw: Record<string, unknown>): Env {
-  const result = envSchema.safeParse(raw);
+  const result = refinedEnvSchema.safeParse(raw);
   if (!result.success) {
     const issues = result.error.issues
       .map((issue) => `  - ${issue.path.join('.')}: ${issue.message}`)

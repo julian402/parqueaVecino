@@ -15,7 +15,8 @@ export function configureApp(app: INestApplication): void {
   const config = app.get(AppConfigService);
   app.use(helmet());
   app.use(cookieParser());
-  app.enableCors({ origin: config.get('CORS_ORIGINS'), credentials: true });
+  const corsOrigins = config.get('CORS_ORIGINS');
+  if (corsOrigins?.length) app.enableCors({ origin: corsOrigins, credentials: true });
   app.setGlobalPrefix(config.get('API_PREFIX'), { exclude: UNPREFIXED_ROUTES });
   app.enableShutdownHooks();
 }
