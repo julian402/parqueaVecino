@@ -18,6 +18,17 @@ export const settingsSchemas = {
   'booking.freeCancellationHours': z.number().int().min(0),
   /** Radio de búsqueda por defecto, en metros. */
   'search.defaultRadiusMeters': z.number().int().positive(),
+  /** Punto donde abre el mapa si el usuario no da ubicación (y sesgo del geocodificador). */
+  'search.defaultCenter': z.object({
+    label: z.string().min(2),
+    latitude: z.number().min(-90).max(90),
+    longitude: z.number().min(-180).max(180),
+  }),
+  /** Opciones del filtro "Hasta $X" por tipo de vehículo (unidades menores). */
+  'search.priceFiltersMinor': z.record(
+    z.enum(VehicleType),
+    z.array(z.number().int().positive()).max(6),
+  ),
 } as const;
 
 export type SettingKey = keyof typeof settingsSchemas;
@@ -29,11 +40,15 @@ export const PUBLIC_SETTING_KEYS = [
   'shift.schedule',
   'booking.freeCancellationHours',
   'search.defaultRadiusMeters',
+  'search.defaultCenter',
+  'search.priceFiltersMinor',
 ] as const satisfies readonly SettingKey[];
 
 export const publicSettingsSchema = z.object({
   'shift.schedule': settingsSchemas['shift.schedule'],
   'booking.freeCancellationHours': settingsSchemas['booking.freeCancellationHours'],
   'search.defaultRadiusMeters': settingsSchemas['search.defaultRadiusMeters'],
+  'search.defaultCenter': settingsSchemas['search.defaultCenter'],
+  'search.priceFiltersMinor': settingsSchemas['search.priceFiltersMinor'],
 });
 export type PublicSettings = z.infer<typeof publicSettingsSchema>;

@@ -62,3 +62,8 @@ export const ParkingLotStatus = {
 } as const;
 export type ParkingLotStatus = (typeof ParkingLotStatus)[keyof typeof ParkingLotStatus];
 export const PARKING_LOT_STATUSES = values(ParkingLotStatus);
+
+/** Orden de los resultados de búsqueda. */
+export const SearchSort = { PRICE: 'PRICE', DISTANCE: 'DISTANCE' } as const;
+export type SearchSort = (typeof SearchSort)[keyof typeof SearchSort];
+export const SEARCH_SORTS = values(SearchSort);
