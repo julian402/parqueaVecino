@@ -140,8 +140,16 @@ describe('API e2e', () => {
         .send({ offers: [{ ...offer, monthlyPriceMinor: 17_000_000 }] })
         .expect(200);
       expect(updated.body).toMatchObject({
-        offers: [{ shift: 'NIGHT', monthlyPriceMinor: 17_000_000, currency: 'COP' }],
+        offers: [
+          { shift: 'NIGHT', monthlyPriceMinor: 17_000_000, currency: 'COP', availableSpots: 10 },
+        ],
       });
+
+      // Sin aprobar no se puede pausar ni publicar por cuenta propia.
+      await partnerAgent
+        .patch(`${API}/partner/parking-lots/${lot.id}/status`)
+        .send({ status: 'ACTIVE' })
+        .expect(409);
 
       // Un conductor no puede usar el panel de aliados.
       const driverAgent = request.agent(server);
@@ -171,7 +179,8 @@ describe('API e2e', () => {
       const found = await request(server).get(`${API}/parking-lots/search`).query(near).expect(200);
       expect(found.body).toMatchObject({
         totalLots: 1,
-        totalAvailableSpots: 4,
+        // Sin mensualidades vendidas, los libres son el total publicado.
+        totalAvailableSpots: 10,
         results: [{ id: lotId, offer: { shift: 'NIGHT', monthlyPriceMinor: 17_000_000 } }],
       });
       const [first] = (found.body as { results: { distanceMeters: number }[] }).results;

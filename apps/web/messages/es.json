@@ -622,5 +622,9 @@
     "issuedAt": "Emitido el {date}",
     "legal": "Soporte de la mensualidad para presentar en el parqueadero (Ley 1801 de 2016, art. 90). Pago procesado en ambiente de pruebas: no corresponde a un cobro real.",
     "notAvailable": "Esta mensualidad aún no tiene recibo."
+  },
+  "errors": {
+    "unavailable": "No pudimos conectar con el servidor. Intenta de nuevo en unos segundos.",
+    "unexpected": "Algo salió mal. Intenta de nuevo."
   }
 }

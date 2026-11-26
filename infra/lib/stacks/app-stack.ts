@@ -122,9 +122,11 @@ export class AppStack extends Stack {
     }
 
     // ---------- Tarea ----------
+    // RETAIN: si un despliegue falla y CloudFormation revierte, los logs quedan para diagnosticar.
+    // Expiran solos por la retención configurada (costo mínimo).
     const logGroup = new logs.LogGroup(this, 'Logs', {
       retention: app.logRetentionDays as logs.RetentionDays,
-      removalPolicy: RemovalPolicy.DESTROY,
+      removalPolicy: RemovalPolicy.RETAIN,
     });
 
     const taskDefinition = new ecs.FargateTaskDefinition(this, 'Task', {
