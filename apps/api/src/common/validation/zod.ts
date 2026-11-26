@@ -57,15 +57,22 @@ export function ZodBody(schema: ZodType): ParameterDecorator {
   };
 }
 
-/** `@ZodQuery(schema)`: valida el query string completo con Zod. */
+/**
+ * `@ZodQuery(schema)`: valida el query string completo con Zod.
+ * En OpenAPI declara cada propiedad como un parámetro propio (?lat=..&lng=..), que es lo que
+ * espera el cliente generado.
+ */
 export function ZodQuery(schema: ZodType): ParameterDecorator {
   return (...[target, key, index]: ParamDecoratorTarget) => {
     Query(new ZodValidationPipe(schema))(target, key, index);
-    describeMethod(
-      target,
-      key,
-      ApiQuery({ type: 'object', schema: toOpenApiSchema(schema, 'input') }),
-    );
+    const { properties = {}, required = [] } = toOpenApiSchema(schema, 'input');
+    for (const [name, property] of Object.entries(properties)) {
+      describeMethod(
+        target,
+        key,
+        ApiQuery({ name, required: required.includes(name), schema: property as SchemaObject }),
+      );
+    }
   };
 }
 

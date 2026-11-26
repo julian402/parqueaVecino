@@ -10,7 +10,9 @@
             "description": "La API está arriba"
           }
         },
-        "tags": ["health"]
+        "tags": [
+          "health"
+        ]
       }
     },
     "/settings/public": {
@@ -39,10 +41,17 @@
                             "pattern": "^([01]\\d|2[0-4]):[0-5]\\d$"
                           }
                         },
-                        "required": ["start", "end"],
+                        "required": [
+                          "start",
+                          "end"
+                        ],
                         "additionalProperties": false
                       },
-                      "required": ["DAY", "NIGHT", "FULL"]
+                      "required": [
+                        "DAY",
+                        "NIGHT",
+                        "FULL"
+                      ]
                     },
                     "booking.freeCancellationHours": {
                       "type": "integer",
@@ -54,12 +63,57 @@
                       "minimum": 0,
                       "exclusiveMinimum": true,
                       "maximum": 9007199254740991
+                    },
+                    "search.defaultCenter": {
+                      "type": "object",
+                      "properties": {
+                        "label": {
+                          "type": "string",
+                          "minLength": 2
+                        },
+                        "latitude": {
+                          "type": "number",
+                          "minimum": -90,
+                          "maximum": 90
+                        },
+                        "longitude": {
+                          "type": "number",
+                          "minimum": -180,
+                          "maximum": 180
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "latitude",
+                        "longitude"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "search.priceFiltersMinor": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "maxItems": 6,
+                        "type": "array",
+                        "items": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "exclusiveMinimum": true,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": [
+                        "CAR",
+                        "MOTORCYCLE",
+                        "BICYCLE"
+                      ]
                     }
                   },
                   "required": [
                     "shift.schedule",
                     "booking.freeCancellationHours",
-                    "search.defaultRadiusMeters"
+                    "search.defaultRadiusMeters",
+                    "search.defaultCenter",
+                    "search.priceFiltersMinor"
                   ],
                   "additionalProperties": false
                 }
@@ -67,7 +121,9 @@
             }
           }
         },
-        "tags": ["settings"]
+        "tags": [
+          "settings"
+        ]
       }
     },
     "/auth/register": {
@@ -110,10 +166,18 @@
                   },
                   "role": {
                     "type": "string",
-                    "enum": ["DRIVER", "PARTNER"]
+                    "enum": [
+                      "DRIVER",
+                      "PARTNER"
+                    ]
                   }
                 },
-                "required": ["fullName", "email", "password", "role"]
+                "required": [
+                  "fullName",
+                  "email",
+                  "password",
+                  "role"
+                ]
               }
             }
           }
@@ -145,17 +209,29 @@
                     },
                     "role": {
                       "type": "string",
-                      "enum": ["DRIVER", "PARTNER", "ADMIN"]
+                      "enum": [
+                        "DRIVER",
+                        "PARTNER",
+                        "ADMIN"
+                      ]
                     }
                   },
-                  "required": ["id", "email", "fullName", "phone", "role"],
+                  "required": [
+                    "id",
+                    "email",
+                    "fullName",
+                    "phone",
+                    "role"
+                  ],
                   "additionalProperties": false
                 }
               }
             }
           }
         },
-        "tags": ["auth"]
+        "tags": [
+          "auth"
+        ]
       }
     },
     "/auth/login": {
@@ -177,7 +253,10 @@
                     "minLength": 1
                   }
                 },
-                "required": ["email", "password"]
+                "required": [
+                  "email",
+                  "password"
+                ]
               }
             }
           }
@@ -209,17 +288,29 @@
                     },
                     "role": {
                       "type": "string",
-                      "enum": ["DRIVER", "PARTNER", "ADMIN"]
+                      "enum": [
+                        "DRIVER",
+                        "PARTNER",
+                        "ADMIN"
+                      ]
                     }
                   },
-                  "required": ["id", "email", "fullName", "phone", "role"],
+                  "required": [
+                    "id",
+                    "email",
+                    "fullName",
+                    "phone",
+                    "role"
+                  ],
                   "additionalProperties": false
                 }
               }
             }
           }
         },
-        "tags": ["auth"]
+        "tags": [
+          "auth"
+        ]
       }
     },
     "/auth/refresh": {
@@ -253,17 +344,29 @@
                     },
                     "role": {
                       "type": "string",
-                      "enum": ["DRIVER", "PARTNER", "ADMIN"]
+                      "enum": [
+                        "DRIVER",
+                        "PARTNER",
+                        "ADMIN"
+                      ]
                     }
                   },
-                  "required": ["id", "email", "fullName", "phone", "role"],
+                  "required": [
+                    "id",
+                    "email",
+                    "fullName",
+                    "phone",
+                    "role"
+                  ],
                   "additionalProperties": false
                 }
               }
             }
           }
         },
-        "tags": ["auth"]
+        "tags": [
+          "auth"
+        ]
       }
     },
     "/auth/logout": {
@@ -275,7 +378,9 @@
             "description": ""
           }
         },
-        "tags": ["auth"]
+        "tags": [
+          "auth"
+        ]
       }
     },
     "/auth/me": {
@@ -309,17 +414,29 @@
                     },
                     "role": {
                       "type": "string",
-                      "enum": ["DRIVER", "PARTNER", "ADMIN"]
+                      "enum": [
+                        "DRIVER",
+                        "PARTNER",
+                        "ADMIN"
+                      ]
                     }
                   },
-                  "required": ["id", "email", "fullName", "phone", "role"],
+                  "required": [
+                    "id",
+                    "email",
+                    "fullName",
+                    "phone",
+                    "role"
+                  ],
                   "additionalProperties": false
                 }
               }
             }
           }
         },
-        "tags": ["auth"]
+        "tags": [
+          "auth"
+        ]
       }
     },
     "/me/vehicles": {
@@ -346,14 +463,23 @@
                       },
                       "type": {
                         "type": "string",
-                        "enum": ["CAR", "MOTORCYCLE", "BICYCLE"]
+                        "enum": [
+                          "CAR",
+                          "MOTORCYCLE",
+                          "BICYCLE"
+                        ]
                       },
                       "nickname": {
                         "nullable": true,
                         "type": "string"
                       }
                     },
-                    "required": ["id", "plate", "type", "nickname"],
+                    "required": [
+                      "id",
+                      "plate",
+                      "type",
+                      "nickname"
+                    ],
                     "additionalProperties": false
                   }
                 }
@@ -361,7 +487,9 @@
             }
           }
         },
-        "tags": ["vehicles"]
+        "tags": [
+          "vehicles"
+        ]
       },
       "post": {
         "operationId": "vehiclesCreate",
@@ -378,14 +506,21 @@
                   },
                   "type": {
                     "type": "string",
-                    "enum": ["CAR", "MOTORCYCLE", "BICYCLE"]
+                    "enum": [
+                      "CAR",
+                      "MOTORCYCLE",
+                      "BICYCLE"
+                    ]
                   },
                   "nickname": {
                     "type": "string",
                     "maxLength": 40
                   }
                 },
-                "required": ["plate", "type"]
+                "required": [
+                  "plate",
+                  "type"
+                ]
               }
             }
           }
@@ -408,21 +543,32 @@
                     },
                     "type": {
                       "type": "string",
-                      "enum": ["CAR", "MOTORCYCLE", "BICYCLE"]
+                      "enum": [
+                        "CAR",
+                        "MOTORCYCLE",
+                        "BICYCLE"
+                      ]
                     },
                     "nickname": {
                       "nullable": true,
                       "type": "string"
                     }
                   },
-                  "required": ["id", "plate", "type", "nickname"],
+                  "required": [
+                    "id",
+                    "plate",
+                    "type",
+                    "nickname"
+                  ],
                   "additionalProperties": false
                 }
               }
             }
           }
         },
-        "tags": ["vehicles"]
+        "tags": [
+          "vehicles"
+        ]
       }
     },
     "/me/vehicles/{id}": {
@@ -443,7 +589,267 @@
             "description": ""
           }
         },
-        "tags": ["vehicles"]
+        "tags": [
+          "vehicles"
+        ]
+      }
+    },
+    "/parking-lots/search": {
+      "get": {
+        "operationId": "parkingLotsSearch",
+        "parameters": [
+          {
+            "name": "lat",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "minimum": -90,
+              "maximum": 90
+            }
+          },
+          {
+            "name": "lng",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "minimum": -180,
+              "maximum": 180
+            }
+          },
+          {
+            "name": "radiusMeters",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "maximum": 50000
+            }
+          },
+          {
+            "name": "shift",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "DAY",
+                "NIGHT",
+                "FULL"
+              ]
+            }
+          },
+          {
+            "name": "vehicleType",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "CAR",
+                "MOTORCYCLE",
+                "BICYCLE"
+              ]
+            }
+          },
+          {
+            "name": "maxPriceMinor",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "maximum": 9007199254740991
+            }
+          },
+          {
+            "name": "amenities",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "ROOF",
+                  "SECURITY_24H",
+                  "CAMERAS",
+                  "BIKE_SPOT",
+                  "EV_CHARGER"
+                ]
+              }
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "PRICE",
+              "type": "string",
+              "enum": [
+                "PRICE",
+                "DISTANCE"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "address": {
+                            "type": "string"
+                          },
+                          "neighborhood": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "latitude": {
+                            "type": "number"
+                          },
+                          "longitude": {
+                            "type": "number"
+                          },
+                          "verified": {
+                            "type": "boolean"
+                          },
+                          "amenities": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "ROOF",
+                                "SECURITY_24H",
+                                "CAMERAS",
+                                "BIKE_SPOT",
+                                "EV_CHARGER"
+                              ]
+                            }
+                          },
+                          "distanceMeters": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "offer": {
+                            "type": "object",
+                            "properties": {
+                              "shift": {
+                                "type": "string",
+                                "enum": [
+                                  "DAY",
+                                  "NIGHT",
+                                  "FULL"
+                                ]
+                              },
+                              "vehicleType": {
+                                "type": "string",
+                                "enum": [
+                                  "CAR",
+                                  "MOTORCYCLE",
+                                  "BICYCLE"
+                                ]
+                              },
+                              "availableSpots": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              "totalSpots": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              "monthlyPriceMinor": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              "currency": {
+                                "type": "string",
+                                "minLength": 3,
+                                "maxLength": 3
+                              }
+                            },
+                            "required": [
+                              "shift",
+                              "vehicleType",
+                              "availableSpots",
+                              "totalSpots",
+                              "monthlyPriceMinor",
+                              "currency"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "address",
+                          "neighborhood",
+                          "latitude",
+                          "longitude",
+                          "verified",
+                          "amenities",
+                          "distanceMeters",
+                          "offer"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "totalLots": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "totalAvailableSpots": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "radiusMeters": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "results",
+                    "totalLots",
+                    "totalAvailableSpots",
+                    "radiusMeters"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "parking-lots"
+        ]
       }
     },
     "/parking-lots/{id}": {
@@ -499,12 +905,23 @@
                       "type": "array",
                       "items": {
                         "type": "string",
-                        "enum": ["ROOF", "SECURITY_24H", "CAMERAS", "BIKE_SPOT", "EV_CHARGER"]
+                        "enum": [
+                          "ROOF",
+                          "SECURITY_24H",
+                          "CAMERAS",
+                          "BIKE_SPOT",
+                          "EV_CHARGER"
+                        ]
                       }
                     },
                     "status": {
                       "type": "string",
-                      "enum": ["DRAFT", "PENDING_VERIFICATION", "ACTIVE", "SUSPENDED"]
+                      "enum": [
+                        "DRAFT",
+                        "PENDING_VERIFICATION",
+                        "ACTIVE",
+                        "SUSPENDED"
+                      ]
                     },
                     "verified": {
                       "type": "boolean"
@@ -521,11 +938,19 @@
                           },
                           "shift": {
                             "type": "string",
-                            "enum": ["DAY", "NIGHT", "FULL"]
+                            "enum": [
+                              "DAY",
+                              "NIGHT",
+                              "FULL"
+                            ]
                           },
                           "vehicleType": {
                             "type": "string",
-                            "enum": ["CAR", "MOTORCYCLE", "BICYCLE"]
+                            "enum": [
+                              "CAR",
+                              "MOTORCYCLE",
+                              "BICYCLE"
+                            ]
                           },
                           "totalSpots": {
                             "type": "integer",
@@ -585,7 +1010,9 @@
             }
           }
         },
-        "tags": ["parking-lots"]
+        "tags": [
+          "parking-lots"
+        ]
       }
     },
     "/partner/parking-lots": {
@@ -634,12 +1061,23 @@
                         "type": "array",
                         "items": {
                           "type": "string",
-                          "enum": ["ROOF", "SECURITY_24H", "CAMERAS", "BIKE_SPOT", "EV_CHARGER"]
+                          "enum": [
+                            "ROOF",
+                            "SECURITY_24H",
+                            "CAMERAS",
+                            "BIKE_SPOT",
+                            "EV_CHARGER"
+                          ]
                         }
                       },
                       "status": {
                         "type": "string",
-                        "enum": ["DRAFT", "PENDING_VERIFICATION", "ACTIVE", "SUSPENDED"]
+                        "enum": [
+                          "DRAFT",
+                          "PENDING_VERIFICATION",
+                          "ACTIVE",
+                          "SUSPENDED"
+                        ]
                       },
                       "verified": {
                         "type": "boolean"
@@ -656,11 +1094,19 @@
                             },
                             "shift": {
                               "type": "string",
-                              "enum": ["DAY", "NIGHT", "FULL"]
+                              "enum": [
+                                "DAY",
+                                "NIGHT",
+                                "FULL"
+                              ]
                             },
                             "vehicleType": {
                               "type": "string",
-                              "enum": ["CAR", "MOTORCYCLE", "BICYCLE"]
+                              "enum": [
+                                "CAR",
+                                "MOTORCYCLE",
+                                "BICYCLE"
+                              ]
                             },
                             "totalSpots": {
                               "type": "integer",
@@ -721,7 +1167,9 @@
             }
           }
         },
-        "tags": ["partner"]
+        "tags": [
+          "partner"
+        ]
       },
       "post": {
         "operationId": "partnerParkingLotsCreate",
@@ -771,11 +1219,23 @@
                     "type": "array",
                     "items": {
                       "type": "string",
-                      "enum": ["ROOF", "SECURITY_24H", "CAMERAS", "BIKE_SPOT", "EV_CHARGER"]
+                      "enum": [
+                        "ROOF",
+                        "SECURITY_24H",
+                        "CAMERAS",
+                        "BIKE_SPOT",
+                        "EV_CHARGER"
+                      ]
                     }
                   }
                 },
-                "required": ["name", "address", "city", "latitude", "longitude"]
+                "required": [
+                  "name",
+                  "address",
+                  "city",
+                  "latitude",
+                  "longitude"
+                ]
               }
             }
           }
@@ -820,12 +1280,23 @@
                       "type": "array",
                       "items": {
                         "type": "string",
-                        "enum": ["ROOF", "SECURITY_24H", "CAMERAS", "BIKE_SPOT", "EV_CHARGER"]
+                        "enum": [
+                          "ROOF",
+                          "SECURITY_24H",
+                          "CAMERAS",
+                          "BIKE_SPOT",
+                          "EV_CHARGER"
+                        ]
                       }
                     },
                     "status": {
                       "type": "string",
-                      "enum": ["DRAFT", "PENDING_VERIFICATION", "ACTIVE", "SUSPENDED"]
+                      "enum": [
+                        "DRAFT",
+                        "PENDING_VERIFICATION",
+                        "ACTIVE",
+                        "SUSPENDED"
+                      ]
                     },
                     "verified": {
                       "type": "boolean"
@@ -842,11 +1313,19 @@
                           },
                           "shift": {
                             "type": "string",
-                            "enum": ["DAY", "NIGHT", "FULL"]
+                            "enum": [
+                              "DAY",
+                              "NIGHT",
+                              "FULL"
+                            ]
                           },
                           "vehicleType": {
                             "type": "string",
-                            "enum": ["CAR", "MOTORCYCLE", "BICYCLE"]
+                            "enum": [
+                              "CAR",
+                              "MOTORCYCLE",
+                              "BICYCLE"
+                            ]
                           },
                           "totalSpots": {
                             "type": "integer",
@@ -906,7 +1385,9 @@
             }
           }
         },
-        "tags": ["partner"]
+        "tags": [
+          "partner"
+        ]
       }
     },
     "/partner/parking-lots/{id}": {
@@ -967,7 +1448,13 @@
                     "type": "array",
                     "items": {
                       "type": "string",
-                      "enum": ["ROOF", "SECURITY_24H", "CAMERAS", "BIKE_SPOT", "EV_CHARGER"]
+                      "enum": [
+                        "ROOF",
+                        "SECURITY_24H",
+                        "CAMERAS",
+                        "BIKE_SPOT",
+                        "EV_CHARGER"
+                      ]
                     }
                   }
                 }
@@ -1015,12 +1502,23 @@
                       "type": "array",
                       "items": {
                         "type": "string",
-                        "enum": ["ROOF", "SECURITY_24H", "CAMERAS", "BIKE_SPOT", "EV_CHARGER"]
+                        "enum": [
+                          "ROOF",
+                          "SECURITY_24H",
+                          "CAMERAS",
+                          "BIKE_SPOT",
+                          "EV_CHARGER"
+                        ]
                       }
                     },
                     "status": {
                       "type": "string",
-                      "enum": ["DRAFT", "PENDING_VERIFICATION", "ACTIVE", "SUSPENDED"]
+                      "enum": [
+                        "DRAFT",
+                        "PENDING_VERIFICATION",
+                        "ACTIVE",
+                        "SUSPENDED"
+                      ]
                     },
                     "verified": {
                       "type": "boolean"
@@ -1037,11 +1535,19 @@
                           },
                           "shift": {
                             "type": "string",
-                            "enum": ["DAY", "NIGHT", "FULL"]
+                            "enum": [
+                              "DAY",
+                              "NIGHT",
+                              "FULL"
+                            ]
                           },
                           "vehicleType": {
                             "type": "string",
-                            "enum": ["CAR", "MOTORCYCLE", "BICYCLE"]
+                            "enum": [
+                              "CAR",
+                              "MOTORCYCLE",
+                              "BICYCLE"
+                            ]
                           },
                           "totalSpots": {
                             "type": "integer",
@@ -1101,7 +1607,9 @@
             }
           }
         },
-        "tags": ["partner"]
+        "tags": [
+          "partner"
+        ]
       }
     },
     "/partner/parking-lots/{id}/offers": {
@@ -1133,11 +1641,19 @@
                       "properties": {
                         "shift": {
                           "type": "string",
-                          "enum": ["DAY", "NIGHT", "FULL"]
+                          "enum": [
+                            "DAY",
+                            "NIGHT",
+                            "FULL"
+                          ]
                         },
                         "vehicleType": {
                           "type": "string",
-                          "enum": ["CAR", "MOTORCYCLE", "BICYCLE"]
+                          "enum": [
+                            "CAR",
+                            "MOTORCYCLE",
+                            "BICYCLE"
+                          ]
                         },
                         "totalSpots": {
                           "type": "integer",
@@ -1170,7 +1686,9 @@
                     }
                   }
                 },
-                "required": ["offers"]
+                "required": [
+                  "offers"
+                ]
               }
             }
           }
@@ -1215,12 +1733,23 @@
                       "type": "array",
                       "items": {
                         "type": "string",
-                        "enum": ["ROOF", "SECURITY_24H", "CAMERAS", "BIKE_SPOT", "EV_CHARGER"]
+                        "enum": [
+                          "ROOF",
+                          "SECURITY_24H",
+                          "CAMERAS",
+                          "BIKE_SPOT",
+                          "EV_CHARGER"
+                        ]
                       }
                     },
                     "status": {
                       "type": "string",
-                      "enum": ["DRAFT", "PENDING_VERIFICATION", "ACTIVE", "SUSPENDED"]
+                      "enum": [
+                        "DRAFT",
+                        "PENDING_VERIFICATION",
+                        "ACTIVE",
+                        "SUSPENDED"
+                      ]
                     },
                     "verified": {
                       "type": "boolean"
@@ -1237,11 +1766,19 @@
                           },
                           "shift": {
                             "type": "string",
-                            "enum": ["DAY", "NIGHT", "FULL"]
+                            "enum": [
+                              "DAY",
+                              "NIGHT",
+                              "FULL"
+                            ]
                           },
                           "vehicleType": {
                             "type": "string",
-                            "enum": ["CAR", "MOTORCYCLE", "BICYCLE"]
+                            "enum": [
+                              "CAR",
+                              "MOTORCYCLE",
+                              "BICYCLE"
+                            ]
                           },
                           "totalSpots": {
                             "type": "integer",
@@ -1301,7 +1838,61 @@
             }
           }
         },
-        "tags": ["partner"]
+        "tags": [
+          "partner"
+        ]
+      }
+    },
+    "/geocoding": {
+      "get": {
+        "operationId": "geocodingSearch",
+        "parameters": [
+          {
+            "name": "q",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 120
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "label": {
+                        "type": "string"
+                      },
+                      "latitude": {
+                        "type": "number"
+                      },
+                      "longitude": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "label",
+                      "latitude",
+                      "longitude"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "geocoding"
+        ]
       }
     }
   },
