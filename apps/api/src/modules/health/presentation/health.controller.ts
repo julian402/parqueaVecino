@@ -1,5 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { Public } from '../../auth/presentation/auth.decorators';
 
 export interface HealthResponse {
   status: 'ok';
@@ -9,6 +10,7 @@ export interface HealthResponse {
 
 /** Usado por el health check del balanceador (ALB) en AWS. */
 @ApiTags('health')
+@Public()
 @Controller('health')
 export class HealthController {
   @Get()

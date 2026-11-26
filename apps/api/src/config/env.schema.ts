@@ -1,4 +1,16 @@
+import { parseDurationToSeconds } from '@parqueavecino/utils';
 import { z } from 'zod';
+
+const duration = z.string().refine(
+  (value) => {
+    try {
+      return parseDurationToSeconds(value) > 0;
+    } catch {
+      return false;
+    }
+  },
+  { message: 'Duración inválida (usa por ejemplo 15m, 12h, 7d)' },
+);
 
 const booleanFromString = z.enum(['true', 'false']).transform((value) => value === 'true');
 
@@ -28,25 +40,30 @@ export const envSchema = z.object({
   APP_CURRENCY: z.string().length(3),
 
   DATABASE_URL: z.url(),
-  REDIS_URL: z.url(),
-
-  S3_REGION: z.string().min(1),
-  S3_ENDPOINT: z.url().optional(),
-  S3_FORCE_PATH_STYLE: booleanFromString.default(false),
-  S3_BUCKET_UPLOADS: z.string().min(3),
-  S3_ACCESS_KEY_ID: z.string().optional(),
-  S3_SECRET_ACCESS_KEY: z.string().optional(),
-
-  SMTP_HOST: z.string().min(1),
-  SMTP_PORT: z.coerce.number().int().positive(),
-  MAIL_FROM: z.string().min(3),
+  /** Segundos que se cachean los parámetros de negocio (system_settings). */
+  SETTINGS_CACHE_TTL_SECONDS: z.coerce.number().int().min(0),
 
   JWT_ACCESS_SECRET: z.string().min(32),
-  JWT_ACCESS_TTL: z.string().min(2),
-  JWT_REFRESH_SECRET: z.string().min(32),
-  JWT_REFRESH_TTL: z.string().min(2),
+  JWT_ACCESS_TTL: duration,
+  JWT_REFRESH_TTL: duration,
+  /** true cuando la app se sirve por HTTPS (en AWS va detrás de CloudFront). */
+  COOKIE_SECURE: booleanFromString,
 
-  // Opcionales hasta la Fase 3 (pagos).
+  // ---- Se vuelven obligatorias cuando se use cada servicio (ver docs/PLAN.md) ----
+  // Fase 2: fotos en S3.
+  S3_REGION: z.string().min(1).optional(),
+  S3_ENDPOINT: z.url().optional(),
+  S3_FORCE_PATH_STYLE: booleanFromString.default(false),
+  S3_BUCKET_UPLOADS: z.string().min(3).optional(),
+  S3_ACCESS_KEY_ID: z.string().optional(),
+  S3_SECRET_ACCESS_KEY: z.string().optional(),
+  // Fase 3: correos.
+  SMTP_HOST: z.string().min(1).optional(),
+  SMTP_PORT: z.coerce.number().int().positive().optional(),
+  MAIL_FROM: z.string().min(3).optional(),
+  // Fase 5: tiempo real y colas.
+  REDIS_URL: z.url().optional(),
+  // Fase 3: pagos.
   STRIPE_SECRET_KEY: z.string().startsWith('sk_test_').optional().or(z.literal('')),
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
 });
