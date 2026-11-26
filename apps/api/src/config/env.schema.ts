@@ -91,6 +91,17 @@ export const envSchema = z.object({
     .transform((value) => (value && value !== 'disabled' ? value : undefined)),
   /** Cada cuánto se liberan cupos de reservas sin pagar y se vencen mensualidades (0 = nunca). */
   BOOKINGS_SWEEP_INTERVAL_SECONDS: z.coerce.number().int().min(0).default(60),
+
+  // ---------- Límite de intentos (login, registro, refresh) ----------
+  /** Ventana del límite, en segundos. */
+  AUTH_RATE_LIMIT_WINDOW_SECONDS: z.coerce.number().int().positive().default(60),
+  /** Peticiones de autenticación permitidas por IP dentro de la ventana. */
+  AUTH_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(10),
+  /**
+   * Proxies delante de la API (Caddy en AWS = 1). Con 0 se usa la IP de la conexión; sin
+   * esto, detrás de un proxy todos los clientes compartirían la IP del proxy y su límite.
+   */
+  TRUST_PROXY_HOPS: z.coerce.number().int().min(0).default(0),
 });
 
 export type Env = z.infer<typeof envSchema>;

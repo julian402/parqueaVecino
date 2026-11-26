@@ -12,7 +12,8 @@ export default defineConfig({
     environment: 'node',
     include: ['test/e2e/**/*.e2e.ts'],
     globalSetup: ['test/e2e/global-setup.ts'],
-    env: { DATABASE_URL: testDatabaseUrl, LOG_LEVEL: 'error' },
+    // Las pruebas hacen muchos logins seguidos: el límite de intentos se prueba aparte.
+    env: { DATABASE_URL: testDatabaseUrl, LOG_LEVEL: 'error', AUTH_RATE_LIMIT_MAX: '1000' },
     fileParallelism: false,
     testTimeout: 20_000,
     hookTimeout: 60_000,

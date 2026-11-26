@@ -19,3 +19,8 @@ allowBuilds:
   argon2: true
   '@prisma/engines': true
   prisma: true
+
+# Parches de seguridad en dependencias transitivas (`pnpm audit`).
+overrides:
+  # GHSA-7589-6fvf-x4pw (ReDoS), llega por prisma > @prisma/config.
+  effect: '^3.22.1'

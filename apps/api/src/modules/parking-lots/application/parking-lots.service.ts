@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   ConflictException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -191,7 +190,8 @@ export class ParkingLotsService {
   private async getOwned(partnerId: string, id: string): Promise<ParkingLotRecord> {
     const lot = await this.repository.findById(id);
     if (!lot) throw new NotFoundException(NOT_FOUND);
-    if (lot.partnerId !== partnerId) throw new ForbiddenException('Este parqueadero no es tuyo');
+    // 404 (no 403): no se revela que existe un parqueadero de otro aliado.
+    if (lot.partnerId !== partnerId) throw new NotFoundException(NOT_FOUND);
     return lot;
   }
 }

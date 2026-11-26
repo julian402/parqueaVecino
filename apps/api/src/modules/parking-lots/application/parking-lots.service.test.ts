@@ -1,9 +1,4 @@
-import {
-  BadRequestException,
-  ConflictException,
-  ForbiddenException,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
 import type { OfferInput } from '@parqueavecino/contracts';
 import { describe, expect, it, vi } from 'vitest';
 import type { AppConfigService } from '../../../config/app-config.service';
@@ -118,7 +113,7 @@ describe('ParkingLotsService', () => {
   it('no deja editar parqueaderos de otro aliado', async () => {
     const { service } = setup();
     await expect(service.upsertOffers('otro', 'lot-1', [offer(1)])).rejects.toThrow(
-      ForbiddenException,
+      NotFoundException,
     );
   });
 

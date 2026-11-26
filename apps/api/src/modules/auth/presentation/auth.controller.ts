@@ -1,4 +1,5 @@
-import { Controller, Get, HttpCode, HttpStatus, Post, Req, Res } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { SkipThrottle, ThrottlerGuard } from '@nestjs/throttler';
 import { ApiNoContentResponse, ApiTags } from '@nestjs/swagger';
 import {
   authUserSchema,
@@ -20,6 +21,8 @@ function readRefreshCookie(request: Request): string | undefined {
 }
 
 @ApiTags('auth')
+// Límite de intentos por IP en todo el controlador (fuerza bruta de contraseñas, registro masivo).
+@UseGuards(ThrottlerGuard)
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -68,6 +71,7 @@ export class AuthController {
   }
 
   @Public()
+  @SkipThrottle()
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiNoContentResponse()

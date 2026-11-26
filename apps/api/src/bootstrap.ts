@@ -1,6 +1,7 @@
 import type { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule, type OpenAPIObject } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
+import type { Express } from 'express';
 import helmet from 'helmet';
 import { AppConfigService } from './config/app-config.service';
 
@@ -13,6 +14,10 @@ const UNPREFIXED_ROUTES = ['health'];
  */
 export function configureApp(app: INestApplication): void {
   const config = app.get(AppConfigService);
+  const proxyHops = config.get('TRUST_PROXY_HOPS');
+  if (proxyHops > 0) {
+    (app.getHttpAdapter().getInstance() as Express).set('trust proxy', proxyHops);
+  }
   app.use(helmet());
   app.use(cookieParser());
   const corsOrigins = config.get('CORS_ORIGINS');

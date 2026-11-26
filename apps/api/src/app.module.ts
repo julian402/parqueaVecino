@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { Module } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
+import { seconds, ThrottlerModule } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
 import { DatabaseModule } from './common/database/database.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
@@ -35,6 +36,20 @@ const REQUEST_ID_HEADER = 'x-request-id';
           transport: config.isProduction ? undefined : { target: 'pino-pretty' },
           redact: ['req.headers.authorization', 'req.headers.cookie', 'res.headers["set-cookie"]'],
         },
+      }),
+    }),
+    // Límite de intentos: lo aplica ThrottlerGuard solo donde se declara (rutas de auth).
+    ThrottlerModule.forRootAsync({
+      inject: [AppConfigService],
+      useFactory: (config: AppConfigService) => ({
+        throttlers: [
+          {
+            name: 'auth',
+            ttl: seconds(config.get('AUTH_RATE_LIMIT_WINDOW_SECONDS')),
+            limit: config.get('AUTH_RATE_LIMIT_MAX'),
+          },
+        ],
+        errorMessage: 'Demasiados intentos. Espera un momento y vuelve a intentarlo.',
       }),
     }),
     // Módulos de dominio (uno por carpeta en src/modules):

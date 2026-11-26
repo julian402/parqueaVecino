@@ -159,6 +159,8 @@ export class AppStack extends Stack {
       environment: {
         NODE_ENV: 'production',
         API_PORT: String(app.apiPort),
+        // Caddy está delante de la API en la misma tarea: la IP real llega en X-Forwarded-For.
+        TRUST_PROXY_HOPS: '1',
         API_PREFIX: appSettings.apiPrefix,
         LOG_LEVEL: appSettings.logLevel,
         SWAGGER_ENABLED: String(appSettings.swaggerEnabled),
