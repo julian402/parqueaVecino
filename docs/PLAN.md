@@ -54,25 +54,25 @@ Objetivo: cualquier integrante clona, corre `pnpm i && pnpm dev` y tiene todo ar
 
 ## Fase 3 — Reserva y pago con Stripe (semanas 5–6) · Mockups 4, 5
 
-- ☐ Stripe Connect Express: onboarding del aliado en modo test (panel aliado → "Conectar pagos")
-- ☐ Puerto `PaymentProvider` + adaptador Stripe; idempotencia; firmas de webhook
-- ☐ `bookings`: crear reserva, bloqueo de cupo con TTL en Redis, máquina de estados
-- ☐ Checkout en 3 pasos (Datos → Pago → Listo) con Stripe Payment Element
-- ☐ Comisión vía `application_fee_amount` leída de `settings`; libro de movimientos
-- ☐ Recibo: código de ingreso + QR + PDF (`receipts`) + correo (Mailpit/SES)
-- ☐ Cancelación gratuita hasta N horas antes (N desde `settings`) con reembolso
+- ☐ Stripe Connect Express: onboarding del aliado en modo test (panel aliado → "Conectar pagos") _(hoy el cobro va a la cuenta de la plataforma y la comisión se registra en el libro)_
+- ☑ Puerto `PaymentProvider` + adaptador Stripe; idempotencia; firmas de webhook
+- ◐ `bookings`: crear reserva, bloqueo atómico de cupo, máquina de estados y barrido de reservas sin pagar _(TTL en Redis pendiente; hoy un job en la API)_
+- ☑ Checkout en 3 pasos (Datos → Pago → Listo) con Stripe Payment Element
+- ◐ Comisión leída de `settings` y libro de movimientos (`payments`) _(`application_fee_amount` llega con Connect)_
+- ◐ Recibo con código de ingreso, QR y descarga en PDF (impresión del navegador) ☑ · PDF generado en el servidor y envío por correo ☐
+- ☑ Cancelación gratuita durante N horas (N desde `settings`) con reembolso
 - ☐ Pruebas de integración del webhook con eventos de Stripe CLI
 
 **Entregable:** reserva pagada de punta a punta en sandbox, con comisión visible en Stripe.
 
 ## Fase 4 — Mis mensualidades y panel del aliado (semanas 6–7) · Mockups 6, 7
 
-- ☐ Mis mensualidades: activas/vencidas, barra de vigencia, renovar, ver QR, cancelar, historial de pagos
-- ☐ Panel aliado: KPIs (ocupación día/noche, ingreso extra, reservas nuevas), editar cupos por franja
+- ◐ Panel del conductor (`/mi-cuenta`, barra lateral): resumen, mensualidades activas con vigencia y código, cancelar, historial, perfil y vehículos, renovar ☑
+- ◐ Panel aliado con barra lateral: KPIs (ingreso neto, ocupación, mensualidades), ventas 14 días, editar datos, cupos y precios por franja, pausar ☑
 - ☐ Gráfica de ocupación por hora (últimos 7 días) — `partner-analytics`
 - ☐ `verification`: carga de documentos a S3 (URL prefirmada), estados y vencimientos
-- ☐ **Panel admin** (`/admin`, rol ADMIN): aprobar/suspender aliados y parqueaderos, usuarios y accesos,
-  estadísticas globales (reservas, ingresos, comisión, ocupación), editar `system_settings`
+- ☑ **Panel admin** (`/admin`, rol ADMIN, barra lateral): aprobar/suspender/verificar parqueaderos, CRUD de
+  usuarios (crear, editar rol, suspender, borrar), pagos, estadísticas globales, editar `system_settings`
 - ☐ Jobs BullMQ: vencimiento de mensualidades y de documentos (aviso "vence en 20 días")
 
 **Entregable:** los dos lados del marketplace operan.

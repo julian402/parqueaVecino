@@ -78,9 +78,19 @@ export const envSchema = z.object({
   MAIL_FROM: z.string().min(3).optional(),
   // Fase 5: tiempo real y colas.
   REDIS_URL: z.url().optional(),
-  // Fase 3: pagos.
-  STRIPE_SECRET_KEY: z.string().startsWith('sk_test_').optional().or(z.literal('')),
-  STRIPE_WEBHOOK_SECRET: z.string().optional(),
+  // Fase 3: pagos. Solo llaves de prueba: el proyecto no procesa pagos reales.
+  // Vacío o "disabled" (valor inicial del secreto en AWS) = pagos deshabilitados.
+  STRIPE_SECRET_KEY: z
+    .union([z.string().startsWith('sk_test_'), z.literal(''), z.literal('disabled')])
+    .optional()
+    .transform((value) => (value?.startsWith('sk_test_') ? value : undefined)),
+  /** Firma de los webhooks (whsec_...). En local la imprime `stripe listen`. */
+  STRIPE_WEBHOOK_SECRET: z
+    .string()
+    .optional()
+    .transform((value) => (value && value !== 'disabled' ? value : undefined)),
+  /** Cada cuánto se liberan cupos de reservas sin pagar y se vencen mensualidades (0 = nunca). */
+  BOOKINGS_SWEEP_INTERVAL_SECONDS: z.coerce.number().int().min(0).default(60),
 });
 
 export type Env = z.infer<typeof envSchema>;

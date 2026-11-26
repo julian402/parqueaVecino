@@ -74,8 +74,8 @@ export function SearchPage() {
   };
 
   return (
-    <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)] md:h-[calc(100dvh-4rem)] md:grid-cols-[minmax(0,26rem)_1fr] lg:grid-cols-[minmax(0,30rem)_1fr]">
-      <section className="flex min-h-0 flex-col gap-4 px-4 py-5 md:overflow-y-auto md:pr-5">
+    <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)] md:h-[calc(100dvh-4rem)] md:grid-cols-[minmax(0,26rem)_1fr] lg:grid-cols-[minmax(0,30rem)_1fr]">
+      <section className="flex min-h-0 flex-col gap-4 px-4 py-5 md:overflow-y-auto md:pr-5 md:pl-7">
         <PlaceSearch
           key={state.q ?? center?.label}
           defaultValue={state.q ?? center?.label ?? ''}

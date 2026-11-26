@@ -5,9 +5,7 @@
  * Mensualidades de parqueadero fraccionadas
  * OpenAPI spec version: 1.0
  */
-import {
-  useQuery
-} from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import type {
   DataTag,
   DefinedInitialDataOptions,
@@ -17,19 +15,14 @@ import type {
   QueryKey,
   UndefinedInitialDataOptions,
   UseQueryOptions,
-  UseQueryResult
+  UseQueryResult,
 } from '@tanstack/react-query';
 
-import type {
-  SettingsGetPublic200
-} from '../model';
+import type { SettingsGetPublic200 } from '../model';
 
 import { http } from '../../http';
 
-
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
-
-
 
 const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKey: K } => {
   const result = { queryKey } as T & { queryKey: K };
@@ -47,95 +40,109 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
 };
 
 export const getSettingsGetPublicUrl = () => {
+  return `/settings/public`;
+};
 
-
-
-
-  return `/settings/public`
-}
-
-export const settingsGetPublic = async ( options?: Parameters<typeof http>[1]): Promise<SettingsGetPublic200> => {
-
-  return http<SettingsGetPublic200>(getSettingsGetPublicUrl(),
-  {
+export const settingsGetPublic = async (
+  options?: Parameters<typeof http>[1],
+): Promise<SettingsGetPublic200> => {
+  return http<SettingsGetPublic200>(getSettingsGetPublicUrl(), {
     ...options,
-    method: 'GET'
-
-
-  }
-);}
-
-
-
-
+    method: 'GET',
+  });
+};
 
 export const getSettingsGetPublicQueryKey = () => {
-    return [
-    `/settings/public`
-    ] as const;
-    }
+  return [`/settings/public`] as const;
+};
 
+export const getSettingsGetPublicQueryOptions = <
+  TData = Awaited<ReturnType<typeof settingsGetPublic>>,
+  TError = unknown,
+>(options?: {
+  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof settingsGetPublic>>, TError, TData>>;
+  request?: SecondParameter<typeof http>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
 
-export const getSettingsGetPublicQueryOptions = <TData = Awaited<ReturnType<typeof settingsGetPublic>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof settingsGetPublic>>, TError, TData>>, request?: SecondParameter<typeof http>}
-) => {
+  const queryKey = queryOptions?.queryKey ?? getSettingsGetPublicQueryKey();
 
-const {query: queryOptions, request: requestOptions} = options ?? {};
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof settingsGetPublic>>> = ({ signal }) =>
+    settingsGetPublic({ signal, ...requestOptions });
 
-  const queryKey =  queryOptions?.queryKey ?? getSettingsGetPublicQueryKey();
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof settingsGetPublic>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
 
+export type SettingsGetPublicQueryResult = NonNullable<
+  Awaited<ReturnType<typeof settingsGetPublic>>
+>;
+export type SettingsGetPublicQueryError = unknown;
 
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof settingsGetPublic>>> = ({ signal }) => settingsGetPublic({ signal, ...requestOptions });
-
-
-
-
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof settingsGetPublic>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type SettingsGetPublicQueryResult = NonNullable<Awaited<ReturnType<typeof settingsGetPublic>>>
-export type SettingsGetPublicQueryError = unknown
-
-
-export function useSettingsGetPublic<TData = Awaited<ReturnType<typeof settingsGetPublic>>, TError = unknown>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof settingsGetPublic>>, TError, TData>> & Pick<
+export function useSettingsGetPublic<
+  TData = Awaited<ReturnType<typeof settingsGetPublic>>,
+  TError = unknown,
+>(
+  options: {
+    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof settingsGetPublic>>, TError, TData>> &
+      Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof settingsGetPublic>>,
           TError,
           Awaited<ReturnType<typeof settingsGetPublic>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof http>}
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useSettingsGetPublic<TData = Awaited<ReturnType<typeof settingsGetPublic>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof settingsGetPublic>>, TError, TData>> & Pick<
+        >,
+        'initialData'
+      >;
+    request?: SecondParameter<typeof http>;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useSettingsGetPublic<
+  TData = Awaited<ReturnType<typeof settingsGetPublic>>,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof settingsGetPublic>>, TError, TData>> &
+      Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof settingsGetPublic>>,
           TError,
           Awaited<ReturnType<typeof settingsGetPublic>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof http>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useSettingsGetPublic<TData = Awaited<ReturnType<typeof settingsGetPublic>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof settingsGetPublic>>, TError, TData>>, request?: SecondParameter<typeof http>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useSettingsGetPublic<TData = Awaited<ReturnType<typeof settingsGetPublic>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof settingsGetPublic>>, TError, TData>>, request?: SecondParameter<typeof http>}
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+        >,
+        'initialData'
+      >;
+    request?: SecondParameter<typeof http>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useSettingsGetPublic<
+  TData = Awaited<ReturnType<typeof settingsGetPublic>>,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof settingsGetPublic>>, TError, TData>>;
+    request?: SecondParameter<typeof http>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useSettingsGetPublic<
+  TData = Awaited<ReturnType<typeof settingsGetPublic>>,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof settingsGetPublic>>, TError, TData>>;
+    request?: SecondParameter<typeof http>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getSettingsGetPublicQueryOptions(options);
 
-  const queryOptions = getSettingsGetPublicQueryOptions(options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+  };
 
   return withQueryKey(query, queryOptions.queryKey);
 }
-
-
-
-
-
-

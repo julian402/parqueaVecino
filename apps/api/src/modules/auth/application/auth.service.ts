@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from 'node:crypto';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import type { AuthUser, LoginInput, RegisterInput, UserRole } from '@parqueavecino/contracts';
 import { parseDurationToSeconds } from '@parqueavecino/utils';
@@ -24,6 +24,7 @@ export interface Session {
 
 const INVALID_CREDENTIALS = 'Correo o contraseña incorrectos';
 const INVALID_SESSION = 'La sesión expiró, ingresa de nuevo';
+const ACCOUNT_DISABLED = 'Tu cuenta está suspendida. Escríbenos para reactivarla.';
 
 @Injectable()
 export class AuthService {
@@ -52,6 +53,7 @@ export class AuthService {
     if (!user || !(await this.hasher.verify(user.passwordHash, input.password))) {
       throw new UnauthorizedException(INVALID_CREDENTIALS);
     }
+    if (!user.isActive) throw new ForbiddenException(ACCOUNT_DISABLED);
     return this.startSession(user);
   }
 
@@ -70,7 +72,7 @@ export class AuthService {
     if (stored.expiresAt <= new Date()) throw new UnauthorizedException(INVALID_SESSION);
 
     const user = await this.users.findById(stored.userId);
-    if (!user) throw new UnauthorizedException(INVALID_SESSION);
+    if (!user?.isActive) throw new UnauthorizedException(INVALID_SESSION);
 
     await this.refreshTokens.revoke(stored.id);
     return this.startSession(user);
@@ -86,6 +88,16 @@ export class AuthService {
     const user = await this.users.findById(userId);
     if (!user) throw new UnauthorizedException(INVALID_SESSION);
     return toAuthUser(user);
+  }
+
+  /** Para que el admin cree usuarios o cambie contraseñas con el mismo algoritmo. */
+  hashPassword(plain: string): Promise<string> {
+    return this.hasher.hash(plain);
+  }
+
+  /** Cierra todas las sesiones (al suspender una cuenta o cambiar su contraseña). */
+  revokeSessions(userId: string): Promise<void> {
+    return this.refreshTokens.revokeAllForUser(userId);
   }
 
   verifyAccessToken(token: string): Promise<AccessTokenPayload> {

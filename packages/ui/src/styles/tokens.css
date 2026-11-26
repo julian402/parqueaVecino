@@ -30,5 +30,7 @@
 
   --radius-sm: 6px;
   --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 28px;
   --radius-pill: 9999px;
 }

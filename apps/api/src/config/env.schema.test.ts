@@ -32,4 +32,18 @@ describe('validateEnv', () => {
     expect(env.CORS_ORIGINS).toEqual(['http://a.com', 'http://b.com']);
     expect(env.SWAGGER_ENABLED).toBe(true);
   });
+
+  it('trata "disabled" o vacío como pagos deshabilitados y rechaza llaves live', () => {
+    const disabled = validateEnv({
+      ...example,
+      STRIPE_SECRET_KEY: 'disabled',
+      STRIPE_WEBHOOK_SECRET: 'disabled',
+    });
+    expect(disabled.STRIPE_SECRET_KEY).toBeUndefined();
+    expect(disabled.STRIPE_WEBHOOK_SECRET).toBeUndefined();
+    expect(validateEnv({ ...example, STRIPE_SECRET_KEY: 'sk_test_x' }).STRIPE_SECRET_KEY).toBe(
+      'sk_test_x',
+    );
+    expect(() => validateEnv({ ...example, STRIPE_SECRET_KEY: 'sk_live_x' })).toThrow();
+  });
 });

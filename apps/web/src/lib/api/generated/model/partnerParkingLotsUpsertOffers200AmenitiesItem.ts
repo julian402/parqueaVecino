@@ -6,8 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 
-export type PartnerParkingLotsUpsertOffers200AmenitiesItem = typeof PartnerParkingLotsUpsertOffers200AmenitiesItem[keyof typeof PartnerParkingLotsUpsertOffers200AmenitiesItem];
-
+export type PartnerParkingLotsUpsertOffers200AmenitiesItem =
+  (typeof PartnerParkingLotsUpsertOffers200AmenitiesItem)[keyof typeof PartnerParkingLotsUpsertOffers200AmenitiesItem];
 
 export const PartnerParkingLotsUpsertOffers200AmenitiesItem = {
   ROOF: 'ROOF',

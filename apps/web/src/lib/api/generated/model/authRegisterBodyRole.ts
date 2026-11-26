@@ -6,8 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 
-export type AuthRegisterBodyRole = typeof AuthRegisterBodyRole[keyof typeof AuthRegisterBodyRole];
-
+export type AuthRegisterBodyRole = (typeof AuthRegisterBodyRole)[keyof typeof AuthRegisterBodyRole];
 
 export const AuthRegisterBodyRole = {
   DRIVER: 'DRIVER',

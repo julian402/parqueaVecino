@@ -20,9 +20,9 @@ export type ParkingLotsSearch200ResultsItem = {
   verified: boolean;
   amenities: ParkingLotsSearch200ResultsItemAmenitiesItem[];
   /**
-     * @minimum -9007199254740991
-     * @maximum 9007199254740991
-     */
+   * @minimum -9007199254740991
+   * @maximum 9007199254740991
+   */
   distanceMeters: number;
   offer: ParkingLotsSearch200ResultsItemOffer;
 };

@@ -6,9 +6,11 @@
  * OpenAPI spec version: 1.0
  */
 
-export type SettingsGetPublic200ShiftSchedule = {[key: string]: {
-  /** @pattern ^([01]\d|2[0-4]):[0-5]\d$ */
-  start: string;
-  /** @pattern ^([01]\d|2[0-4]):[0-5]\d$ */
-  end: string;
-}};
+export type SettingsGetPublic200ShiftSchedule = {
+  [key: string]: {
+    /** @pattern ^([01]\d|2[0-4]):[0-5]\d$ */
+    start: string;
+    /** @pattern ^([01]\d|2[0-4]):[0-5]\d$ */
+    end: string;
+  };
+};

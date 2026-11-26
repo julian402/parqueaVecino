@@ -1,7 +1,7 @@
 'use client';
 
 import { VEHICLE_TYPES, type Shift } from '@parqueavecino/contracts';
-import { Badge, Button, Card, ParkingThumbnail, Pill } from '@parqueavecino/ui';
+import { Badge, Card, ParkingThumbnail, Pill } from '@parqueavecino/ui';
 import { distanceBetween } from '@parqueavecino/utils';
 import { ArrowLeft, BadgeCheck, MapPin, Navigation, SearchX } from 'lucide-react';
 import dynamic from 'next/dynamic';
@@ -14,6 +14,7 @@ import { useParkingLotsGet } from '@/lib/api/generated/parking-lots/parking-lots
 import { formatMeters, formatShortPrice } from '@/lib/format';
 import { AMENITY_ICONS, VEHICLE_ICONS } from '@/lib/icons';
 import { routes } from '@/lib/routes';
+import { ReserveForm } from '../../booking/components/reserve-form';
 import { parseSearchState, searchUrl } from '../../search/lib/search-state';
 import { OfferPicker } from './offer-picker';
 
@@ -203,10 +204,7 @@ export function LotDetail({ id }: { id: string }) {
               selected={selectedOffer?.shift ?? null}
               onSelect={setShift}
             />
-            <Button variant="accent" size="lg" block disabled>
-              {t('reserve')}
-            </Button>
-            <p className="text-center text-xs text-muted">{t('reserveSoon')}</p>
+            <ReserveForm offer={selectedOffer} />
           </Card>
         </aside>
       </div>

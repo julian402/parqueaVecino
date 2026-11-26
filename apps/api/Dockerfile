@@ -1,7 +1,9 @@
 # Imagen de la API (NestJS). Contexto de build: raíz del repositorio.
 FROM node:24-slim AS base
 ENV PNPM_HOME=/pnpm PATH=/pnpm:$PATH HUSKY=0 NEXT_TELEMETRY_DISABLED=1
-RUN corepack enable
+# OpenSSL también al compilar: Prisma descarga el motor según la versión que detecta aquí;
+# sin openssl baja el de 1.1.x y en runtime (openssl 3) intenta bajarlo de nuevo sin permisos.
+RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates  && rm -rf /var/lib/apt/lists/* && corepack enable
 WORKDIR /repo
 
 FROM base AS build
@@ -21,7 +23,8 @@ WORKDIR /app
 ADD https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem /app/certs/rds-global-bundle.pem
 COPY --from=build /out .
 COPY apps/api/docker-entrypoint.sh /app/docker-entrypoint.sh
-RUN chmod +x /app/docker-entrypoint.sh && chmod 644 /app/certs/rds-global-bundle.pem
+# `prisma version` hace fallar el build (no el arranque) si el motor de migraciones no quedó en la imagen.
+RUN chmod +x /app/docker-entrypoint.sh && chmod 644 /app/certs/rds-global-bundle.pem  && ./node_modules/.bin/prisma version
 USER node
 EXPOSE 3001
 ENTRYPOINT ["/app/docker-entrypoint.sh"]

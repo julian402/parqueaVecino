@@ -12,14 +12,14 @@ import type { SettingsGetPublic200ShiftSchedule } from './settingsGetPublic200Sh
 export type SettingsGetPublic200 = {
   'shift.schedule': SettingsGetPublic200ShiftSchedule;
   /**
-     * @minimum 0
-     * @maximum 9007199254740991
-     */
+   * @minimum 0
+   * @maximum 9007199254740991
+   */
   'booking.freeCancellationHours': number;
   /**
-     * @maximum 9007199254740991
-     * @exclusiveMinimum 0
-     */
+   * @maximum 9007199254740991
+   * @exclusiveMinimum 0
+   */
   'search.defaultRadiusMeters': number;
   'search.defaultCenter': SettingsGetPublic200SearchDefaultCenter;
   'search.priceFiltersMinor': SettingsGetPublic200SearchPriceFiltersMinor;

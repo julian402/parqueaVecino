@@ -1,6 +1,21 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
-import type { Vehicle, VehicleInput } from '@parqueavecino/contracts';
-import { UsersRepository, VehiclesRepository, type NewUser, type User } from '../domain/user';
+import type {
+  AdminUserListQuery,
+  AdminUserPage,
+  UserRole,
+  Vehicle,
+  VehicleInput,
+} from '@parqueavecino/contracts';
+import {
+  toAdminUser,
+  UsersRepository,
+  VehiclesRepository,
+  type NewUser,
+  type User,
+  type UserChanges,
+} from '../domain/user';
+
+const USER_NOT_FOUND = 'Usuario no encontrado';
 
 @Injectable()
 export class UsersService {
@@ -24,6 +39,35 @@ export class UsersService {
     return this.users.create(user);
   }
 
+  async update(id: string, changes: UserChanges): Promise<User> {
+    await this.getOrThrow(id);
+    return this.users.update(id, changes);
+  }
+
+  async list(query: AdminUserListQuery): Promise<AdminUserPage> {
+    const { items, total } = await this.users.list(query);
+    return { items: items.map(toAdminUser), total, page: query.page, pageSize: query.pageSize };
+  }
+
+  countByRole(): Promise<Record<UserRole, number>> {
+    return this.users.countByRole();
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.getOrThrow(id);
+    if (!(await this.users.deleteIfUnused(id))) {
+      throw new ConflictException(
+        'El usuario tiene parqueaderos o reservas: desactívalo en lugar de borrarlo',
+      );
+    }
+  }
+
+  async getOrThrow(id: string): Promise<User> {
+    const user = await this.users.findById(id);
+    if (!user) throw new NotFoundException(USER_NOT_FOUND);
+    return user;
+  }
+
   listVehicles(userId: string): Promise<Vehicle[]> {
     return this.vehicles.listByUser(userId);
   }
@@ -33,6 +77,13 @@ export class UsersService {
       throw new ConflictException('Ya registraste un vehículo con esa placa');
     }
     return this.vehicles.create(userId, input);
+  }
+
+  /** Registra el vehículo si aún no existe (al reservar con una placa nueva). */
+  async ensureVehicle(userId: string, input: VehicleInput): Promise<Vehicle> {
+    return (
+      (await this.vehicles.findByPlate(userId, input.plate)) ?? this.vehicles.create(userId, input)
+    );
   }
 
   async removeVehicle(userId: string, vehicleId: string): Promise<void> {

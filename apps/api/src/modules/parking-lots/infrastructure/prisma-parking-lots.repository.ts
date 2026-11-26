@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import {
+  PARKING_LOT_STATUSES,
   SearchSort,
+  type AdminParkingLot,
+  type AdminParkingLotListQuery,
   type Amenity,
-  type OfferInput,
   type ParkingLotInput,
   type ParkingLotStatus,
   type ParkingLotUpdate,
@@ -16,6 +18,9 @@ import {
   ParkingLotsRepository,
   type LotSearchCriteria,
   type ParkingLotRecord,
+  type ReservedOffer,
+  type SpotTotals,
+  type OfferWrite,
 } from '../domain/parking-lots.repository';
 
 /** Fila cruda de la consulta geoespacial. */
@@ -45,6 +50,18 @@ const include = {
 } satisfies Prisma.ParkingLotInclude;
 
 type ParkingLotRow = Prisma.ParkingLotGetPayload<{ include: typeof include }>;
+
+const adminInclude = {
+  ...include,
+  partner: { select: { id: true, fullName: true, email: true } },
+} satisfies Prisma.ParkingLotInclude;
+
+type AdminParkingLotRow = Prisma.ParkingLotGetPayload<{ include: typeof adminInclude }>;
+
+function toAdmin(row: AdminParkingLotRow): AdminParkingLot {
+  const { partnerId: _partnerId, ...lot } = toRecord(row);
+  return { ...lot, partner: row.partner, createdAt: row.createdAt.toISOString() };
+}
 
 function toRecord(row: ParkingLotRow): ParkingLotRecord {
   return {
@@ -169,7 +186,7 @@ export class PrismaParkingLotsRepository extends ParkingLotsRepository {
 
   async upsertOffers(
     parkingLotId: string,
-    offers: OfferInput[],
+    offers: OfferWrite[],
     currency: string,
   ): Promise<ParkingLotRecord> {
     await this.prisma.$transaction(
@@ -192,5 +209,121 @@ export class PrismaParkingLotsRepository extends ParkingLotsRepository {
       include,
     });
     return toRecord(row);
+  }
+
+  async listForAdmin({
+    page,
+    pageSize,
+    q,
+    status,
+  }: AdminParkingLotListQuery): Promise<{ items: AdminParkingLot[]; total: number }> {
+    const where: Prisma.ParkingLotWhereInput = {
+      status,
+      ...(q && {
+        OR: [
+          { name: { contains: q, mode: 'insensitive' } },
+          { address: { contains: q, mode: 'insensitive' } },
+          { neighborhood: { contains: q, mode: 'insensitive' } },
+          { partner: { fullName: { contains: q, mode: 'insensitive' } } },
+        ],
+      }),
+    };
+    const [rows, total] = await this.prisma.$transaction([
+      this.prisma.parkingLot.findMany({
+        where,
+        include: adminInclude,
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+      this.prisma.parkingLot.count({ where }),
+    ]);
+    return { items: rows.map(toAdmin), total };
+  }
+
+  async findForAdmin(id: string): Promise<AdminParkingLot | null> {
+    const row = await this.prisma.parkingLot.findUnique({ where: { id }, include: adminInclude });
+    return row ? toAdmin(row) : null;
+  }
+
+  async setStatus(id: string, status: ParkingLotStatus, verifiedAt?: Date | null): Promise<void> {
+    await this.prisma.parkingLot.update({
+      where: { id },
+      data: { status, ...(verifiedAt !== undefined && { verifiedAt }) },
+    });
+  }
+
+  async countByStatus(): Promise<Record<ParkingLotStatus, number>> {
+    const rows = await this.prisma.parkingLot.groupBy({ by: ['status'], _count: { _all: true } });
+    const counts = Object.fromEntries(PARKING_LOT_STATUSES.map((s) => [s, 0])) as Record<
+      ParkingLotStatus,
+      number
+    >;
+    for (const row of rows) counts[row.status] = row._count._all;
+    return counts;
+  }
+
+  async spotTotals(partnerId?: string): Promise<SpotTotals> {
+    const lotWhere: Prisma.ParkingLotWhereInput = partnerId ? { partnerId } : {};
+    const [lots, sums] = await this.prisma.$transaction([
+      this.prisma.parkingLot.count({ where: lotWhere }),
+      this.prisma.offer.aggregate({
+        where: { active: true, parkingLot: lotWhere },
+        _sum: { totalSpots: true, availableSpots: true },
+      }),
+    ]);
+    return {
+      lots,
+      totalSpots: sums._sum.totalSpots ?? 0,
+      availableSpots: sums._sum.availableSpots ?? 0,
+    };
+  }
+
+  async findOffer(offerId: string): Promise<(ReservedOffer & { available: boolean }) | null> {
+    const offer = await this.prisma.offer.findUnique({
+      where: { id: offerId },
+      include: { parkingLot: { select: { status: true } } },
+    });
+    if (!offer) return null;
+    return {
+      offerId: offer.id,
+      parkingLotId: offer.parkingLotId,
+      shift: offer.shift,
+      vehicleType: offer.vehicleType,
+      monthlyPriceMinor: offer.monthlyPriceMinor,
+      currency: offer.currency,
+      available: offer.active && offer.parkingLot.status === 'ACTIVE',
+    };
+  }
+
+  async reserveSpot(offerId: string): Promise<ReservedOffer | null> {
+    // UPDATE condicionado: dos compras simultáneas del último cupo no pueden ganar ambas.
+    const { count } = await this.prisma.offer.updateMany({
+      where: {
+        id: offerId,
+        active: true,
+        availableSpots: { gt: 0 },
+        parkingLot: { status: 'ACTIVE' },
+      },
+      data: { availableSpots: { decrement: 1 } },
+    });
+    if (count === 0) return null;
+    const offer = await this.prisma.offer.findUniqueOrThrow({ where: { id: offerId } });
+    return {
+      offerId: offer.id,
+      parkingLotId: offer.parkingLotId,
+      shift: offer.shift,
+      vehicleType: offer.vehicleType,
+      monthlyPriceMinor: offer.monthlyPriceMinor,
+      currency: offer.currency,
+    };
+  }
+
+  async releaseSpot(offerId: string): Promise<void> {
+    // Nunca supera el total (por si el aliado redujo cupos mientras tanto).
+    await this.prisma.$executeRaw`
+      UPDATE offers SET available_spots = LEAST(available_spots + 1, total_spots)
+      WHERE id = ${offerId}::uuid
+    `;
   }
 }

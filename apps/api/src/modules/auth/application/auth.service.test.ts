@@ -1,4 +1,4 @@
-import { UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { AppConfigService } from '../../../config/app-config.service';
@@ -36,13 +36,17 @@ class FakeRefreshTokens extends RefreshTokenRepository {
   }
 }
 
-function fakeUsers(): UsersService {
-  const users: User[] = [];
+function fakeUsers(users: User[]): UsersService {
   return {
     findById: (id: string) => Promise.resolve(users.find((u) => u.id === id) ?? null),
     findByEmail: (email: string) => Promise.resolve(users.find((u) => u.email === email) ?? null),
     create: (data: NewUser) => {
-      const user = { ...data, id: `user-${users.length + 1}` };
+      const user: User = {
+        ...data,
+        id: `user-${users.length + 1}`,
+        isActive: true,
+        createdAt: new Date(),
+      };
       users.push(user);
       return Promise.resolve(user);
     },
@@ -56,11 +60,13 @@ const config = {
 describe('AuthService', () => {
   let service: AuthService;
   let tokens: FakeRefreshTokens;
+  let users: User[];
 
   beforeEach(() => {
     tokens = new FakeRefreshTokens();
+    users = [];
     service = new AuthService(
-      fakeUsers(),
+      fakeUsers(users),
       new FakeHasher(),
       tokens,
       new JwtService({ secret: 'test-secret-test-secret-test-secret' }),
@@ -101,6 +107,18 @@ describe('AuthService', () => {
     await expect(service.refresh(first.refreshToken)).rejects.toBeInstanceOf(UnauthorizedException);
     // La reutilización revocó también el token nuevo.
     await expect(service.refresh(second.refreshToken)).rejects.toBeInstanceOf(
+      UnauthorizedException,
+    );
+  });
+
+  it('no deja ingresar ni renovar la sesión a una cuenta suspendida', async () => {
+    const session = await service.register(registration);
+    users.forEach((user) => (user.isActive = false));
+
+    await expect(
+      service.login({ email: registration.email, password: registration.password }),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+    await expect(service.refresh(session.refreshToken)).rejects.toBeInstanceOf(
       UnauthorizedException,
     );
   });

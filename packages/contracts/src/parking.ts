@@ -39,24 +39,28 @@ export type ParkingLotInput = z.infer<typeof parkingLotInputSchema>;
 export const parkingLotUpdateSchema = parkingLotInputSchema.partial();
 export type ParkingLotUpdate = z.infer<typeof parkingLotUpdateSchema>;
 
-/** Cupos que publica el aliado por franja y tipo de vehículo. Precio en unidades menores. */
-export const offerInputSchema = z
-  .object({
-    shift: z.enum(Shift),
-    vehicleType: z.enum(VehicleType),
-    totalSpots: z.number().int().min(0).max(10_000),
-    availableSpots: z.number().int().min(0).max(10_000),
-    monthlyPriceMinor: z.number().int().positive(),
-    active: z.boolean().default(true),
-  })
-  .refine((offer) => offer.availableSpots <= offer.totalSpots, {
-    message: 'Los cupos libres no pueden superar el total',
-    path: ['availableSpots'],
-  });
+/**
+ * Cupos que publica el aliado por franja y tipo de vehículo. Precio en unidades menores.
+ * Los cupos libres no se envían: la API los calcula como total − mensualidades vendidas.
+ */
+export const offerInputSchema = z.object({
+  shift: z.enum(Shift),
+  vehicleType: z.enum(VehicleType),
+  totalSpots: z.number().int().min(0).max(10_000),
+  monthlyPriceMinor: z.number().int().positive(),
+  active: z.boolean().default(true),
+});
 export type OfferInput = z.infer<typeof offerInputSchema>;
 
 export const upsertOffersSchema = z.object({
-  offers: z.array(offerInputSchema).min(1).max(20),
+  offers: z
+    .array(offerInputSchema)
+    .min(1)
+    .max(20)
+    .refine(
+      (offers) => new Set(offers.map((o) => `${o.shift}:${o.vehicleType}`)).size === offers.length,
+      { message: 'Hay franjas repetidas para el mismo vehículo' },
+    ),
 });
 export type UpsertOffersInput = z.infer<typeof upsertOffersSchema>;
 
@@ -87,3 +91,9 @@ export const parkingLotSchema = z.object({
   offers: z.array(offerSchema),
 });
 export type ParkingLot = z.infer<typeof parkingLotSchema>;
+
+/** El aliado solo puede pausar o reanudar un parqueadero ya publicado. */
+export const partnerLotStatusSchema = z.object({
+  status: z.enum([ParkingLotStatus.ACTIVE, ParkingLotStatus.PAUSED]),
+});
+export type PartnerLotStatusInput = z.infer<typeof partnerLotStatusSchema>;

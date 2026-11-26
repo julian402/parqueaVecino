@@ -6,8 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 
-export type AuthMe200Role = typeof AuthMe200Role[keyof typeof AuthMe200Role];
-
+export type AuthMe200Role = (typeof AuthMe200Role)[keyof typeof AuthMe200Role];
 
 export const AuthMe200Role = {
   DRIVER: 'DRIVER',

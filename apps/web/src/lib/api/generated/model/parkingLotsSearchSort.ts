@@ -6,8 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 
-export type ParkingLotsSearchSort = typeof ParkingLotsSearchSort[keyof typeof ParkingLotsSearchSort];
-
+export type ParkingLotsSearchSort =
+  (typeof ParkingLotsSearchSort)[keyof typeof ParkingLotsSearchSort];
 
 export const ParkingLotsSearchSort = {
   PRICE: 'PRICE',

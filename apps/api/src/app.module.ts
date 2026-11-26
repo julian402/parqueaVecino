@@ -6,10 +6,13 @@ import { DatabaseModule } from './common/database/database.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { AppConfigModule } from './config/app-config.module';
 import { AppConfigService } from './config/app-config.service';
+import { AdminModule } from './modules/admin/admin.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { BookingsModule } from './modules/bookings/bookings.module';
 import { HealthModule } from './modules/health/health.module';
 import { GeocodingModule } from './modules/geocoding/geocoding.module';
 import { ParkingLotsModule } from './modules/parking-lots/parking-lots.module';
+import { PaymentsModule } from './modules/payments/payments.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { UsersModule } from './modules/users/users.module';
 
@@ -41,6 +44,9 @@ const REQUEST_ID_HEADER = 'x-request-id';
     UsersModule,
     ParkingLotsModule,
     GeocodingModule,
+    PaymentsModule,
+    BookingsModule,
+    AdminModule,
   ],
   providers: [{ provide: APP_FILTER, useClass: AllExceptionsFilter }],
 })

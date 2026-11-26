@@ -18,6 +18,8 @@
     "@parqueavecino/contracts": "workspace:*",
     "@parqueavecino/ui": "workspace:*",
     "@parqueavecino/utils": "workspace:*",
+    "@stripe/react-stripe-js": "^7.1.0",
+    "@stripe/stripe-js": "^10.4.0",
     "@tanstack/react-query": "^5.108.4",
     "lucide-react": "^1.80.0",
     "maplibre-gl": "^6.19.0",
@@ -27,6 +29,7 @@
     "react-dom": "^19.3.1",
     "react-hook-form": "^7.92.0",
     "react-map-gl": "^8.1.3",
+    "react-qr-code": "^2.2.0",
     "zod": "^4.6.7"
   },
   "devDependencies": {

@@ -12,6 +12,8 @@ const schema = z.object({
   NEXT_PUBLIC_APP_CURRENCY: z.string().length(3),
   /** Estilo del mapa (MapLibre). OpenFreeMap: gratis, sin llave, basado en OpenStreetMap. */
   NEXT_PUBLIC_MAP_STYLE_URL: z.url(),
+  /** Llave publicable de Stripe (solo pk_test_). Sin ella el checkout se muestra deshabilitado. */
+  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().startsWith('pk_test_').optional(),
 });
 
 const parsed = schema.safeParse({
@@ -20,6 +22,7 @@ const parsed = schema.safeParse({
   NEXT_PUBLIC_APP_TIMEZONE: process.env.NEXT_PUBLIC_APP_TIMEZONE,
   NEXT_PUBLIC_APP_CURRENCY: process.env.NEXT_PUBLIC_APP_CURRENCY,
   NEXT_PUBLIC_MAP_STYLE_URL: process.env.NEXT_PUBLIC_MAP_STYLE_URL,
+  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || undefined,
 });
 
 if (!parsed.success) {

@@ -6,8 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 
-export type AuthRegister201Role = typeof AuthRegister201Role[keyof typeof AuthRegister201Role];
-
+export type AuthRegister201Role = (typeof AuthRegister201Role)[keyof typeof AuthRegister201Role];
 
 export const AuthRegister201Role = {
   DRIVER: 'DRIVER',

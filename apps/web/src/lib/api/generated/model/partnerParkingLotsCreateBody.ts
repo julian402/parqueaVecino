@@ -9,31 +9,31 @@ import type { PartnerParkingLotsCreateBodyAmenitiesItem } from './partnerParking
 
 export type PartnerParkingLotsCreateBody = {
   /**
-     * @minLength 3
-     * @maxLength 120
-     */
+   * @minLength 3
+   * @maxLength 120
+   */
   name: string;
   /**
-     * @minLength 5
-     * @maxLength 200
-     */
+   * @minLength 5
+   * @maxLength 200
+   */
   address: string;
   /** @maxLength 80 */
   neighborhood?: string;
   /**
-     * @minLength 2
-     * @maxLength 80
-     */
+   * @minLength 2
+   * @maxLength 80
+   */
   city: string;
   /**
-     * @minimum -90
-     * @maximum 90
-     */
+   * @minimum -90
+   * @maximum 90
+   */
   latitude: number;
   /**
-     * @minimum -180
-     * @maximum 180
-     */
+   * @minimum -180
+   * @maximum 180
+   */
   longitude: number;
   /** @maxLength 1000 */
   description?: string;

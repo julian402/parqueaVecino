@@ -48,8 +48,15 @@ Pruebas e2e de la API (usan una BD aparte, `parqueavecino_test`): `pnpm --filter
 | Mailpit (correos) | http://localhost:8025          |
 | S3 local          | http://localhost:9000          |
 
-Webhooks de Stripe (modo test): crea `docker/.env` con `STRIPE_SECRET_KEY=sk_test_...` y ejecuta
-`pnpm docker:stripe`.
+**Pagos (Stripe modo test):** pon tu llave secreta en `apps/api/.env` (`STRIPE_SECRET_KEY=sk_test_...`)
+y la publicable en `apps/web/.env.local` (`NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...`). Paga con la
+tarjeta `4242 4242 4242 4242`, cualquier fecha futura y CVC. Sin webhook la reserva igual se confirma al
+volver del pago (la API consulta el PaymentIntent). Para probar webhooks: crea `docker/.env` con
+`STRIPE_SECRET_KEY=sk_test_...`, ejecuta `pnpm docker:stripe` y copia el `whsec_...` que imprime en
+`STRIPE_WEBHOOK_SECRET`.
+
+**Paneles:** el admin (`SEED_ADMIN_*`) entra a `/admin` (resumen, usuarios, parqueaderos, pagos,
+configuración); el aliado demo a `/aliados`.
 
 ## AWS y despliegue
 
@@ -66,6 +73,16 @@ Webhooks de Stripe (modo test): crea `docker/.env` con `STRIPE_SECRET_KEY=sk_tes
   aws secretsmanager put-secret-value --secret-id <DuckDnsSecretName> --secret-string <token>     --profile <perfil> --region us-east-2
   aws ecs update-service --cluster <ClusterName> --service <ServiceName> --force-new-deployment     --profile <perfil> --region us-east-2
   ```
+
+- **Llaves de Stripe** (modo test): la API arranca con los pagos deshabilitados hasta cargarlas en el
+  secreto `StripeSecretName` (la publicable va en `infra/config/prod.ts`):
+
+  ```bash
+  aws secretsmanager put-secret-value --secret-id <StripeSecretName>     --secret-string '{"secretKey":"sk_test_...","webhookSecret":"whsec_..."}' --profile <perfil> --region us-east-2
+  ```
+
+  El webhook se crea en el dashboard de Stripe apuntando a `https://parquea-vecino.duckdns.org/api/payments/webhooks/stripe`
+  con los eventos `payment_intent.succeeded`, `payment_intent.payment_failed`, `payment_intent.canceled` y `charge.refunded`.
 
 - Región: **`us-east-2` (Ohio)**. La organización de la cuenta bloquea las demás regiones.
 - Configura tu perfil con `aws configure --profile <perfil>` (región `us-east-2`) y úsalo con

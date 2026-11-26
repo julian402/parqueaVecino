@@ -6,8 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 
-export type VehiclesCreateBodyType = typeof VehiclesCreateBodyType[keyof typeof VehiclesCreateBodyType];
-
+export type VehiclesCreateBodyType =
+  (typeof VehiclesCreateBodyType)[keyof typeof VehiclesCreateBodyType];
 
 export const VehiclesCreateBodyType = {
   CAR: 'CAR',

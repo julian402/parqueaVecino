@@ -1,4 +1,9 @@
-import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import type { OfferInput } from '@parqueavecino/contracts';
 import { describe, expect, it, vi } from 'vitest';
 import type { AppConfigService } from '../../../config/app-config.service';
@@ -22,11 +27,13 @@ const lot: ParkingLotRecord = {
   offers: [],
 };
 
-function setup() {
-  const upsertOffers = vi.fn(() => Promise.resolve(lot));
+function setup(current: ParkingLotRecord = lot) {
+  const upsertOffers = vi.fn(() => Promise.resolve(current));
+  const setStatus = vi.fn(() => Promise.resolve());
   const repository = {
-    findById: vi.fn((id: string) => Promise.resolve(id === lot.id ? lot : null)),
+    findById: vi.fn((id: string) => Promise.resolve(id === current.id ? current : null)),
     upsertOffers,
+    setStatus,
   } as unknown as ParkingLotsRepository;
   const settings = {
     get: vi.fn(() =>
@@ -34,14 +41,13 @@ function setup() {
     ),
   } as unknown as SettingsService;
   const config = { get: () => 'COP' } as unknown as AppConfigService;
-  return { service: new ParkingLotsService(repository, settings, config), upsertOffers };
+  return { service: new ParkingLotsService(repository, settings, config), upsertOffers, setStatus };
 }
 
 const offer = (price: number): OfferInput => ({
   shift: 'NIGHT',
   vehicleType: 'CAR',
   totalSpots: 10,
-  availableSpots: 5,
   monthlyPriceMinor: price,
   active: true,
 });
@@ -58,7 +64,55 @@ describe('ParkingLotsService', () => {
   it('guarda los cupos con la moneda de la configuración', async () => {
     const { service, upsertOffers } = setup();
     await service.upsertOffers('partner-1', 'lot-1', [offer(17_000_000)]);
-    expect(upsertOffers).toHaveBeenCalledWith('lot-1', [offer(17_000_000)], 'COP');
+    expect(upsertOffers).toHaveBeenCalledWith(
+      'lot-1',
+      [{ ...offer(17_000_000), availableSpots: 10 }],
+      'COP',
+    );
+  });
+
+  const withSold: ParkingLotRecord = {
+    ...lot,
+    status: 'ACTIVE',
+    offers: [
+      {
+        id: 'offer-1',
+        shift: 'NIGHT',
+        vehicleType: 'CAR',
+        totalSpots: 10,
+        availableSpots: 7,
+        monthlyPriceMinor: 17_000_000,
+        currency: 'COP',
+        active: true,
+      },
+    ],
+  };
+
+  it('recalcula los libres conservando las mensualidades vendidas', async () => {
+    const { service, upsertOffers } = setup(withSold);
+    await service.upsertOffers('partner-1', 'lot-1', [{ ...offer(17_000_000), totalSpots: 15 }]);
+    expect(upsertOffers).toHaveBeenCalledWith(
+      'lot-1',
+      [{ ...offer(17_000_000), totalSpots: 15, availableSpots: 12 }],
+      'COP',
+    );
+  });
+
+  it('no deja bajar el total por debajo de lo vendido', async () => {
+    const { service } = setup(withSold);
+    await expect(
+      service.upsertOffers('partner-1', 'lot-1', [{ ...offer(17_000_000), totalSpots: 2 }]),
+    ).rejects.toThrow(ConflictException);
+  });
+
+  it('pausa un parqueadero aprobado pero no uno en verificación', async () => {
+    const active = setup(withSold);
+    await active.service.setStatusForPartner('partner-1', 'lot-1', 'PAUSED');
+    expect(active.setStatus).toHaveBeenCalledWith('lot-1', 'PAUSED');
+    const pending = setup();
+    await expect(
+      pending.service.setStatusForPartner('partner-1', 'lot-1', 'ACTIVE'),
+    ).rejects.toThrow(ConflictException);
   });
 
   it('no deja editar parqueaderos de otro aliado', async () => {

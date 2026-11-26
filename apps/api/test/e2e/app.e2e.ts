@@ -129,7 +129,7 @@ describe('API e2e', () => {
       const lot = created.body as { id: string; status: string };
       expect(lot.status).toBe('PENDING_VERIFICATION');
 
-      const offer = { shift: 'NIGHT', vehicleType: 'CAR', totalSpots: 10, availableSpots: 4 };
+      const offer = { shift: 'NIGHT', vehicleType: 'CAR', totalSpots: 10 };
       await partnerAgent
         .put(`${API}/partner/parking-lots/${lot.id}/offers`)
         .send({ offers: [{ ...offer, monthlyPriceMinor: 999_000_000 }] })

@@ -1,6 +1,6 @@
 // Esquema de base de datos de ParqueaVecino.
 // Los enums deben coincidir con @parqueavecino/contracts (hay una prueba que lo verifica).
-// Las tablas de reservas, pagos y documentos se agregan en sus fases (ver docs/PLAN.md).
+// Las tablas de documentos y reseñas se agregan en sus fases (ver docs/PLAN.md).
 
 generator client {
   provider     = "prisma-client"
@@ -38,10 +38,26 @@ enum Amenity {
   EV_CHARGER
 }
 
+enum BookingStatus {
+  PENDING_PAYMENT
+  ACTIVE
+  EXPIRED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+}
+
 enum ParkingLotStatus {
   DRAFT
   PENDING_VERIFICATION
   ACTIVE
+  PAUSED
   SUSPENDED
 }
 
@@ -52,12 +68,17 @@ model User {
   fullName     String   @map("full_name")
   phone        String?
   role         UserRole
+  /// false = cuenta suspendida por el admin: no puede ingresar.
+  isActive     Boolean  @default(true) @map("is_active")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
   refreshTokens RefreshToken[]
   vehicles      Vehicle[]
   parkingLots   ParkingLot[]
+  bookings      Booking[]
+
+  @@index([role])
 
   @@map("users")
 }
@@ -107,8 +128,9 @@ model ParkingLot {
   createdAt    DateTime         @default(now()) @map("created_at")
   updatedAt    DateTime         @updatedAt @map("updated_at")
 
-  partner User    @relation(fields: [partnerId], references: [id], onDelete: Restrict)
-  offers  Offer[]
+  partner  User      @relation(fields: [partnerId], references: [id], onDelete: Restrict)
+  offers   Offer[]
+  bookings Booking[]
 
   @@index([partnerId])
   @@index([status])
@@ -130,6 +152,7 @@ model Offer {
   updatedAt         DateTime    @updatedAt @map("updated_at")
 
   parkingLot ParkingLot @relation(fields: [parkingLotId], references: [id], onDelete: Cascade)
+  bookings   Booking[]
 
   @@unique([parkingLotId, shift, vehicleType])
   @@map("offers")
@@ -143,4 +166,60 @@ model SystemSetting {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   @@map("system_settings")
+}
+
+/// Mensualidad comprada por un conductor. Precio y franja se copian del cupo al reservar.
+model Booking {
+  id           String        @id @default(uuid()) @db.Uuid
+  driverId     String        @map("driver_id") @db.Uuid
+  parkingLotId String        @map("parking_lot_id") @db.Uuid
+  offerId      String        @map("offer_id") @db.Uuid
+  shift        Shift
+  vehicleType  VehicleType   @map("vehicle_type")
+  plate        String
+  priceMinor   Int           @map("price_minor")
+  currency     String        @db.Char(3)
+  status       BookingStatus @default(PENDING_PAYMENT)
+  accessCode   String?       @unique @map("access_code")
+  startsAt     DateTime?     @map("starts_at")
+  endsAt       DateTime?     @map("ends_at")
+  /// Renovación: mensualidad que continúa esta (empieza cuando la anterior termina).
+  renewalOfId  String?       @map("renewal_of_id") @db.Uuid
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+
+  renewalOf  Booking?   @relation("BookingRenewal", fields: [renewalOfId], references: [id], onDelete: SetNull)
+  renewals   Booking[]  @relation("BookingRenewal")
+  driver     User       @relation(fields: [driverId], references: [id], onDelete: Restrict)
+  parkingLot ParkingLot @relation(fields: [parkingLotId], references: [id], onDelete: Restrict)
+  offer      Offer      @relation(fields: [offerId], references: [id], onDelete: Restrict)
+  payments   Payment[]
+
+  @@index([driverId])
+  @@index([parkingLotId])
+  @@index([status])
+  @@index([renewalOfId])
+  @@map("bookings")
+}
+
+/// Cobro de una mensualidad (libro de movimientos). Comisión calculada con commission.basisPoints.
+model Payment {
+  id              String        @id @default(uuid()) @db.Uuid
+  bookingId       String        @map("booking_id") @db.Uuid
+  provider        String
+  /// Id del cobro en la pasarela (PaymentIntent de Stripe).
+  providerRef     String        @unique @map("provider_ref")
+  amountMinor     Int           @map("amount_minor")
+  commissionMinor Int           @map("commission_minor")
+  currency        String        @db.Char(3)
+  status          PaymentStatus @default(PENDING)
+  paidAt          DateTime?     @map("paid_at")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId])
+  @@index([status, createdAt])
+  @@map("payments")
 }

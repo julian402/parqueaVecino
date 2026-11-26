@@ -16,6 +16,12 @@ export const settingsSchemas = {
   'pricing.monthlyCapMinor': z.record(z.enum(VehicleType), z.number().int().positive()),
   /** Horas antes del inicio en que la cancelación es gratuita. */
   'booking.freeCancellationHours': z.number().int().min(0),
+  /** Minutos que un cupo queda apartado mientras el conductor paga; luego se libera. */
+  'booking.paymentHoldMinutes': z
+    .number()
+    .int()
+    .min(5)
+    .max(24 * 60),
   /** Radio de búsqueda por defecto, en metros. */
   'search.defaultRadiusMeters': z.number().int().positive(),
   /** Punto donde abre el mapa si el usuario no da ubicación (y sesgo del geocodificador). */

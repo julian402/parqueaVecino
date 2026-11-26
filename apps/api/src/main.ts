@@ -6,7 +6,11 @@ import { configureApp, createOpenApiDocument } from './bootstrap';
 import { AppConfigService } from './config/app-config.service';
 
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true,
+    // El webhook de Stripe verifica la firma sobre el cuerpo crudo.
+    rawBody: true,
+  });
   const config = app.get(AppConfigService);
 
   app.useLogger(app.get(Logger));

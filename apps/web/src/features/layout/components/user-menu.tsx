@@ -1,13 +1,18 @@
 'use client';
 
-import { UserRole } from '@parqueavecino/contracts';
 import { Button, buttonVariants } from '@parqueavecino/ui';
 import { LayoutDashboard, LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useSession, useSignOut } from '@/features/auth/hooks/use-session';
-import { routes } from '@/lib/routes';
+import { panelForRole, routes } from '@/lib/routes';
+
+const PANEL_LABEL = {
+  ADMIN: 'adminPanel',
+  PARTNER: 'partnerPanel',
+  DRIVER: 'driverPanel',
+} as const;
 
 /** Parte del encabezado que depende de la sesión. */
 export function UserMenu() {
@@ -35,21 +40,21 @@ export function UserMenu() {
 
   return (
     <div className="flex items-center gap-3">
-      {user.role === UserRole.PARTNER && (
-        <Link
-          href={routes.partnerPanel}
-          className={buttonVariants({ variant: 'secondary', size: 'sm' })}
-        >
-          <LayoutDashboard aria-hidden className="size-4" />
-          <span className="hidden sm:inline">{t('partnerPanel')}</span>
-        </Link>
-      )}
-      <span
+      <Link
+        href={panelForRole(user.role)}
+        className={buttonVariants({ variant: 'secondary', size: 'sm' })}
+      >
+        <LayoutDashboard aria-hidden className="size-4" />
+        <span className="hidden sm:inline">{t(PANEL_LABEL[user.role])}</span>
+      </Link>
+      <Link
+        href={panelForRole(user.role)}
         title={t('greeting', { name: user.fullName })}
-        className="flex size-9 items-center justify-center rounded-pill bg-brand font-bold text-ink"
+        aria-label={t(PANEL_LABEL[user.role])}
+        className="flex size-9 items-center justify-center rounded-pill bg-brand font-bold text-ink transition-transform hover:scale-105"
       >
         {initial}
-      </span>
+      </Link>
       <Button
         variant="ghost"
         size="sm"

@@ -1,4 +1,6 @@
+export * from './admin/admin';
 export * from './auth/auth';
+export * from './bookings/bookings';
 export * from './geocoding/geocoding';
 export * from './health/health';
 export * from './parking-lots/parking-lots';

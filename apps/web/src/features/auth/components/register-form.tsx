@@ -4,18 +4,19 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { registerSchema, SELF_SIGNUP_ROLES, type RegisterInput } from '@parqueavecino/contracts';
 import { Button, Card, Input, Pill } from '@parqueavecino/ui';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import type { z } from 'zod';
 import { useAuthRegister } from '@/lib/api/generated/auth/auth';
 import { HttpError } from '@/lib/api/http';
-import { routes } from '@/lib/routes';
+import { homeForRole, routes, safeNext } from '@/lib/routes';
 import { useSetSessionUser } from '../hooks/use-session';
 
 export function RegisterForm() {
   const t = useTranslations('auth');
   const router = useRouter();
+  const next = safeNext(useSearchParams().get('next'));
   const setUser = useSetSessionUser();
   const register = useAuthRegister();
   const form = useForm<z.input<typeof registerSchema>, unknown, RegisterInput>({
@@ -28,7 +29,7 @@ export function RegisterForm() {
   const onSubmit = form.handleSubmit(async (values) => {
     const user = await register.mutateAsync({ data: values });
     setUser(user);
-    router.push(user.role === 'PARTNER' ? routes.partnerPanel : routes.home);
+    router.push(next ?? homeForRole(user.role));
   });
 
   const apiError = register.error instanceof HttpError ? register.error.message : null;

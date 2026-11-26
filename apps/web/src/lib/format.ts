@@ -20,3 +20,27 @@ export function formatShortPrice(
 export function formatMeters(meters: number): string {
   return formatDistance(meters, locale);
 }
+
+/** "92 %". */
+export function formatPercent(ratio: number): string {
+  return new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 0 }).format(
+    ratio,
+  );
+}
+
+/** "26 nov 2026" en la zona horaria de la app. */
+export function formatDate(iso: string): string {
+  return new Intl.DateTimeFormat(locale, {
+    dateStyle: 'medium',
+    timeZone: env.NEXT_PUBLIC_APP_TIMEZONE,
+  }).format(new Date(iso));
+}
+
+/** "26 nov 2026, 2:30 p. m." en la zona horaria de la app. */
+export function formatDateTime(iso: string): string {
+  return new Intl.DateTimeFormat(locale, {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+    timeZone: env.NEXT_PUBLIC_APP_TIMEZONE,
+  }).format(new Date(iso));
+}

@@ -4,6 +4,7 @@ import {
   Duration,
   IgnoreMode,
   RemovalPolicy,
+  SecretValue,
   Stack,
   type StackProps,
 } from 'aws-cdk-lib';
@@ -78,6 +79,17 @@ export class AppStack extends Stack {
     const duckDnsSecret = new secretsmanager.Secret(this, 'DuckDnsToken', {
       description: `Token de DuckDNS para ${domain.name}`,
       generateSecretString: { passwordLength: 36, excludePunctuation: true },
+      removalPolicy: RemovalPolicy.DESTROY,
+    });
+
+    // Stripe (modo test): se crea con "disabled" y las llaves se cargan a mano (ver README).
+    // Mientras tanto la API arranca con los pagos deshabilitados en lugar de fallar.
+    const stripeSecret = new secretsmanager.Secret(this, 'StripeSecret', {
+      description:
+        'Llaves de Stripe en modo test: secretKey (sk_test_...) y webhookSecret (whsec_...)',
+      secretStringValue: SecretValue.unsafePlainText(
+        JSON.stringify({ secretKey: 'disabled', webhookSecret: 'disabled' }),
+      ),
       removalPolicy: RemovalPolicy.DESTROY,
     });
 
@@ -179,6 +191,8 @@ export class AppStack extends Stack {
         JWT_ACCESS_SECRET: ecs.Secret.fromSecretsManager(jwtSecret),
         SEED_ADMIN_PASSWORD: ecs.Secret.fromSecretsManager(seedSecret),
         SEED_DEMO_PASSWORD: ecs.Secret.fromSecretsManager(seedSecret),
+        STRIPE_SECRET_KEY: ecs.Secret.fromSecretsManager(stripeSecret, 'secretKey'),
+        STRIPE_WEBHOOK_SECRET: ecs.Secret.fromSecretsManager(stripeSecret, 'webhookSecret'),
       },
     });
 
@@ -192,12 +206,14 @@ export class AppStack extends Stack {
           NEXT_PUBLIC_APP_TIMEZONE: appSettings.timezone,
           NEXT_PUBLIC_APP_CURRENCY: appSettings.currency,
           NEXT_PUBLIC_MAP_STYLE_URL: appSettings.mapStyleUrl,
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: appSettings.stripePublishableKey,
         },
       }),
       portMappings: [{ containerPort: app.webPort }],
       logging: ecs.LogDrivers.awsLogs({ logGroup, streamPrefix: 'web' }),
       healthCheck: httpHealthCheck(`http://localhost:${app.webPort}/`, Duration.minutes(1)),
-      environment: { PORT: String(app.webPort) },
+      // Fargate define HOSTNAME con el nombre de la tarea; sin esto Next no escucha en localhost.
+      environment: { PORT: String(app.webPort), HOSTNAME: '0.0.0.0' },
     });
 
     const caddy = taskDefinition.addContainer('caddy', {
@@ -238,6 +254,8 @@ export class AppStack extends Stack {
       minHealthyPercent: 100,
       maxHealthyPercent: 200,
     });
+    // Sin esto la primera tarea puede arrancar antes de que exista el DNS del mount target de EFS.
+    service.node.addDependency(certificates.mountTargetsAvailable);
 
     new CfnOutput(this, 'Url', { value: `https://${domain.name}` });
     new CfnOutput(this, 'DuckDnsSecretName', {
@@ -247,6 +265,10 @@ export class AppStack extends Stack {
     new CfnOutput(this, 'SeedSecretName', {
       value: seedSecret.secretName,
       description: 'Contraseña del admin y usuarios demo',
+    });
+    new CfnOutput(this, 'StripeSecretName', {
+      value: stripeSecret.secretName,
+      description: 'Cargar aquí secretKey y webhookSecret de Stripe (modo test)',
     });
     new CfnOutput(this, 'ClusterName', { value: cluster.clusterName });
     new CfnOutput(this, 'ServiceName', { value: service.serviceName });

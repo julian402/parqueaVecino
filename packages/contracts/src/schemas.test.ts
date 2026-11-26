@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { offerInputSchema, plateSchema, registerSchema } from './index';
+import { offerInputSchema, plateSchema, registerSchema, upsertOffersSchema } from './index';
 
 describe('esquemas', () => {
   it('normaliza la placa', () => {
@@ -14,14 +14,14 @@ describe('esquemas', () => {
     expect(() => registerSchema.parse({ ...base, role: 'ADMIN' })).toThrow();
   });
 
-  it('valida que los cupos libres no superen el total', () => {
+  it('no acepta la misma franja y vehículo dos veces al publicar cupos', () => {
     const offer = {
       shift: 'NIGHT',
       vehicleType: 'CAR',
       totalSpots: 5,
-      availableSpots: 6,
       monthlyPriceMinor: 17_000_000,
     };
-    expect(() => offerInputSchema.parse(offer)).toThrow(/cupos libres/);
+    expect(offerInputSchema.parse(offer).active).toBe(true);
+    expect(() => upsertOffersSchema.parse({ offers: [offer, offer] })).toThrow(/repetidas/);
   });
 });

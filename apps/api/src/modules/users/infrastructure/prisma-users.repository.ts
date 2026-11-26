@@ -1,7 +1,21 @@
 import { Injectable } from '@nestjs/common';
-import type { Vehicle, VehicleInput } from '@parqueavecino/contracts';
+import {
+  USER_ROLES,
+  type AdminUserListQuery,
+  type UserRole,
+  type Vehicle,
+  type VehicleInput,
+} from '@parqueavecino/contracts';
 import { PrismaService } from '../../../common/database/prisma.service';
-import { UsersRepository, VehiclesRepository, type NewUser, type User } from '../domain/user';
+import type { Prisma } from '../../../generated/prisma/client';
+import {
+  UsersRepository,
+  VehiclesRepository,
+  type NewUser,
+  type User,
+  type UserChanges,
+  type UserPage,
+} from '../domain/user';
 
 @Injectable()
 export class PrismaUsersRepository extends UsersRepository {
@@ -19,6 +33,52 @@ export class PrismaUsersRepository extends UsersRepository {
 
   create(user: NewUser): Promise<User> {
     return this.prisma.user.create({ data: user });
+  }
+
+  update(id: string, changes: UserChanges): Promise<User> {
+    return this.prisma.user.update({ where: { id }, data: changes });
+  }
+
+  async list({ page, pageSize, q, role }: AdminUserListQuery): Promise<UserPage> {
+    const where: Prisma.UserWhereInput = {
+      role,
+      ...(q && {
+        OR: [
+          { email: { contains: q, mode: 'insensitive' } },
+          { fullName: { contains: q, mode: 'insensitive' } },
+        ],
+      }),
+    };
+    const [items, total] = await this.prisma.$transaction([
+      this.prisma.user.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+      this.prisma.user.count({ where }),
+    ]);
+    return { items, total };
+  }
+
+  async countByRole(): Promise<Record<UserRole, number>> {
+    const rows = await this.prisma.user.groupBy({ by: ['role'], _count: { _all: true } });
+    const counts = Object.fromEntries(USER_ROLES.map((role) => [role, 0])) as Record<
+      UserRole,
+      number
+    >;
+    for (const row of rows) counts[row.role] = row._count._all;
+    return counts;
+  }
+
+  async deleteIfUnused(id: string): Promise<boolean> {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      select: { _count: { select: { parkingLots: true, bookings: true } } },
+    });
+    if (!user || user._count.parkingLots > 0 || user._count.bookings > 0) return false;
+    await this.prisma.user.delete({ where: { id } });
+    return true;
   }
 }
 

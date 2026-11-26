@@ -60,6 +60,10 @@ const defaultSettings: { [K in SettingKey]: { value: SettingValue<K>; descriptio
     value: 24,
     description: 'Horas antes del inicio en que la cancelación es gratuita',
   },
+  'booking.paymentHoldMinutes': {
+    value: 30,
+    description: 'Minutos que un cupo queda apartado mientras el conductor paga',
+  },
   'search.defaultRadiusMeters': {
     value: 1500,
     description: 'Radio de búsqueda por defecto',

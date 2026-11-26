@@ -58,10 +58,21 @@ export const ParkingLotStatus = {
   DRAFT: 'DRAFT',
   PENDING_VERIFICATION: 'PENDING_VERIFICATION',
   ACTIVE: 'ACTIVE',
+  /** Pausado por el propio aliado: no aparece en búsquedas; las mensualidades vigentes siguen. */
+  PAUSED: 'PAUSED',
   SUSPENDED: 'SUSPENDED',
 } as const;
 export type ParkingLotStatus = (typeof ParkingLotStatus)[keyof typeof ParkingLotStatus];
 export const PARKING_LOT_STATUSES = values(ParkingLotStatus);
+
+export const PaymentStatus = {
+  PENDING: 'PENDING',
+  SUCCEEDED: 'SUCCEEDED',
+  FAILED: 'FAILED',
+  REFUNDED: 'REFUNDED',
+} as const;
+export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus];
+export const PAYMENT_STATUSES = values(PaymentStatus);
 
 /** Orden de los resultados de búsqueda. */
 export const SearchSort = { PRICE: 'PRICE', DISTANCE: 'DISTANCE' } as const;

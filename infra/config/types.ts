@@ -63,6 +63,8 @@ export interface EnvironmentConfig {
     seedAdminEmail: string;
     /** Estilo del mapa de la web (MapLibre). */
     mapStyleUrl: string;
+    /** Llave publicable de Stripe (pk_test_...). Es pública: va en la web al compilar. */
+    stripePublishableKey: string;
   };
 
   /** Geocodificador (texto → coordenadas). Nominatim es gratis; ver su política de uso. */

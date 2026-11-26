@@ -14,7 +14,10 @@
     "myBookings": "Mis mensualidades",
     "profile": "Perfil",
     "greeting": "Hola, {name}",
-    "register": "Crear cuenta"
+    "register": "Crear cuenta",
+    "adminPanel": "Panel admin",
+    "panel": "Mi panel",
+    "driverPanel": "Mi cuenta"
   },
   "home": {
     "eyebrow": "Mensualidades por franja en Bogotá",
@@ -48,24 +51,38 @@
       "hours": "{start} – {end}"
     },
     "steps": {
-      "title": "Ingresa, busca tu parqueadero, selecciona y paga",
+      "eyebrow": "Cómo funciona",
+      "title": "Tu cupo mensual en tres pasos",
+      "subtitle": "Sin filas ni llamadas: todo desde tu celular, en minutos.",
       "label": "Paso {number}",
       "items": {
-        "1": "Ingresa a la app.",
-        "2": "Busca tu parqueadero.",
-        "3": "Selecciona y paga."
-      }
+        "1": {
+          "title": "Ingresa a la app",
+          "detail": "Crea tu cuenta gratis y registra la placa de tu vehículo."
+        },
+        "2": {
+          "title": "Busca tu parqueadero",
+          "detail": "Compara precios, cupos libres y distancia en el mapa."
+        },
+        "3": {
+          "title": "Selecciona y paga",
+          "detail": "Elige tu franja, paga en línea y recibe tu código de ingreso."
+        }
+      },
+      "cta": "Empezar a buscar"
     },
     "benefits": {
+      "eyebrow": "Beneficios",
       "title": "¿Por qué elegirnos?",
+      "subtitle": "Pensado para quien parquea todos los días: en el trabajo, en casa o en ambos.",
       "items": {
         "savings": {
           "title": "Ahorro significativo",
-          "detail": "Pagas solo la franja que usas, sin sobrecostos."
+          "detail": "Pagas solo la franja que usas, sin sobrecostos por horas que no parqueas."
         },
         "map": {
           "title": "Mapa en tiempo real",
-          "detail": "Disponibilidad y reserva instantánea."
+          "detail": "Disponibilidad actualizada por cada parqueadero y reserva instantánea."
         },
         "inclusive": {
           "title": "100 % inclusivo",
@@ -73,16 +90,20 @@
         },
         "verified": {
           "title": "Parqueaderos verificados",
-          "detail": "Establecimientos legales, seguros y con póliza."
+          "detail": "Establecimientos legales, con póliza de responsabilidad civil."
         }
+      },
+      "highlight": {
+        "value": "100 h",
+        "label": "Recupera tus 100 horas al año",
+        "detail": "El tiempo que hoy pierdes buscando dónde parquear."
       }
     },
     "partners": {
       "title": "¿Tienes un parqueadero?",
       "subtitle": "Publica tus cupos libres de día o de noche y genera ingresos extra. Nosotros traemos a los conductores.",
       "cta": "Publicar mi parqueadero"
-    },
-    "closing": "Recupera tus 100 horas."
+    }
   },
   "auth": {
     "loginTitle": "Ingresa a tu cuenta",
@@ -115,7 +136,9 @@
       "vehicle": "Vehículo",
       "total": "Total",
       "available": "Libres",
-      "price": "Precio/mes"
+      "price": "Precio/mes",
+      "sold": "Vendidos",
+      "active": "Activa"
     },
     "noOffers": "Sin cupos publicados todavía.",
     "verified": "Verificado",
@@ -123,7 +146,40 @@
       "DRAFT": "Borrador",
       "PENDING_VERIFICATION": "En verificación",
       "ACTIVE": "Publicado",
-      "SUSPENDED": "Suspendido"
+      "SUSPENDED": "Suspendido",
+      "PAUSED": "Pausado"
+    },
+    "subtitle": "Edita tus datos, cupos y precios por franja, o pausa un parqueadero.",
+    "edit": {
+      "editInfo": "Editar datos",
+      "pause": "Pausar",
+      "resume": "Reanudar",
+      "pausedHint": "Pausado: no aparece en búsquedas. Las mensualidades vigentes siguen activas.",
+      "pendingHint": "En verificación: el equipo de Parquea Vecino lo revisará antes de publicarlo.",
+      "suspendedHint": "Suspendido por el administrador. Escríbenos para reactivarlo.",
+      "addOffer": "Agregar franja",
+      "save": "Guardar cupos",
+      "saving": "Guardando…",
+      "saved": "Cambios guardados",
+      "discard": "Descartar",
+      "pricePesos": "Precio mensual (COP)",
+      "totalSpots": "Cupos totales",
+      "soldHint": "{count, plural, =0 {Sin vendidos} one {# vendido} other {# vendidos}}",
+      "freeAfter": "{count, plural, one {# libre} other {# libres}}",
+      "remove": "Quitar franja",
+      "noCombos": "Ya publicaste todas las combinaciones de franja y vehículo.",
+      "newShift": "Franja",
+      "newVehicle": "Vehículo",
+      "offerOn": "Visible para reservar",
+      "offerOff": "Oculta",
+      "infoTitle": "Datos del parqueadero",
+      "name": "Nombre",
+      "address": "Dirección",
+      "neighborhood": "Barrio",
+      "description": "Descripción",
+      "amenities": "Servicios",
+      "cancel": "Cancelar",
+      "saveInfo": "Guardar datos"
     }
   },
   "comingSoon": "Disponible en una próxima fase.",
@@ -153,8 +209,28 @@
   },
   "footer": {
     "tagline": "Encontrar dónde estacionar no debería ser una carrera contra el tiempo.",
-    "rights": "Proyecto académico · Uniempresarial",
-    "demo": "Ambiente de pruebas: los pagos son ficticios."
+    "columns": {
+      "drivers": {
+        "title": "Conductores",
+        "search": "Buscar parqueadero",
+        "myBookings": "Mis mensualidades",
+        "howItWorks": "Cómo funciona"
+      },
+      "partners": {
+        "title": "Parqueaderos",
+        "publish": "Publica tus cupos",
+        "panel": "Panel de aliados",
+        "benefits": "Por qué elegirnos"
+      },
+      "account": {
+        "title": "Tu cuenta",
+        "signIn": "Ingresar",
+        "register": "Crear cuenta",
+        "profile": "Perfil"
+      }
+    },
+    "copyright": "© {year} Parquea Vecino. Todos los derechos reservados.",
+    "madeIn": "Hecho en Bogotá"
   },
   "search": {
     "placeholder": "Barrio, dirección o lugar de trabajo",
@@ -183,7 +259,11 @@
     "viewMap": "Ver mapa",
     "viewList": "Ver lista",
     "myLocationLabel": "Mi ubicación",
-    "metaTitle": "Buscar parqueadero · Parquea Vecino"
+    "metaTitle": "Buscar parqueadero · Parquea Vecino",
+    "filters": "Filtros",
+    "vehicleLabel": "Vehículo",
+    "priceLabel": "Precio máximo",
+    "clearFilters": "Limpiar"
   },
   "lot": {
     "back": "Volver a resultados",
@@ -193,7 +273,6 @@
     "traditional": "Tradicional",
     "savings": "Ahorras {amount}/mes vs. 24 h",
     "reserve": "Reservar y pagar 1er mes",
-    "reserveSoon": "La reserva con pago llega en la próxima fase (Stripe en modo de prueba).",
     "noOffers": "Este parqueadero no tiene cupos para este vehículo.",
     "location": "Ubicación",
     "services": "Servicios",
@@ -205,6 +284,343 @@
     "openInMaps": "Cómo llegar",
     "metaTitle": "Parqueadero · Parquea Vecino",
     "perMonth": "al mes",
-    "error": "No pudimos cargar este parqueadero. Intenta de nuevo."
+    "error": "No pudimos cargar este parqueadero. Intenta de nuevo.",
+    "plateLabel": "Placa del vehículo",
+    "platePlaceholder": "ABC123",
+    "loginToReserve": "Ingresa para reservar",
+    "reserveHint": "Pago seguro con Stripe (modo de prueba). Cancelación gratuita durante las primeras {hours} horas.",
+    "chooseShift": "Elige una franja con cupos"
+  },
+  "common": {
+    "close": "Cerrar",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "saving": "Guardando…",
+    "create": "Crear",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "search": "Buscar",
+    "all": "Todos",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "loading": "Cargando…",
+    "pageOf": "Página {page} de {pages}",
+    "results": "{count, plural, one {# resultado} other {# resultados}}",
+    "error": "Algo salió mal. Intenta de nuevo.",
+    "retry": "Reintentar",
+    "actions": "Acciones",
+    "openMenu": "Abrir menú",
+    "closeMenu": "Cerrar menú",
+    "backToSite": "Volver al sitio",
+    "signOut": "Cerrar sesión",
+    "restricted": "No tienes acceso a esta sección.",
+    "goHome": "Ir al inicio"
+  },
+  "panel": {
+    "roles": {
+      "ADMIN": "Administrador",
+      "PARTNER": "Aliado",
+      "DRIVER": "Conductor"
+    },
+    "brandSuffix": {
+      "ADMIN": "Admin",
+      "PARTNER": "Aliados",
+      "DRIVER": "Mi cuenta"
+    },
+    "admin": {
+      "nav": {
+        "overview": "Resumen",
+        "users": "Usuarios",
+        "lots": "Parqueaderos",
+        "payments": "Pagos",
+        "settings": "Configuración"
+      },
+      "overview": {
+        "title": "Resumen",
+        "subtitle": "Así va la plataforma hoy.",
+        "revenue": "Ingresos totales",
+        "commission": "Comisión ganada",
+        "commissionHint": "{percent} del bruto",
+        "bookingsActive": "Mensualidades activas",
+        "occupancy": "Ocupación global",
+        "occupancyHint": "Cupos vendidos sobre publicados",
+        "users": "Usuarios",
+        "lots": "Parqueaderos",
+        "pendingLots": "{count, plural, =0 {Sin parqueaderos por revisar} one {# parqueadero por revisar} other {# parqueaderos por revisar}}",
+        "pendingBookings": "{count} pendientes de pago",
+        "chartTitle": "Ingresos de los últimos 14 días",
+        "chartEmpty": "Aún no hay pagos en este periodo.",
+        "bookingsTitle": "Mensualidades por estado",
+        "usersTitle": "Usuarios por rol",
+        "lotsTitle": "Parqueaderos por estado",
+        "paymentsOff": "Los pagos están deshabilitados: falta STRIPE_SECRET_KEY en la API.",
+        "review": "Revisar",
+        "seeAll": "Ver todo"
+      },
+      "users": {
+        "title": "Usuarios",
+        "subtitle": "Crea, edita, suspende o elimina cuentas de la plataforma.",
+        "new": "Nuevo usuario",
+        "searchPlaceholder": "Buscar por nombre o correo",
+        "columns": {
+          "user": "Usuario",
+          "role": "Rol",
+          "phone": "Celular",
+          "status": "Estado",
+          "createdAt": "Alta"
+        },
+        "active": "Activo",
+        "inactive": "Suspendido",
+        "suspend": "Suspender",
+        "activate": "Reactivar",
+        "empty": "No hay usuarios con esos filtros.",
+        "form": {
+          "createTitle": "Nuevo usuario",
+          "editTitle": "Editar usuario",
+          "fullName": "Nombre completo",
+          "email": "Correo",
+          "phone": "Celular (opcional)",
+          "role": "Rol",
+          "password": "Contraseña",
+          "newPassword": "Nueva contraseña (opcional)",
+          "passwordHint": "Mínimo 8 caracteres, con letras y números. Déjala vacía para no cambiarla.",
+          "isActive": "Cuenta activa"
+        },
+        "deleteTitle": "¿Eliminar a {name}?",
+        "deleteDetail": "Esta acción no se puede deshacer. Si el usuario tiene parqueaderos o reservas, suspéndelo en su lugar.",
+        "you": "Tú"
+      },
+      "lots": {
+        "title": "Parqueaderos",
+        "subtitle": "Aprueba, verifica o suspende los parqueaderos de los aliados.",
+        "searchPlaceholder": "Buscar por nombre, dirección o aliado",
+        "columns": {
+          "lot": "Parqueadero",
+          "partner": "Aliado",
+          "spots": "Cupos",
+          "status": "Estado"
+        },
+        "spots": "{available} de {total} libres",
+        "approve": "Aprobar",
+        "suspend": "Suspender",
+        "reactivate": "Reactivar",
+        "toReview": "A revisión",
+        "removeSeal": "Quitar sello",
+        "addSeal": "Verificar",
+        "empty": "No hay parqueaderos con esos filtros.",
+        "view": "Ver ficha"
+      },
+      "payments": {
+        "title": "Pagos",
+        "subtitle": "Libro de movimientos de Stripe (modo de prueba).",
+        "searchPlaceholder": "Buscar por placa, correo, parqueadero o id de pago",
+        "columns": {
+          "date": "Fecha",
+          "driver": "Conductor",
+          "lot": "Parqueadero",
+          "amount": "Monto",
+          "commission": "Comisión",
+          "status": "Estado"
+        },
+        "empty": "Aún no hay pagos.",
+        "openInStripe": "Ver en Stripe"
+      },
+      "settings": {
+        "title": "Configuración",
+        "subtitle": "Parámetros de negocio. Los cambios aplican en segundos, sin desplegar.",
+        "updatedAt": "Actualizado {date}",
+        "saved": "Guardado",
+        "invalidJson": "El valor no es JSON válido.",
+        "keys": {
+          "booking_freeCancellationHours": "Horas de cancelación gratuita",
+          "booking_paymentHoldMinutes": "Minutos de retención del cupo al pagar",
+          "commission_basisPoints": "Comisión (puntos básicos, 1000 = 10 %)",
+          "pricing_monthlyCapMinor": "Tope mensual por vehículo (unidades menores)",
+          "search_defaultCenter": "Centro inicial del mapa",
+          "search_defaultRadiusMeters": "Radio de búsqueda (metros)",
+          "search_priceFiltersMinor": "Filtros de precio (unidades menores)",
+          "shift_schedule": "Horario de franjas"
+        }
+      }
+    },
+    "partner": {
+      "nav": {
+        "overview": "Resumen",
+        "lots": "Mis parqueaderos"
+      },
+      "overview": {
+        "title": "Hola, {name}",
+        "subtitle": "Así van tus parqueaderos.",
+        "income": "Ingreso neto",
+        "incomeHint": "Bruto {gross} − comisión {commission}",
+        "activeBookings": "Mensualidades activas",
+        "pendingBookings": "{count} esperando pago",
+        "occupancy": "Ocupación",
+        "occupancyHint": "{sold} de {total} cupos vendidos",
+        "lots": "Parqueaderos",
+        "lotsHint": "{count} cupos publicados",
+        "chartTitle": "Ventas de los últimos 14 días",
+        "chartEmpty": "Aún no tienes ventas en este periodo.",
+        "recentTitle": "Últimas mensualidades",
+        "recentEmpty": "Cuando un conductor compre una mensualidad la verás aquí.",
+        "manageLots": "Gestionar parqueaderos"
+      }
+    },
+    "bookingStatus": {
+      "PENDING_PAYMENT": "Pendiente de pago",
+      "ACTIVE": "Activa",
+      "EXPIRED": "Vencida",
+      "CANCELLED": "Cancelada",
+      "REFUNDED": "Reembolsada"
+    },
+    "paymentStatus": {
+      "PENDING": "Pendiente",
+      "SUCCEEDED": "Pagado",
+      "FAILED": "Fallido",
+      "REFUNDED": "Reembolsado"
+    },
+    "driver": {
+      "nav": {
+        "overview": "Resumen",
+        "bookings": "Mis mensualidades",
+        "history": "Historial",
+        "profile": "Perfil y vehículos",
+        "search": "Buscar parqueadero"
+      },
+      "overview": {
+        "title": "Hola, {name}",
+        "subtitle": "Tus mensualidades, vencimientos y pagos en un solo lugar.",
+        "active": "Mensualidades activas",
+        "activeHint": "{count, plural, =0 {Sin pagos pendientes} one {# pago pendiente} other {# pagos pendientes}}",
+        "nextExpiry": "Próximo vencimiento",
+        "nextExpiryNone": "—",
+        "nextExpiryHint": "Vence el {date}",
+        "spent": "Total pagado",
+        "spentHint": "{count, plural, one {# mensualidad pagada} other {# mensualidades pagadas}}",
+        "vehicles": "Vehículos",
+        "vehiclesHint": "Placas registradas",
+        "currentTitle": "Tu mensualidad activa",
+        "currentEmpty": "No tienes mensualidades activas.",
+        "currentEmptyHint": "Busca un parqueadero cerca de tu casa o trabajo y paga solo la franja que usas.",
+        "pendingTitle": "Tienes un pago pendiente",
+        "pendingDetail": "{lot} · {price}. El cupo se libera si no lo pagas a tiempo.",
+        "recentTitle": "Actividad reciente",
+        "recentEmpty": "Aquí verás tus mensualidades y pagos.",
+        "viewAll": "Ver todo",
+        "viewBookings": "Ver mis mensualidades"
+      },
+      "history": {
+        "title": "Historial",
+        "subtitle": "Todas tus mensualidades y pagos.",
+        "empty": "Aún no tienes movimientos.",
+        "columns": {
+          "date": "Fecha",
+          "lot": "Parqueadero",
+          "shift": "Franja",
+          "plate": "Placa",
+          "period": "Vigencia",
+          "amount": "Valor",
+          "status": "Estado",
+          "receipt": "Recibo"
+        }
+      },
+      "profile": {
+        "title": "Perfil y vehículos",
+        "subtitle": "Tus datos y las placas con las que reservas.",
+        "account": "Tu cuenta",
+        "name": "Nombre",
+        "email": "Correo",
+        "phone": "Teléfono",
+        "role": "Tipo de cuenta",
+        "vehiclesTitle": "Mis vehículos",
+        "vehiclesEmpty": "Aún no tienes vehículos. Se agregan solos al reservar, o puedes registrarlos aquí.",
+        "plate": "Placa",
+        "type": "Tipo",
+        "nickname": "Apodo (opcional)",
+        "add": "Agregar vehículo",
+        "remove": "Quitar",
+        "removeConfirm": "¿Quitar el vehículo {plate}?"
+      }
+    }
+  },
+  "checkout": {
+    "metaTitle": "Pagar mensualidad · Parquea Vecino",
+    "steps": {
+      "details": "Datos",
+      "payment": "Pago",
+      "done": "Listo"
+    },
+    "title": "Paga tu mensualidad",
+    "summary": "Resumen",
+    "plate": "Placa",
+    "shift": "Franja",
+    "total": "Total a pagar",
+    "perMonth": "por 1 mes",
+    "pay": "Pagar {amount}",
+    "paying": "Procesando…",
+    "testCard": "Modo de prueba: usa la tarjeta 4242 4242 4242 4242, cualquier fecha futura y cualquier CVC.",
+    "holdNotice": "Tu cupo está apartado mientras completas el pago.",
+    "cancel": "Cancelar reserva",
+    "notFound": "No encontramos esta reserva.",
+    "confirming": "Confirmando tu pago…",
+    "successTitle": "¡Listo! Tu mensualidad está activa",
+    "successDetail": "Muestra este código en la portería del parqueadero.",
+    "accessCode": "Código de ingreso",
+    "validity": "Vigencia",
+    "validFromTo": "{start} – {end}",
+    "goToBookings": "Ver mis mensualidades",
+    "cancelledTitle": "Esta reserva ya no está activa",
+    "cancelledDetail": "El cupo se liberó. Puedes buscar otro parqueadero cuando quieras.",
+    "backToSearch": "Buscar parqueadero"
+  },
+  "bookings": {
+    "title": "Mis mensualidades",
+    "subtitle": "Tus cupos activos, códigos de ingreso e historial.",
+    "empty": "Aún no tienes mensualidades.",
+    "emptyHint": "Busca un parqueadero cerca de tu casa o trabajo y paga solo la franja que usas.",
+    "loginRequired": "Ingresa para ver tus mensualidades.",
+    "accessCode": "Código",
+    "validUntil": "Vigente hasta {date}",
+    "daysLeft": "{count, plural, =0 {Vence hoy} one {Queda # día} other {Quedan # días}}",
+    "continuePayment": "Continuar pago",
+    "cancel": "Cancelar",
+    "cancelConfirm": "¿Cancelar esta mensualidad? Si está dentro de la ventana gratuita se reembolsa el pago.",
+    "history": "Historial",
+    "keep": "No, conservarla",
+    "renew": "Renovar",
+    "renewing": "Preparando…",
+    "continueRenewal": "Pagar renovación",
+    "renewedUntil": "Renovada hasta {date}",
+    "startsOn": "Empieza el {date}",
+    "scheduled": "Programada",
+    "renewalBadge": "Renovación",
+    "receipt": "Ver QR y recibo"
+  },
+  "receipt": {
+    "metaTitle": "Recibo · Parquea Vecino",
+    "title": "Recibo de pago",
+    "number": "Recibo {number}",
+    "back": "Volver",
+    "print": "Descargar PDF",
+    "printHint": "Se abre la ventana de impresión: elige \"Guardar como PDF\".",
+    "qrTitle": "Muestra este código al ingresar",
+    "qrHint": "El parqueadero valida el código y la placa.",
+    "accessCode": "Código de ingreso",
+    "driver": "Conductor",
+    "plate": "Placa",
+    "lot": "Parqueadero",
+    "shift": "Franja",
+    "vehicle": "Vehículo",
+    "period": "Vigencia",
+    "periodValue": "{start} al {end}",
+    "paidAt": "Fecha de pago",
+    "reference": "Referencia de pago",
+    "method": "Medio de pago",
+    "methodValue": "Tarjeta (Stripe · modo de prueba)",
+    "total": "Total pagado",
+    "status": "Estado del pago",
+    "issuedAt": "Emitido el {date}",
+    "legal": "Soporte de la mensualidad para presentar en el parqueadero (Ley 1801 de 2016, art. 90). Pago procesado en ambiente de pruebas: no corresponde a un cobro real.",
+    "notAvailable": "Esta mensualidad aún no tiene recibo."
   }
 }

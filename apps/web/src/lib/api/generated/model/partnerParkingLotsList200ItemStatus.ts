@@ -6,12 +6,13 @@
  * OpenAPI spec version: 1.0
  */
 
-export type PartnerParkingLotsList200ItemStatus = typeof PartnerParkingLotsList200ItemStatus[keyof typeof PartnerParkingLotsList200ItemStatus];
-
+export type PartnerParkingLotsList200ItemStatus =
+  (typeof PartnerParkingLotsList200ItemStatus)[keyof typeof PartnerParkingLotsList200ItemStatus];
 
 export const PartnerParkingLotsList200ItemStatus = {
   DRAFT: 'DRAFT',
   PENDING_VERIFICATION: 'PENDING_VERIFICATION',
   ACTIVE: 'ACTIVE',
+  PAUSED: 'PAUSED',
   SUSPENDED: 'SUSPENDED',
 } as const;

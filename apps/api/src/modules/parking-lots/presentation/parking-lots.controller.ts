@@ -7,6 +7,8 @@ import {
   searchQuerySchema,
   searchResponseSchema,
   upsertOffersSchema,
+  partnerLotStatusSchema,
+  type PartnerLotStatusInput,
   UserRole,
   type ParkingLot,
   type ParkingLotInput,
@@ -80,6 +82,16 @@ export class PartnerParkingLotsController {
     @ZodBody(parkingLotUpdateSchema) input: ParkingLotUpdate,
   ): Promise<ParkingLot> {
     return this.lots.updateForPartner(user.id, id, input);
+  }
+
+  @Patch(':id/status')
+  @ApiZodResponse(parkingLotSchema)
+  setStatus(
+    @CurrentUser() user: AuthenticatedUser,
+    @UuidParam('id') id: string,
+    @ZodBody(partnerLotStatusSchema) input: PartnerLotStatusInput,
+  ): Promise<ParkingLot> {
+    return this.lots.setStatusForPartner(user.id, id, input.status);
   }
 
   @Put(':id/offers')

@@ -1,4 +1,6 @@
 import type {
+  AdminParkingLot,
+  AdminParkingLotListQuery,
   Amenity,
   OfferInput,
   ParkingLot,
@@ -27,6 +29,25 @@ export interface LotSearchCriteria {
   limit: number;
 }
 
+/** Datos del cupo que se copian a la reserva. */
+export interface ReservedOffer {
+  offerId: string;
+  parkingLotId: string;
+  shift: Shift;
+  vehicleType: VehicleType;
+  monthlyPriceMinor: number;
+  currency: string;
+}
+
+export interface SpotTotals {
+  lots: number;
+  totalSpots: number;
+  availableSpots: number;
+}
+
+/** Oferta lista para guardar, con los cupos libres ya calculados. */
+export type OfferWrite = OfferInput & { availableSpots: number };
+
 export abstract class ParkingLotsRepository {
   /** Parqueaderos activos dentro del radio con cupo de esa franja y vehículo (incluye llenos). */
   abstract search(criteria: LotSearchCriteria): Promise<SearchResult[]>;
@@ -41,7 +62,24 @@ export abstract class ParkingLotsRepository {
   /** Crea o actualiza los cupos por (franja, tipo de vehículo) en una sola transacción. */
   abstract upsertOffers(
     parkingLotId: string,
-    offers: OfferInput[],
+    offers: OfferWrite[],
     currency: string,
   ): Promise<ParkingLotRecord>;
+  abstract listForAdmin(
+    query: AdminParkingLotListQuery,
+  ): Promise<{ items: AdminParkingLot[]; total: number }>;
+  abstract findForAdmin(id: string): Promise<AdminParkingLot | null>;
+  abstract setStatus(id: string, status: ParkingLotStatus, verifiedAt?: Date | null): Promise<void>;
+  abstract countByStatus(): Promise<Record<ParkingLotStatus, number>>;
+  /** Cupos publicados y libres (de un aliado, o de toda la plataforma). */
+  abstract spotTotals(partnerId?: string): Promise<SpotTotals>;
+  /**
+   * Descuenta un cupo libre de forma atómica (sin sobreventa). Devuelve null si el cupo no
+   * existe, está inactivo, el parqueadero no está publicado o ya no quedan cupos.
+   */
+  abstract reserveSpot(offerId: string): Promise<ReservedOffer | null>;
+  /** Oferta con su precio vigente; `available` = activa y en un parqueadero publicado. */
+  abstract findOffer(offerId: string): Promise<(ReservedOffer & { available: boolean }) | null>;
+  /** Devuelve un cupo (pago fallido, reserva vencida o cancelada). */
+  abstract releaseSpot(offerId: string): Promise<void>;
 }

@@ -54,6 +54,9 @@ export const prod: EnvironmentConfig = {
     jwtRefreshTtl: '7d',
     seedAdminEmail: 'admin@parqueavecino.local',
     mapStyleUrl: 'https://tiles.openfreemap.org/styles/positron',
+    // Llave publicable (pública por diseño). La secreta va en Secrets Manager, nunca aquí.
+    stripePublishableKey:
+      'pk_test_51Ug3u1HkrNz3wZ9aqeub2fGaobCZ1Qw5CoATnFneXIzTBrZ1zQ5fq3BVLvPHtV3UHWT5ZFrzYTqLHuPZS8LCU7y0009jn4dCTP',
   },
 
   geocoder: {
