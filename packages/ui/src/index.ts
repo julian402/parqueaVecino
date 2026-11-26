@@ -5,3 +5,4 @@ export { Badge, badgeVariants, type BadgeProps } from './components/badge';
 export { Card, CardTitle, StatCard } from './components/card';
 export { Input, type InputProps } from './components/input';
 export { Stepper } from './components/stepper';
+export { Logo, type LogoProps } from './components/logo';

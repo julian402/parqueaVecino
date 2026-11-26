@@ -2,6 +2,7 @@
 
 import { UserRole } from '@parqueavecino/contracts';
 import { Button, buttonVariants } from '@parqueavecino/ui';
+import { LayoutDashboard, LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -15,34 +16,52 @@ export function UserMenu() {
   const { user, isLoading } = useSession();
   const signOut = useSignOut();
 
-  if (isLoading) return null;
+  if (isLoading) return <div className="h-9 w-24" aria-hidden />;
 
   if (!user) {
     return (
-      <Link href={routes.login} className={buttonVariants({ variant: 'secondary', size: 'sm' })}>
-        {t('signIn')}
-      </Link>
+      <div className="flex items-center gap-2">
+        <Link href={routes.login} className={buttonVariants({ variant: 'ghost', size: 'sm' })}>
+          {t('signIn')}
+        </Link>
+        <Link href={routes.register} className={buttonVariants({ variant: 'accent', size: 'sm' })}>
+          {t('register')}
+        </Link>
+      </div>
     );
   }
 
+  const initial = user.fullName.trim().charAt(0).toUpperCase();
+
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-3">
       {user.role === UserRole.PARTNER && (
-        <Link href={routes.partnerPanel} className="text-ink">
-          {t('partnerPanel')}
+        <Link
+          href={routes.partnerPanel}
+          className={buttonVariants({ variant: 'secondary', size: 'sm' })}
+        >
+          <LayoutDashboard aria-hidden className="size-4" />
+          <span className="hidden sm:inline">{t('partnerPanel')}</span>
         </Link>
       )}
-      <span className="text-sm text-muted">{t('greeting', { name: user.fullName })}</span>
+      <span
+        title={t('greeting', { name: user.fullName })}
+        className="flex size-9 items-center justify-center rounded-pill bg-brand font-bold text-ink"
+      >
+        {initial}
+      </span>
       <Button
-        variant="secondary"
+        variant="ghost"
         size="sm"
+        aria-label={t('signOut')}
         onClick={() =>
           void signOut().then(() => {
             router.push(routes.home);
           })
         }
       >
-        {t('signOut')}
+        <LogOut aria-hidden className="size-4" />
+        <span className="hidden sm:inline">{t('signOut')}</span>
       </Button>
     </div>
   );

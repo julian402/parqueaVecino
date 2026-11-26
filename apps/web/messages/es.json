@@ -4,7 +4,7 @@
     "description": "Tu mensualidad de parqueadero, solo en el horario que la usas."
   },
   "nav": {
-    "brand": "ParqueaVecino",
+    "brand": "Parquea Vecino",
     "search": "Buscar",
     "howItWorks": "Cómo funciona",
     "forPartners": "Para parqueaderos",
@@ -13,16 +13,76 @@
     "partnerPanel": "Panel aliados",
     "myBookings": "Mis mensualidades",
     "profile": "Perfil",
-    "greeting": "Hola, {name}"
+    "greeting": "Hola, {name}",
+    "register": "Crear cuenta"
   },
   "home": {
-    "title": "Tu mensualidad de parqueadero, solo en el horario que la usas",
-    "subtitle": "Paga menos eligiendo la franja de día o de noche en parqueaderos verificados.",
+    "eyebrow": "Mensualidades por franja en Bogotá",
+    "titleStart": "Tu mensualidad de parqueadero,",
+    "titleHighlight": "solo en el horario que la usas",
+    "subtitle": "Asegurada, flexible y económica desde tu celular. Para carros, motos y bicicletas, en parqueaderos verificados.",
+    "searchTitle": "Encuentra tu próximo parqueadero",
     "whereLabel": "¿Dónde necesitas parquear?",
     "wherePlaceholder": "Barrio, dirección o lugar de trabajo",
     "shiftLabel": "Franja",
     "vehicleLabel": "Vehículo",
-    "submit": "Buscar cupos"
+    "submit": "Buscar cupos",
+    "searchSoon": "La búsqueda con mapa llega en la próxima fase.",
+    "stat": {
+      "value": "60%",
+      "label": "de los conductores pierde hasta 25 minutos al día buscando dónde parquear.",
+      "highlight": "Más de 100 horas al año.",
+      "detail": "Casi 4 días completos de tu vida."
+    },
+    "shifts": {
+      "title": "Pagas únicamente la franja que usas",
+      "subtitle": "Una mensualidad tradicional te cobra un cupo bloqueado 24/7 que solo usas unas horas.",
+      "DAY": {
+        "name": "Diurna",
+        "detail": "Para tu trabajo"
+      },
+      "NIGHT": {
+        "name": "Nocturna",
+        "detail": "Para tu hogar"
+      },
+      "hours": "{start} – {end}"
+    },
+    "steps": {
+      "title": "Ingresa, busca tu parqueadero, selecciona y paga",
+      "label": "Paso {number}",
+      "items": {
+        "1": "Ingresa a la app.",
+        "2": "Busca tu parqueadero.",
+        "3": "Selecciona y paga."
+      }
+    },
+    "benefits": {
+      "title": "¿Por qué elegirnos?",
+      "items": {
+        "savings": {
+          "title": "Ahorro significativo",
+          "detail": "Pagas solo la franja que usas, sin sobrecostos."
+        },
+        "map": {
+          "title": "Mapa en tiempo real",
+          "detail": "Disponibilidad y reserva instantánea."
+        },
+        "inclusive": {
+          "title": "100 % inclusivo",
+          "detail": "Espacios asegurados para carros, motos y bicicletas."
+        },
+        "verified": {
+          "title": "Parqueaderos verificados",
+          "detail": "Establecimientos legales, seguros y con póliza."
+        }
+      }
+    },
+    "partners": {
+      "title": "¿Tienes un parqueadero?",
+      "subtitle": "Publica tus cupos libres de día o de noche y genera ingresos extra. Nosotros traemos a los conductores.",
+      "cta": "Publicar mi parqueadero"
+    },
+    "closing": "Recupera tus 100 horas."
   },
   "auth": {
     "loginTitle": "Ingresa a tu cuenta",
@@ -68,7 +128,20 @@
   },
   "comingSoon": "Disponible en una próxima fase.",
   "enums": {
-    "shift": { "DAY": "Día", "NIGHT": "Noche", "FULL": "24 h" },
-    "vehicleType": { "CAR": "Carro", "MOTORCYCLE": "Moto", "BICYCLE": "Bici" }
+    "shift": {
+      "DAY": "Día",
+      "NIGHT": "Noche",
+      "FULL": "24 h"
+    },
+    "vehicleType": {
+      "CAR": "Carro",
+      "MOTORCYCLE": "Moto",
+      "BICYCLE": "Bici"
+    }
+  },
+  "footer": {
+    "tagline": "Encontrar dónde estacionar no debería ser una carrera contra el tiempo.",
+    "rights": "Proyecto académico · Uniempresarial",
+    "demo": "Ambiente de pruebas: los pagos son ficticios."
   }
 }
