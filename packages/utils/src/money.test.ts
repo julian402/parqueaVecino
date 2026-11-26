@@ -1,10 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { formatMoney, percentageOf, toMinorUnits } from './money';
+import { currencyFractionDigits, formatMoney, percentageOf, toMinorUnits } from './money';
 import { hourInTimeZone } from './date';
 
 describe('money', () => {
   it('convierte a unidades menores según la moneda', () => {
     expect(toMinorUnits(170000, 'COP')).toBe(17_000_000);
+  });
+
+  it('fija los decimales ISO 4217 de COP (2) aunque el ICU del entorno diga otra cosa', () => {
+    expect(currencyFractionDigits('COP')).toBe(2);
+    expect(currencyFractionDigits('cop')).toBe(2);
   });
 
   it('formatea COP sin centavos', () => {
