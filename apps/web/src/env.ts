@@ -5,7 +5,8 @@ import { z } from 'zod';
  * por eso se listan una por una. Toda variable nueva va aquí y en `.env.example`.
  */
 const schema = z.object({
-  NEXT_PUBLIC_API_URL: z.url(),
+  /** Ruta relativa (/api, mismo origen) o URL absoluta. */
+  NEXT_PUBLIC_API_URL: z.union([z.string().regex(/^\/[\w-]*$/), z.url()]),
   NEXT_PUBLIC_APP_LOCALE: z.string().min(2),
   NEXT_PUBLIC_APP_TIMEZONE: z.string().min(1),
   NEXT_PUBLIC_APP_CURRENCY: z.string().length(3),

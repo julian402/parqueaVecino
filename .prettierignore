@@ -5,3 +5,6 @@ dist
 .turbo
 coverage
 cdk.out
+apps/web/src/lib/api/generated
+apps/api/openapi.json
+apps/api/src/generated

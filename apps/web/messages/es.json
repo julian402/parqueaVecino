@@ -8,7 +8,12 @@
     "search": "Buscar",
     "howItWorks": "Cómo funciona",
     "forPartners": "Para parqueaderos",
-    "signIn": "Ingresar"
+    "signIn": "Ingresar",
+    "signOut": "Salir",
+    "partnerPanel": "Panel aliados",
+    "myBookings": "Mis mensualidades",
+    "profile": "Perfil",
+    "greeting": "Hola, {name}"
   },
   "home": {
     "title": "Tu mensualidad de parqueadero, solo en el horario que la usas",
@@ -19,6 +24,49 @@
     "vehicleLabel": "Vehículo",
     "submit": "Buscar cupos"
   },
+  "auth": {
+    "loginTitle": "Ingresa a tu cuenta",
+    "registerTitle": "Crea tu cuenta",
+    "email": "Correo",
+    "password": "Contraseña",
+    "passwordHint": "Mínimo 8 caracteres, con letras y números",
+    "fullName": "Nombre completo",
+    "phone": "Celular (opcional)",
+    "roleLabel": "Quiero…",
+    "roles": {
+      "DRIVER": "Encontrar una mensualidad",
+      "PARTNER": "Publicar los cupos de mi parqueadero"
+    },
+    "submitLogin": "Ingresar",
+    "submitRegister": "Crear cuenta",
+    "noAccount": "¿No tienes cuenta?",
+    "goRegister": "Regístrate",
+    "hasAccount": "¿Ya tienes cuenta?",
+    "goLogin": "Ingresa",
+    "genericError": "No pudimos completar la acción. Intenta de nuevo."
+  },
+  "partner": {
+    "title": "Mis parqueaderos",
+    "empty": "Aún no tienes parqueaderos publicados.",
+    "onlyPartners": "Esta sección es solo para parqueaderos aliados.",
+    "offersTitle": "Cupos publicados",
+    "columns": {
+      "shift": "Franja",
+      "vehicle": "Vehículo",
+      "total": "Total",
+      "available": "Libres",
+      "price": "Precio/mes"
+    },
+    "noOffers": "Sin cupos publicados todavía.",
+    "verified": "Verificado",
+    "status": {
+      "DRAFT": "Borrador",
+      "PENDING_VERIFICATION": "En verificación",
+      "ACTIVE": "Publicado",
+      "SUSPENDED": "Suspendido"
+    }
+  },
+  "comingSoon": "Disponible en una próxima fase.",
   "enums": {
     "shift": { "DAY": "Día", "NIGHT": "Noche", "FULL": "24 h" },
     "vehicleType": { "CAR": "Carro", "MOTORCYCLE": "Moto", "BICYCLE": "Bici" }
