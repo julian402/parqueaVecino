@@ -41,10 +41,13 @@ Objetivo: cualquier integrante clona, corre `pnpm i && pnpm dev` y tiene todo ar
 
 ## Fase 2 — Buscar, mapa y detalle (semanas 3–4) · Mockups 1, 2, 3
 
-- ☐ `search`: consulta PostGIS por radio + filtros (franja, vehículo, precio máx., techo) + orden
-- ☐ Pantalla Inicio (buscador con franja y vehículo)
-- ☐ Resultados: lista + mapa MapLibre sincronizados, pines con precio y cupos, "Lleno"
-- ☐ Detalle: fotos (S3), bloque "Verificado" con póliza, selector de franja con ahorro vs 24 h
+- ☑ `search`: consulta PostGIS por radio + filtros (franja, vehículo, precio máx., techo) + orden
+- ☑ Geocodificación (`geocoding`, Nominatim con caché) y "usar mi ubicación"
+- ☑ Pantalla Inicio (buscador con franja y vehículo) → `/buscar`
+- ☑ Resultados: lista + mapa MapLibre/OpenFreeMap sincronizados, pines con precio y cupos, "Lleno"
+- ☑ Detalle: bloque "Verificado", servicios, selector de franja con ahorro vs 24 h, mapa
+- ☐ Fotos del parqueadero en S3 (hoy se muestra una imagen provisional)
+- ☑ 13 parqueaderos demo con coordenadas reales de Chapinero y alrededores
 - ☐ Reseñas (lectura)
 
 **Entregable:** un conductor encuentra parqueaderos cerca y ve el detalle.

@@ -8,27 +8,27 @@
 
 Un solo lenguaje (TypeScript) de punta a punta: front, back, contratos e infraestructura.
 
-| Capa              | Tecnología                                                                                                      | Por qué                                                                                                                |
-| ----------------- | --------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Monorepo          | **pnpm workspaces + Turborepo**                                                                                 | Paquetes compartidos (UI, contratos, utilidades), builds con caché, un solo `pnpm dev`.                                |
-| Frontend          | **Next.js 15 (App Router) + React + TypeScript**                                                                | SSR/SEO para la parte pública, rutas por rol, responsive (los mockups son una sola app web para escritorio y celular). |
-| Estilos / UI      | **Tailwind CSS v4 + shadcn/ui (Radix)** en `packages/ui`                                                        | Componentes propios y reutilizables; tokens en `packages/ui/src/styles/tokens.css` (`@theme`).                         |
-| Estado servidor   | **TanStack Query** + cliente generado con **Orval** desde OpenAPI                                               | Cero endpoints escritos a mano en el front; tipos sincronizados con la API.                                            |
-| Formularios       | **React Hook Form + Zod**                                                                                       | Validaciones compartidas con el backend.                                                                               |
-| Textos            | **next-intl** (`messages/es.json`)                                                                              | Ningún texto de UI quemado en componentes.                                                                             |
-| Mapa              | **MapLibre GL** (tiles de Amazon Location Service en AWS; OSM/MapTiler en local)                                | Libre, sin lock-in; el proveedor de tiles es configuración.                                                            |
-| Backend           | **NestJS 11** (módulos, inyección de dependencias)                                                              | Organización por módulos de dominio "de fábrica", guards por rol, OpenAPI automático.                                  |
-| ORM / BD          | **Prisma + PostgreSQL 16 + PostGIS**                                                                            | Búsqueda geoespacial ("a 350 m de ti"), migraciones versionadas.                                                       |
-| Tiempo real       | **Socket.IO (Gateway de NestJS) + Redis adapter**                                                               | Cupos libres en vivo en el mapa (atributo A2), escalable horizontalmente.                                              |
-| Colas / jobs      | **BullMQ sobre Redis**                                                                                          | Alertas de cupo (A3), correos, vencimientos de mensualidades y documentos.                                             |
-| Pagos             | **Stripe (modo test) + Stripe Connect Express** detrás de un puerto `PaymentProvider`                           | Marketplace con comisión (`application_fee`), webhooks, todo en sandbox. Cambiable a Wompi sin tocar el dominio.       |
-| Archivos          | **S3** (S3Mock en local) con URLs prefirmadas                                                                   | Fotos de parqueaderos y documentos de verificación (póliza, RUT).                                                      |
-| Correo            | **Amazon SES** (Mailpit en local)                                                                               | Confirmaciones y alertas.                                                                                              |
-| Auth              | Módulo propio: **argon2 + JWT** (access corto + refresh en cookie httpOnly), roles `DRIVER`, `PARTNER`, `ADMIN` | Funciona igual en local y en AWS; Cognito queda como mejora opcional (ADR).                                            |
-| Logs              | **pino** (JSON) → CloudWatch                                                                                    | Estructurados, con `requestId`.                                                                                        |
-| Pruebas           | **Vitest** (unit), **Supertest** (API), **Playwright** (e2e)                                                    |                                                                                                                        |
-| Infra como código | **AWS CDK (TypeScript)**                                                                                        | Mismo lenguaje que la app; stacks por capa y por ambiente.                                                             |
-| CI/CD             | **GitHub Actions** + OIDC hacia AWS                                                                             | Sin llaves de AWS guardadas en el repo ni en secretos de larga vida.                                                   |
+| Capa              | Tecnología                                                                                                           | Por qué                                                                                                                |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Monorepo          | **pnpm workspaces + Turborepo**                                                                                      | Paquetes compartidos (UI, contratos, utilidades), builds con caché, un solo `pnpm dev`.                                |
+| Frontend          | **Next.js 15 (App Router) + React + TypeScript**                                                                     | SSR/SEO para la parte pública, rutas por rol, responsive (los mockups son una sola app web para escritorio y celular). |
+| Estilos / UI      | **Tailwind CSS v4 + shadcn/ui (Radix)** en `packages/ui`                                                             | Componentes propios y reutilizables; tokens en `packages/ui/src/styles/tokens.css` (`@theme`).                         |
+| Estado servidor   | **TanStack Query** + cliente generado con **Orval** desde OpenAPI                                                    | Cero endpoints escritos a mano en el front; tipos sincronizados con la API.                                            |
+| Formularios       | **React Hook Form + Zod**                                                                                            | Validaciones compartidas con el backend.                                                                               |
+| Textos            | **next-intl** (`messages/es.json`)                                                                                   | Ningún texto de UI quemado en componentes.                                                                             |
+| Mapa              | **MapLibre GL** + estilo **OpenFreeMap** (`NEXT_PUBLIC_MAP_STYLE_URL`); geocodificación con **Nominatim** vía la API | Gratis y sin llave; el proveedor es configuración. Google Maps exige facturación.                                      |
+| Backend           | **NestJS 11** (módulos, inyección de dependencias)                                                                   | Organización por módulos de dominio "de fábrica", guards por rol, OpenAPI automático.                                  |
+| ORM / BD          | **Prisma + PostgreSQL 16 + PostGIS**                                                                                 | Búsqueda geoespacial ("a 350 m de ti"), migraciones versionadas.                                                       |
+| Tiempo real       | **Socket.IO (Gateway de NestJS) + Redis adapter**                                                                    | Cupos libres en vivo en el mapa (atributo A2), escalable horizontalmente.                                              |
+| Colas / jobs      | **BullMQ sobre Redis**                                                                                               | Alertas de cupo (A3), correos, vencimientos de mensualidades y documentos.                                             |
+| Pagos             | **Stripe (modo test) + Stripe Connect Express** detrás de un puerto `PaymentProvider`                                | Marketplace con comisión (`application_fee`), webhooks, todo en sandbox. Cambiable a Wompi sin tocar el dominio.       |
+| Archivos          | **S3** (S3Mock en local) con URLs prefirmadas                                                                        | Fotos de parqueaderos y documentos de verificación (póliza, RUT).                                                      |
+| Correo            | **Amazon SES** (Mailpit en local)                                                                                    | Confirmaciones y alertas.                                                                                              |
+| Auth              | Módulo propio: **argon2 + JWT** (access corto + refresh en cookie httpOnly), roles `DRIVER`, `PARTNER`, `ADMIN`      | Funciona igual en local y en AWS; Cognito queda como mejora opcional (ADR).                                            |
+| Logs              | **pino** (JSON) → CloudWatch                                                                                         | Estructurados, con `requestId`.                                                                                        |
+| Pruebas           | **Vitest** (unit), **Supertest** (API), **Playwright** (e2e)                                                         |                                                                                                                        |
+| Infra como código | **AWS CDK (TypeScript)**                                                                                             | Mismo lenguaje que la app; stacks por capa y por ambiente.                                                             |
+| CI/CD             | **GitHub Actions** + OIDC hacia AWS                                                                                  | Sin llaves de AWS guardadas en el repo ni en secretos de larga vida.                                                   |
 
 ### Nota sobre pagos en Colombia
 
@@ -92,6 +92,7 @@ Cada módulo es una carpeta autocontenida en `apps/api/src/modules/<modulo>/`:
 | `parking-lots`      | Parqueadero: dirección, geolocalización, servicios, fotos                             | 3, 7                     |
 | `offers`            | Cupos por franja (DAY/NIGHT/FULL): total, precio, validación de tope tarifario        | 3, 7 · A1                |
 | `search`            | Búsqueda geoespacial + filtros (franja, vehículo, precio, techo) y orden              | 1, 2 · N1                |
+| `geocoding`         | Texto → coordenadas (puerto `Geocoder`, adaptador Nominatim, caché en memoria)        | 1, 2                     |
 | `availability`      | Cupos libres en tiempo real (WebSocket + Redis pub/sub)                               | 2 · A2                   |
 | `bookings`          | Mensualidades: reserva, vigencia, renovar, cancelar, código de ingreso/QR             | 4, 5, 6                  |
 | `payments`          | Puerto `PaymentProvider`, Stripe Connect, webhooks, libro de movimientos, comisión    | 4 · N3                   |
@@ -123,6 +124,11 @@ apps/web/src/
 Reglas: las páginas (`app/`) solo componen; la lógica vive en `features/`. Componentes genéricos
 (Button, Card, Pill, Badge "Verificado", PriceTag, MapPin, StatCard, DataTable, Stepper) van en
 `packages/ui` y se identifican desde los mockups.
+
+Mapa: `features/map` (`MapView`, marcadores de precio), cargado solo en el navegador. El worker de
+MapLibre se copia a `public/vendor/` al correr `dev`/`build` (`scripts/copy-map-worker.mjs`) porque
+el bundler de Next no resuelve su URL. El estado de la búsqueda vive en la URL de `/buscar`
+(compartible, con "atrás" del navegador) y se valida con Zod (`features/search/lib/search-state.ts`).
 
 ## 6. Nada quemado (no hardcode)
 
