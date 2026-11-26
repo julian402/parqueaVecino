@@ -191,6 +191,7 @@ export class AppStack extends Stack {
           NEXT_PUBLIC_APP_LOCALE: appSettings.locale,
           NEXT_PUBLIC_APP_TIMEZONE: appSettings.timezone,
           NEXT_PUBLIC_APP_CURRENCY: appSettings.currency,
+          NEXT_PUBLIC_MAP_STYLE_URL: appSettings.mapStyleUrl,
         },
       }),
       portMappings: [{ containerPort: app.webPort }],

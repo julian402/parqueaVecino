@@ -48,6 +48,7 @@ jobs:
           NEXT_PUBLIC_APP_LOCALE: es-CO
           NEXT_PUBLIC_APP_TIMEZONE: America/Bogota
           NEXT_PUBLIC_APP_CURRENCY: COP
+          NEXT_PUBLIC_MAP_STYLE_URL: https://tiles.openfreemap.org/styles/positron
 
   e2e-api:
     runs-on: ubuntu-latest

@@ -61,6 +61,8 @@ export interface EnvironmentConfig {
     jwtAccessTtl: string;
     jwtRefreshTtl: string;
     seedAdminEmail: string;
+    /** Estilo del mapa de la web (MapLibre). */
+    mapStyleUrl: string;
   };
 
   /** Geocodificador (texto → coordenadas). Nominatim es gratis; ver su política de uso. */

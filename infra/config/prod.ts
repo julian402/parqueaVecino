@@ -53,6 +53,7 @@ export const prod: EnvironmentConfig = {
     jwtAccessTtl: '15m',
     jwtRefreshTtl: '7d',
     seedAdminEmail: 'admin@parqueavecino.local',
+    mapStyleUrl: 'https://tiles.openfreemap.org/styles/positron',
   },
 
   geocoder: {
