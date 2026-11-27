@@ -105,7 +105,8 @@ Cada módulo es una carpeta autocontenida en `apps/api/src/modules/<modulo>/`:
 | `settings`          | Parámetros de negocio editables (ver §5)                                              | transversal              |
 
 Transversal en `apps/api/src/common/`: `ConfigModule` validado con Zod, logger, filtro de errores
-estándar, paginación, `RequestId`, health checks (`/health`).
+estándar, paginación, `RequestId`, health checks (`/health`), `storage` (puerto `FileStorage`, S3 con URLs
+prefirmadas) y `jobs` (puerto `JobScheduler`: BullMQ con Redis o temporizadores sin él).
 
 ## 5. Frontend (Next.js)
 
@@ -168,7 +169,8 @@ Implementado (región `us-east-2`, única permitida por la organización):
 ```
 NetworkStack   VPC 2 AZ sin NAT; grupo de seguridad de la app
 DataStack      RDS PostgreSQL 17 + PostGIS, db.t4g.micro, subred aislada, cifrada, credenciales en Secrets Manager
-AppStack       Fargate (1 tarea: caddy + web + api), EFS para certificados; secretos JWT, seed y DuckDNS
+AppStack       Fargate (1 tarea: caddy + web + api + redis), EFS para certificados, bucket S3 privado de
+               documentos; secretos JWT, seed y DuckDNS
 CiStack        Rol OIDC para GitHub Actions (solo la rama main)
 OpsStack       AWS Budgets con alerta
 ```
@@ -179,7 +181,8 @@ Caddy publica la IP pública de la tarea en DuckDNS al arrancar (cuando web y AP
 y renueva solo el certificado de Let's Encrypt, guardado en EFS para no repetirlo en cada despliegue.
 Límite aceptado: una sola tarea y unos segundos de cambio de IP en cada despliegue.
 
-Pendiente por fase: S3 (documentos/recibos), ElastiCache (tiempo real), worker de jobs.
+Redis corre como contenedor de la misma tarea solo para las colas de BullMQ (sin costo extra, ADR 0008).
+Pendiente por fase: S3 para fotos y recibos, ElastiCache (tiempo real y varias réplicas), worker aparte, SES.
 
 - Ambiente único `prod` de pruebas (Stripe test). El desarrollo se hace en local con Docker.
 - Migraciones y seed idempotente al arrancar el contenedor de la API (`RUN_MIGRATIONS_ON_START`);
@@ -194,4 +197,5 @@ Pendiente por fase: S3 (documentos/recibos), ElastiCache (tiempo real), worker d
 
 Toda decisión relevante se documenta en `docs/adr/NNNN-titulo.md` (contexto, decisión,
 consecuencias). Primeras ADRs: monorepo, NestJS, Prisma+PostGIS, Stripe detrás de puerto, auth
-propia vs Cognito, ECS Fargate vs App Runner, Stripe Connect con Accounts v2 (0007).
+propia vs Cognito, ECS Fargate vs App Runner, Stripe Connect con Accounts v2 (0007), jobs con BullMQ y
+archivos en S3 (0008).

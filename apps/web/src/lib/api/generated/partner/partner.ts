@@ -25,6 +25,14 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  PartnerAnalyticsOccupancy200,
+  PartnerAnalyticsOccupancyParams,
+  PartnerDocumentsFile200,
+  PartnerDocumentsList200,
+  PartnerDocumentsSubmit201,
+  PartnerDocumentsSubmitBody,
+  PartnerDocumentsUploadUrl201,
+  PartnerDocumentsUploadUrlBody,
   PartnerParkingLotsCreate201,
   PartnerParkingLotsCreateBody,
   PartnerParkingLotsList200Item,
@@ -755,6 +763,436 @@ export function usePartnerSummary<TData = Awaited<ReturnType<typeof partnerSumma
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getPartnerSummaryQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+export const getPartnerDocumentsListUrl = (lotId: string,) => {
+
+
+
+
+  return `/partner/parking-lots/${lotId}/documents`
+}
+
+export const partnerDocumentsList = async (lotId: string, options?: Parameters<typeof http>[1]): Promise<PartnerDocumentsList200> => {
+
+  return http<PartnerDocumentsList200>(getPartnerDocumentsListUrl(lotId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getPartnerDocumentsListQueryKey = (lotId: string,) => {
+    return [
+    `/partner/parking-lots/${lotId}/documents`
+    ] as const;
+    }
+
+
+export const getPartnerDocumentsListQueryOptions = <TData = Awaited<ReturnType<typeof partnerDocumentsList>>, TError = unknown>(lotId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof partnerDocumentsList>>, TError, TData>>, request?: SecondParameter<typeof http>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getPartnerDocumentsListQueryKey(lotId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof partnerDocumentsList>>> = ({ signal }) => partnerDocumentsList(lotId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: lotId !== null && lotId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof partnerDocumentsList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type PartnerDocumentsListQueryResult = NonNullable<Awaited<ReturnType<typeof partnerDocumentsList>>>
+export type PartnerDocumentsListQueryError = unknown
+
+
+export function usePartnerDocumentsList<TData = Awaited<ReturnType<typeof partnerDocumentsList>>, TError = unknown>(
+ lotId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof partnerDocumentsList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof partnerDocumentsList>>,
+          TError,
+          Awaited<ReturnType<typeof partnerDocumentsList>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function usePartnerDocumentsList<TData = Awaited<ReturnType<typeof partnerDocumentsList>>, TError = unknown>(
+ lotId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof partnerDocumentsList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof partnerDocumentsList>>,
+          TError,
+          Awaited<ReturnType<typeof partnerDocumentsList>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function usePartnerDocumentsList<TData = Awaited<ReturnType<typeof partnerDocumentsList>>, TError = unknown>(
+ lotId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof partnerDocumentsList>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function usePartnerDocumentsList<TData = Awaited<ReturnType<typeof partnerDocumentsList>>, TError = unknown>(
+ lotId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof partnerDocumentsList>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getPartnerDocumentsListQueryOptions(lotId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+export const getPartnerDocumentsSubmitUrl = (lotId: string,) => {
+
+
+
+
+  return `/partner/parking-lots/${lotId}/documents`
+}
+
+export const partnerDocumentsSubmit = async (lotId: string,
+    partnerDocumentsSubmitBody: PartnerDocumentsSubmitBody, options?: Parameters<typeof http>[1]): Promise<PartnerDocumentsSubmit201> => {
+
+  return http<PartnerDocumentsSubmit201>(getPartnerDocumentsSubmitUrl(lotId),
+  {
+    ...options,
+    method: 'POST',
+    headers: getHeaders({ 'Content-Type': 'application/json' }, options?.headers),
+    body: JSON.stringify(partnerDocumentsSubmitBody)
+  }
+);}
+
+
+
+
+
+export const getPartnerDocumentsSubmitMutationKey = () => ['partnerDocumentsSubmit'] as const;
+
+export const getPartnerDocumentsSubmitMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof partnerDocumentsSubmit>>, TError,PartnerDocumentsSubmitMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof partnerDocumentsSubmit>>, TError,PartnerDocumentsSubmitMutationVariables, TContext> => {
+
+const mutationKey = getPartnerDocumentsSubmitMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof partnerDocumentsSubmit>>, PartnerDocumentsSubmitMutationVariables> = (props) => {
+          const {lotId,data} = props ?? {};
+
+          return  partnerDocumentsSubmit(lotId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PartnerDocumentsSubmitMutationResult = NonNullable<Awaited<ReturnType<typeof partnerDocumentsSubmit>>>
+    export type PartnerDocumentsSubmitMutationBody = PartnerDocumentsSubmitBody
+    export type PartnerDocumentsSubmitMutationError = unknown
+    export type PartnerDocumentsSubmitMutationVariables = {lotId: string;data: PartnerDocumentsSubmitBody}
+
+    export const usePartnerDocumentsSubmit = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof partnerDocumentsSubmit>>, TError,PartnerDocumentsSubmitMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof partnerDocumentsSubmit>>,
+        TError,
+        PartnerDocumentsSubmitMutationVariables,
+        TContext
+      > => {
+      return useMutation(getPartnerDocumentsSubmitMutationOptions(options), queryClient);
+    }
+    export const getPartnerDocumentsUploadUrlUrl = (lotId: string,) => {
+
+
+
+
+  return `/partner/parking-lots/${lotId}/documents/upload-url`
+}
+
+export const partnerDocumentsUploadUrl = async (lotId: string,
+    partnerDocumentsUploadUrlBody: PartnerDocumentsUploadUrlBody, options?: Parameters<typeof http>[1]): Promise<PartnerDocumentsUploadUrl201> => {
+
+  return http<PartnerDocumentsUploadUrl201>(getPartnerDocumentsUploadUrlUrl(lotId),
+  {
+    ...options,
+    method: 'POST',
+    headers: getHeaders({ 'Content-Type': 'application/json' }, options?.headers),
+    body: JSON.stringify(partnerDocumentsUploadUrlBody)
+  }
+);}
+
+
+
+
+
+export const getPartnerDocumentsUploadUrlMutationKey = () => ['partnerDocumentsUploadUrl'] as const;
+
+export const getPartnerDocumentsUploadUrlMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof partnerDocumentsUploadUrl>>, TError,PartnerDocumentsUploadUrlMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof partnerDocumentsUploadUrl>>, TError,PartnerDocumentsUploadUrlMutationVariables, TContext> => {
+
+const mutationKey = getPartnerDocumentsUploadUrlMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof partnerDocumentsUploadUrl>>, PartnerDocumentsUploadUrlMutationVariables> = (props) => {
+          const {lotId,data} = props ?? {};
+
+          return  partnerDocumentsUploadUrl(lotId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PartnerDocumentsUploadUrlMutationResult = NonNullable<Awaited<ReturnType<typeof partnerDocumentsUploadUrl>>>
+    export type PartnerDocumentsUploadUrlMutationBody = PartnerDocumentsUploadUrlBody
+    export type PartnerDocumentsUploadUrlMutationError = unknown
+    export type PartnerDocumentsUploadUrlMutationVariables = {lotId: string;data: PartnerDocumentsUploadUrlBody}
+
+    export const usePartnerDocumentsUploadUrl = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof partnerDocumentsUploadUrl>>, TError,PartnerDocumentsUploadUrlMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof partnerDocumentsUploadUrl>>,
+        TError,
+        PartnerDocumentsUploadUrlMutationVariables,
+        TContext
+      > => {
+      return useMutation(getPartnerDocumentsUploadUrlMutationOptions(options), queryClient);
+    }
+    export const getPartnerDocumentsFileUrl = (lotId: string,
+    id: string,) => {
+
+
+
+
+  return `/partner/parking-lots/${lotId}/documents/${id}/file`
+}
+
+export const partnerDocumentsFile = async (lotId: string,
+    id: string, options?: Parameters<typeof http>[1]): Promise<PartnerDocumentsFile200> => {
+
+  return http<PartnerDocumentsFile200>(getPartnerDocumentsFileUrl(lotId,id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getPartnerDocumentsFileQueryKey = (lotId: string,
+    id: string,) => {
+    return [
+    `/partner/parking-lots/${lotId}/documents/${id}/file`
+    ] as const;
+    }
+
+
+export const getPartnerDocumentsFileQueryOptions = <TData = Awaited<ReturnType<typeof partnerDocumentsFile>>, TError = unknown>(lotId: string,
+    id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof partnerDocumentsFile>>, TError, TData>>, request?: SecondParameter<typeof http>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getPartnerDocumentsFileQueryKey(lotId,id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof partnerDocumentsFile>>> = ({ signal }) => partnerDocumentsFile(lotId,id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: lotId !== null && lotId !== undefined && id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof partnerDocumentsFile>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type PartnerDocumentsFileQueryResult = NonNullable<Awaited<ReturnType<typeof partnerDocumentsFile>>>
+export type PartnerDocumentsFileQueryError = unknown
+
+
+export function usePartnerDocumentsFile<TData = Awaited<ReturnType<typeof partnerDocumentsFile>>, TError = unknown>(
+ lotId: string,
+    id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof partnerDocumentsFile>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof partnerDocumentsFile>>,
+          TError,
+          Awaited<ReturnType<typeof partnerDocumentsFile>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function usePartnerDocumentsFile<TData = Awaited<ReturnType<typeof partnerDocumentsFile>>, TError = unknown>(
+ lotId: string,
+    id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof partnerDocumentsFile>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof partnerDocumentsFile>>,
+          TError,
+          Awaited<ReturnType<typeof partnerDocumentsFile>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function usePartnerDocumentsFile<TData = Awaited<ReturnType<typeof partnerDocumentsFile>>, TError = unknown>(
+ lotId: string,
+    id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof partnerDocumentsFile>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function usePartnerDocumentsFile<TData = Awaited<ReturnType<typeof partnerDocumentsFile>>, TError = unknown>(
+ lotId: string,
+    id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof partnerDocumentsFile>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getPartnerDocumentsFileQueryOptions(lotId,id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+export const getPartnerAnalyticsOccupancyUrl = (params?: PartnerAnalyticsOccupancyParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/partner/analytics/occupancy?${stringifiedParams}` : `/partner/analytics/occupancy`
+}
+
+export const partnerAnalyticsOccupancy = async (params?: PartnerAnalyticsOccupancyParams, options?: Parameters<typeof http>[1]): Promise<PartnerAnalyticsOccupancy200> => {
+
+  return http<PartnerAnalyticsOccupancy200>(getPartnerAnalyticsOccupancyUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getPartnerAnalyticsOccupancyQueryKey = (params?: PartnerAnalyticsOccupancyParams,) => {
+    return [
+    `/partner/analytics/occupancy`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getPartnerAnalyticsOccupancyQueryOptions = <TData = Awaited<ReturnType<typeof partnerAnalyticsOccupancy>>, TError = unknown>(params?: PartnerAnalyticsOccupancyParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof partnerAnalyticsOccupancy>>, TError, TData>>, request?: SecondParameter<typeof http>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getPartnerAnalyticsOccupancyQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof partnerAnalyticsOccupancy>>> = ({ signal }) => partnerAnalyticsOccupancy(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof partnerAnalyticsOccupancy>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type PartnerAnalyticsOccupancyQueryResult = NonNullable<Awaited<ReturnType<typeof partnerAnalyticsOccupancy>>>
+export type PartnerAnalyticsOccupancyQueryError = unknown
+
+
+export function usePartnerAnalyticsOccupancy<TData = Awaited<ReturnType<typeof partnerAnalyticsOccupancy>>, TError = unknown>(
+ params: undefined |  PartnerAnalyticsOccupancyParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof partnerAnalyticsOccupancy>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof partnerAnalyticsOccupancy>>,
+          TError,
+          Awaited<ReturnType<typeof partnerAnalyticsOccupancy>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function usePartnerAnalyticsOccupancy<TData = Awaited<ReturnType<typeof partnerAnalyticsOccupancy>>, TError = unknown>(
+ params?: PartnerAnalyticsOccupancyParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof partnerAnalyticsOccupancy>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof partnerAnalyticsOccupancy>>,
+          TError,
+          Awaited<ReturnType<typeof partnerAnalyticsOccupancy>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function usePartnerAnalyticsOccupancy<TData = Awaited<ReturnType<typeof partnerAnalyticsOccupancy>>, TError = unknown>(
+ params?: PartnerAnalyticsOccupancyParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof partnerAnalyticsOccupancy>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function usePartnerAnalyticsOccupancy<TData = Awaited<ReturnType<typeof partnerAnalyticsOccupancy>>, TError = unknown>(
+ params?: PartnerAnalyticsOccupancyParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof partnerAnalyticsOccupancy>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getPartnerAnalyticsOccupancyQueryOptions(params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

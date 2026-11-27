@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { useSession } from '@/features/auth/hooks/use-session';
 import { PageHeader, Panel } from '@/features/panel/components/panel-ui';
 import { RevenueChart } from '@/features/panel/components/revenue-chart';
+import { OccupancyChart } from '@/features/partner/components/occupancy-chart';
 import { usePartnerSummary } from '@/lib/api/generated/partner/partner';
 import { formatDate, formatPercent, formatPrice } from '@/lib/format';
 import { SHIFT_ICONS } from '@/lib/icons';
@@ -130,6 +131,10 @@ export function PartnerOverview() {
           )}
         </Panel>
       </div>
+
+      <Panel title={t('occupancyTitle')}>
+        <OccupancyChart />
+      </Panel>
     </>
   );
 }

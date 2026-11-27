@@ -8,3 +8,5 @@ export * from './settings';
 export * from './search';
 export * from './booking';
 export * from './admin';
+export * from './verification';
+export * from './analytics';

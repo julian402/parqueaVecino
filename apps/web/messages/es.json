@@ -205,6 +205,11 @@
       "DAY": "diurnos",
       "NIGHT": "nocturnos",
       "FULL": "de 24 h"
+    },
+    "documentType": {
+      "LIABILITY_POLICY": "Póliza de responsabilidad civil",
+      "RUT": "RUT",
+      "E_INVOICING": "Resolución de facturación electrónica"
     }
   },
   "footer": {
@@ -337,7 +342,8 @@
         "users": "Usuarios",
         "lots": "Parqueaderos",
         "payments": "Pagos",
-        "settings": "Configuración"
+        "settings": "Configuración",
+        "documents": "Documentos"
       },
       "overview": {
         "title": "Resumen",
@@ -445,13 +451,35 @@
           "search_priceFiltersMinor": "Filtros de precio (unidades menores)",
           "shift_schedule": "Horario de franjas"
         }
+      },
+      "documents": {
+        "title": "Documentos",
+        "subtitle": "Revisa la póliza, el RUT y la facturación que suben los aliados.",
+        "searchPlaceholder": "Buscar por parqueadero o aliado",
+        "empty": "No hay documentos con este filtro.",
+        "columns": {
+          "document": "Documento",
+          "lot": "Parqueadero",
+          "expires": "Vence",
+          "status": "Estado"
+        },
+        "noExpiry": "No vence",
+        "uploadedAt": "Subido el {date}",
+        "view": "Ver archivo",
+        "approve": "Aprobar",
+        "reject": "Rechazar",
+        "rejectTitle": "Rechazar documento",
+        "rejectReason": "Motivo",
+        "rejectHint": "El aliado lo verá en su panel y en el correo.",
+        "rejectConfirm": "Rechazar"
       }
     },
     "partner": {
       "nav": {
         "overview": "Resumen",
         "lots": "Mis parqueaderos",
-        "payouts": "Pagos"
+        "payouts": "Pagos",
+        "documents": "Documentos"
       },
       "overview": {
         "title": "Hola, {name}",
@@ -468,7 +496,12 @@
         "chartEmpty": "Aún no tienes ventas en este periodo.",
         "recentTitle": "Últimas mensualidades",
         "recentEmpty": "Cuando un conductor compre una mensualidad la verás aquí.",
-        "manageLots": "Gestionar parqueaderos"
+        "manageLots": "Gestionar parqueaderos",
+        "occupancyTitle": "Ocupación por hora · últimos 7 días",
+        "occupancyEmpty": "Cuando tengas mensualidades vigentes verás aquí a qué horas se ocupan tus cupos.",
+        "occupancyPeak": "Hora pico: {hour} ({rate})",
+        "occupancyAverage": "Promedio {rate}",
+        "occupancyBar": "{hour}: {rate} · {occupied} de {capacity} cupos en promedio"
       },
       "payouts": {
         "title": "Pagos",
@@ -500,6 +533,39 @@
           "refund": "Si el conductor cancela a tiempo, el reembolso sale de tu cuenta y la comisión se devuelve."
         },
         "error": "No pudimos abrir Stripe. Intenta de nuevo."
+      },
+      "documents": {
+        "title": "Documentos de verificación",
+        "subtitle": "Sube la póliza, el RUT y la facturación de cada parqueadero. Con los documentos aprobados obtienes el sello \"Verificado\".",
+        "lot": "Parqueadero",
+        "noLots": "Primero registra un parqueadero para subir sus documentos.",
+        "goToLots": "Ir a mis parqueaderos",
+        "disabled": "La carga de archivos no está disponible en este momento.",
+        "missing": "Sin subir",
+        "hint": {
+          "LIABILITY_POLICY": "Póliza de responsabilidad civil vigente (Ley 1801, art. 90). Te avisamos {days} días antes de que venza.",
+          "RUT": "RUT actualizado del titular del parqueadero.",
+          "E_INVOICING": "Resolución de la DIAN para facturar electrónicamente."
+        },
+        "uploadedAt": "Subido el {date}",
+        "expiresAt": "Vence el {date}",
+        "rejected": "Motivo del rechazo: {reason}",
+        "upload": "Subir",
+        "replace": "Reemplazar",
+        "view": "Ver archivo",
+        "dialogTitle": "Subir {type}",
+        "file": "Archivo",
+        "fileHint": "PDF, JPG o PNG de máximo {size}.",
+        "fileRequired": "Elige un archivo.",
+        "fileTooBig": "El archivo pesa más de {size}.",
+        "fileType": "Solo se aceptan PDF, JPG o PNG.",
+        "expiry": "Fecha de vencimiento",
+        "expiryHint": "Último día de vigencia que aparece en la póliza.",
+        "expiryRequired": "Indica la fecha de vencimiento.",
+        "submit": "Enviar a revisión",
+        "uploading": "Subiendo…",
+        "uploadError": "No pudimos subir el archivo. Revisa tu conexión e intenta de nuevo.",
+        "success": "Documento enviado. Te avisaremos por correo cuando lo revisemos."
       }
     },
     "bookingStatus": {
@@ -577,6 +643,12 @@
         "remove": "Quitar",
         "removeConfirm": "¿Quitar el vehículo {plate}?"
       }
+    },
+    "documentStatus": {
+      "PENDING_REVIEW": "En revisión",
+      "APPROVED": "Aprobado",
+      "REJECTED": "Rechazado",
+      "EXPIRED": "Vencido"
     }
   },
   "checkout": {

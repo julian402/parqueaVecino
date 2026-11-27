@@ -6,7 +6,6 @@ import {
   Logger,
   NotFoundException,
   ServiceUnavailableException,
-  type OnModuleDestroy,
   type OnModuleInit,
 } from '@nestjs/common';
 import {
@@ -18,18 +17,25 @@ import {
   type CreateBookingInput,
   type PartnerSummary,
 } from '@parqueavecino/contracts';
+import { JobScheduler } from '../../../common/jobs/job-scheduler';
 import { AppConfigService } from '../../../config/app-config.service';
+import { NotificationsService } from '../../notifications/application/notifications.service';
 import { ParkingLotsService } from '../../parking-lots/application/parking-lots.service';
 import { PaymentsService, type PaymentOutcome } from '../../payments/application/payments.service';
 import { SettingsService } from '../../settings/application/settings.service';
 import { UsersService } from '../../users/application/users.service';
-import { BookingsRepository, type BookingRecord } from '../domain/bookings.repository';
+import {
+  BookingsRepository,
+  type BookingRecord,
+  type OccupancyInterval,
+} from '../domain/bookings.repository';
 
 const NOT_FOUND = 'Reserva no encontrada';
 /** Sin letras ni números ambiguos (0/O, 1/I) para leerlo en la portería. */
 const ACCESS_CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const ACCESS_CODE_LENGTH = 8;
 const RECENT_PARTNER_BOOKINGS = 8;
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 export function generateAccessCode(): string {
   return Array.from(
@@ -59,9 +65,8 @@ export function receiptNumber(bookingId: string): string {
  * atómica y vuelven si el pago falla, la reserva vence sin pagarse o se cancela.
  */
 @Injectable()
-export class BookingsService implements OnModuleInit, OnModuleDestroy {
+export class BookingsService implements OnModuleInit {
   private readonly logger = new Logger(BookingsService.name);
-  private sweepTimer: NodeJS.Timeout | undefined;
 
   constructor(
     private readonly repository: BookingsRepository,
@@ -69,18 +74,22 @@ export class BookingsService implements OnModuleInit, OnModuleDestroy {
     private readonly payments: PaymentsService,
     private readonly users: UsersService,
     private readonly settings: SettingsService,
+    private readonly notifications: NotificationsService,
+    private readonly jobs: JobScheduler,
     private readonly config: AppConfigService,
   ) {}
 
   onModuleInit(): void {
-    const seconds = this.config.get('BOOKINGS_SWEEP_INTERVAL_SECONDS');
-    if (seconds === 0) return;
-    this.sweepTimer = setInterval(() => void this.sweep(), seconds * 1000);
-    this.sweepTimer.unref();
-  }
-
-  onModuleDestroy(): void {
-    clearInterval(this.sweepTimer);
+    this.jobs.register({
+      name: 'bookings.sweep',
+      everySeconds: this.config.get('BOOKINGS_SWEEP_INTERVAL_SECONDS'),
+      run: () => this.sweep(),
+    });
+    this.jobs.register({
+      name: 'bookings.expiry-notices',
+      everySeconds: this.config.get('EXPIRY_CHECK_INTERVAL_SECONDS'),
+      run: () => this.notifyExpiring(),
+    });
   }
 
   async create(driverId: string, input: CreateBookingInput): Promise<BookingCheckout> {
@@ -263,6 +272,34 @@ export class BookingsService implements OnModuleInit, OnModuleDestroy {
       revenue: { ...revenue, netMinor: revenue.grossMinor - revenue.commissionMinor },
       recentBookings,
     };
+  }
+
+  /**
+   * Avisa por correo (una vez) las mensualidades que terminan dentro de
+   * `booking.expiryNoticeDays` y no tienen renovación pagada.
+   */
+  async notifyExpiring(now = new Date()): Promise<void> {
+    const days = await this.settings.get('booking.expiryNoticeDays');
+    const until = new Date(now.getTime() + days * DAY_MS);
+    for (const booking of await this.repository.findExpiringWithoutNotice(now, until)) {
+      const sent = await this.notifications.bookingExpiring(booking.driver, {
+        parkingLotName: booking.parkingLotName,
+        plate: booking.plate,
+        endsAt: booking.endsAt,
+      });
+      // Si el correo falla, se reintenta en la siguiente ejecución.
+      if (sent) await this.repository.markExpiryNoticeSent(booking.id, now);
+    }
+  }
+
+  /** Periodos de ocupación de los parqueaderos del aliado (los usa partner-analytics). */
+  occupancyIntervals(
+    partnerId: string,
+    from: Date,
+    to: Date,
+    parkingLotId?: string,
+  ): Promise<OccupancyInterval[]> {
+    return this.repository.occupancyIntervals(partnerId, from, to, parkingLotId);
   }
 
   /** Libera cupos de reservas sin pagar y vence mensualidades terminadas. */

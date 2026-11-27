@@ -8,10 +8,6 @@
 import type { AdminCreateUserBodyRole } from './adminCreateUserBodyRole';
 
 export type AdminCreateUserBody = {
-  /**
-     * @minLength 2
-     * @maxLength 120
-     */
   fullName: string;
   email: string;
   /**
@@ -19,7 +15,6 @@ export type AdminCreateUserBody = {
      * @maxLength 128
      */
   password: string;
-  /** @pattern ^\+?\d{7,15}$ */
   phone?: string;
   role: AdminCreateUserBodyRole;
 };

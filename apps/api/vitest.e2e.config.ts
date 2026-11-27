@@ -19,6 +19,10 @@ export default defineConfig({
       AUTH_RATE_LIMIT_MAX: '1000',
       // El barrido de reservas se prueba en unitarias; aquí no debe correr en segundo plano.
       BOOKINGS_SWEEP_INTERVAL_SECONDS: '0',
+      EXPIRY_CHECK_INTERVAL_SECONDS: '0',
+      // Sin Redis ni SMTP: los jobs se prueban en unitarias y los correos solo van al log.
+      REDIS_URL: '',
+      SMTP_HOST: '',
       WEB_URL: 'http://localhost:3000',
     },
     fileParallelism: false,

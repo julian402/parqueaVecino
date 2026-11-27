@@ -14,6 +14,10 @@ const duration = z.string().refine(
 
 const booleanFromString = z.enum(['true', 'false']).transform((value) => value === 'true');
 
+/** Variable opcional: vacía equivale a no definida (útil para apagar un servicio en pruebas). */
+const optional = <T extends z.ZodType>(schema: T) =>
+  z.preprocess((value) => (value === '' ? undefined : value), schema.optional());
+
 const commaSeparatedList = z
   .string()
   .min(1)
@@ -64,20 +68,22 @@ export const envSchema = z.object({
   GEOCODER_CACHE_TTL_SECONDS: z.coerce.number().int().min(0),
   GEOCODER_TIMEOUT_MS: z.coerce.number().int().positive(),
 
-  // ---- Se vuelven obligatorias cuando se use cada servicio (ver docs/PLAN.md) ----
-  // Fase 2: fotos en S3.
-  S3_REGION: z.string().min(1).optional(),
-  S3_ENDPOINT: z.url().optional(),
+  // ---- Servicios opcionales: sin ellos la API arranca con la función apagada ----
+  // Archivos (documentos de verificación) en S3. En AWS se omiten endpoint y llaves (rol de la tarea).
+  S3_REGION: optional(z.string().min(1)),
+  S3_ENDPOINT: optional(z.url()),
   S3_FORCE_PATH_STYLE: booleanFromString.default(false),
-  S3_BUCKET_UPLOADS: z.string().min(3).optional(),
-  S3_ACCESS_KEY_ID: z.string().optional(),
-  S3_SECRET_ACCESS_KEY: z.string().optional(),
-  // Fase 3: correos.
-  SMTP_HOST: z.string().min(1).optional(),
-  SMTP_PORT: z.coerce.number().int().positive().optional(),
-  MAIL_FROM: z.string().min(3).optional(),
-  // Fase 5: tiempo real y colas.
-  REDIS_URL: z.url().optional(),
+  S3_BUCKET_UPLOADS: optional(z.string().min(3)),
+  S3_ACCESS_KEY_ID: optional(z.string()),
+  S3_SECRET_ACCESS_KEY: optional(z.string()),
+  /** Segundos de validez de las URLs prefirmadas (subida y descarga). */
+  S3_PRESIGN_TTL_SECONDS: z.coerce.number().int().min(60).max(3600).default(600),
+  // Correos (Mailpit en local). Sin SMTP_HOST los correos solo se registran en el log.
+  SMTP_HOST: optional(z.string().min(1)),
+  SMTP_PORT: optional(z.coerce.number().int().positive()),
+  MAIL_FROM: optional(z.string().min(3)),
+  // Colas y jobs programados (BullMQ). Sin Redis los jobs corren con temporizadores en proceso.
+  REDIS_URL: optional(z.url()),
   // Fase 3: pagos. Solo llaves de prueba: el proyecto no procesa pagos reales.
   // Vacío o "disabled" (valor inicial del secreto en AWS) = pagos deshabilitados.
   STRIPE_SECRET_KEY: z
@@ -102,6 +108,11 @@ export const envSchema = z.object({
   WEB_URL: z.url().optional(),
   /** Cada cuánto se liberan cupos de reservas sin pagar y se vencen mensualidades (0 = nunca). */
   BOOKINGS_SWEEP_INTERVAL_SECONDS: z.coerce.number().int().min(0).default(60),
+  /**
+   * Cada cuánto se revisan vencimientos para avisar (mensualidades y documentos) y se marcan
+   * documentos vencidos (0 = nunca). Es idempotente: cada aviso se envía una sola vez.
+   */
+  EXPIRY_CHECK_INTERVAL_SECONDS: z.coerce.number().int().min(0).default(3600),
 
   // ---------- Límite de intentos (login, registro, refresh) ----------
   /** Ventana del límite, en segundos. */
@@ -117,13 +128,15 @@ export const envSchema = z.object({
 
 export type Env = z.infer<typeof envSchema>;
 
-const refinedEnvSchema = envSchema.refine(
-  (env) => env.DATABASE_SSL !== 'verify-full' || Boolean(env.DATABASE_SSL_CA_FILE),
-  {
+const refinedEnvSchema = envSchema
+  .refine((env) => env.DATABASE_SSL !== 'verify-full' || Boolean(env.DATABASE_SSL_CA_FILE), {
     message: 'DATABASE_SSL_CA_FILE es obligatorio con verify-full',
     path: ['DATABASE_SSL_CA_FILE'],
-  },
-);
+  })
+  .refine((env) => !env.SMTP_HOST || Boolean(env.MAIL_FROM), {
+    message: 'MAIL_FROM es obligatorio cuando se configura SMTP_HOST',
+    path: ['MAIL_FROM'],
+  });
 
 export function validateEnv(raw: Record<string, unknown>): Env {
   const result = refinedEnvSchema.safeParse(raw);

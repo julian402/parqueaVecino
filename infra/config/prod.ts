@@ -42,6 +42,18 @@ export const prod: EnvironmentConfig = {
     seedDemoData: true,
   },
 
+  uploads: {
+    presignTtlSeconds: 600,
+    destroyOnRemoval: true,
+  },
+
+  jobs: {
+    // Imagen oficial de Docker Hub servida desde ECR Public (sin límite de descargas anónimas).
+    redisImage: 'public.ecr.aws/docker/library/redis:7-alpine',
+    redisMaxMemoryMb: 64,
+    expiryCheckIntervalSeconds: 3600,
+  },
+
   appSettings: {
     apiPrefix: 'api',
     locale: 'es-CO',

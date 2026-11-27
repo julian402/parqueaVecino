@@ -72,7 +72,14 @@ export abstract class ParkingLotsRepository {
   ): Promise<{ items: AdminParkingLot[]; total: number }>;
   abstract findForAdmin(id: string): Promise<AdminParkingLot | null>;
   abstract setStatus(id: string, status: ParkingLotStatus, verifiedAt?: Date | null): Promise<void>;
+  /** Quita el sello "Verificado" sin cambiar el estado (p. ej. venció la póliza). */
+  abstract clearVerification(id: string): Promise<void>;
   abstract countByStatus(): Promise<Record<ParkingLotStatus, number>>;
+  /** Cupos publicados (ofertas activas) por franja, de un aliado o de uno de sus parqueaderos. */
+  abstract capacityByShift(
+    partnerId: string,
+    parkingLotId?: string,
+  ): Promise<Record<Shift, number>>;
   /** Cupos publicados y libres (de un aliado, o de toda la plataforma). */
   abstract spotTotals(partnerId?: string): Promise<SpotTotals>;
   /**

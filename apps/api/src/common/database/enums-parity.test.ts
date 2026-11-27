@@ -12,6 +12,9 @@ describe('paridad de enums Prisma ↔ contracts', () => {
     ['ParkingLotStatus', prismaEnums.ParkingLotStatus, contracts.ParkingLotStatus],
     ['BookingStatus', prismaEnums.BookingStatus, contracts.BookingStatus],
     ['PaymentStatus', prismaEnums.PaymentStatus, contracts.PaymentStatus],
+    ['DocumentType', prismaEnums.DocumentType, contracts.DocumentType],
+    ['DocumentStatus', prismaEnums.DocumentStatus, contracts.DocumentStatus],
+    ['PayoutAccountStatus', prismaEnums.PayoutAccountStatus, contracts.PayoutAccountStatus],
   ] as const;
 
   it.each(pairs)('%s coincide', (_name, prismaEnum, contractEnum) => {

@@ -10,7 +10,9 @@ import {
   BookingsRepository,
   type BookingActivation,
   type BookingRecord,
+  type ExpiringBooking,
   type NewBooking,
+  type OccupancyInterval,
 } from '../domain/bookings.repository';
 
 const include = {
@@ -101,6 +103,66 @@ export class PrismaBookingsRepository extends BookingsRepository {
       take: 100,
     });
     return rows.map(toRecord);
+  }
+
+  async findExpiringWithoutNotice(now: Date, until: Date): Promise<ExpiringBooking[]> {
+    const rows = await this.prisma.booking.findMany({
+      where: {
+        status: 'ACTIVE',
+        expiryNoticeSentAt: null,
+        endsAt: { gte: now, lte: until },
+        renewals: { none: { status: 'ACTIVE' } },
+      },
+      select: {
+        id: true,
+        plate: true,
+        endsAt: true,
+        parkingLot: { select: { name: true } },
+        driver: { select: { email: true, fullName: true } },
+      },
+      take: 100,
+    });
+    return rows.flatMap((row) =>
+      row.endsAt
+        ? [
+            {
+              id: row.id,
+              plate: row.plate,
+              endsAt: row.endsAt,
+              parkingLotName: row.parkingLot.name,
+              driver: row.driver,
+            },
+          ]
+        : [],
+    );
+  }
+
+  async markExpiryNoticeSent(id: string, at: Date): Promise<void> {
+    await this.prisma.booking.update({ where: { id }, data: { expiryNoticeSentAt: at } });
+  }
+
+  async occupancyIntervals(
+    partnerId: string,
+    from: Date,
+    to: Date,
+    parkingLotId?: string,
+  ): Promise<OccupancyInterval[]> {
+    const rows = await this.prisma.booking.findMany({
+      where: {
+        parkingLot: { partnerId, ...(parkingLotId && { id: parkingLotId }) },
+        status: { in: ['ACTIVE', 'EXPIRED', 'CANCELLED', 'REFUNDED'] },
+        startsAt: { not: null, lt: to },
+        endsAt: { gt: from },
+      },
+      select: { shift: true, status: true, startsAt: true, endsAt: true, updatedAt: true },
+    });
+    return rows.flatMap((row) => {
+      if (!row.startsAt || !row.endsAt) return [];
+      // Cancelada o reembolsada: dejó de ocupar el cupo cuando cambió de estado.
+      const stoppedEarly = row.status === 'CANCELLED' || row.status === 'REFUNDED';
+      const endsAt = stoppedEarly && row.updatedAt < row.endsAt ? row.updatedAt : row.endsAt;
+      return endsAt > row.startsAt ? [{ shift: row.shift, startsAt: row.startsAt, endsAt }] : [];
+    });
   }
 
   async countByStatus(partnerId?: string): Promise<Record<BookingStatus, number>> {

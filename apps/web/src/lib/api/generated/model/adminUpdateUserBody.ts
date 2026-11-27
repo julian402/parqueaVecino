@@ -8,15 +8,8 @@
 import type { AdminUpdateUserBodyRole } from './adminUpdateUserBodyRole';
 
 export type AdminUpdateUserBody = {
-  /**
-     * @minLength 2
-     * @maxLength 120
-     */
   fullName?: string;
-  /**
-     * @nullable
-     * @pattern ^\+?\d{7,15}$
-     */
+  /** @nullable */
   phone?: string | null;
   role?: AdminUpdateUserBodyRole;
   isActive?: boolean;

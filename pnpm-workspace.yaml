@@ -19,6 +19,8 @@ allowBuilds:
   argon2: true
   '@prisma/engines': true
   prisma: true
+  # Acelerador opcional de BullMQ (msgpackr); sin él usa la versión en JS.
+  msgpackr-extract: false
 
 # Parches de seguridad en dependencias transitivas (`pnpm audit`).
 overrides:

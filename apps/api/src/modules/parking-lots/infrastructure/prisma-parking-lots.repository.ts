@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import {
   PARKING_LOT_STATUSES,
+  SHIFTS,
   SearchSort,
   type AdminParkingLot,
   type AdminParkingLotListQuery,
@@ -256,6 +257,10 @@ export class PrismaParkingLotsRepository extends ParkingLotsRepository {
     });
   }
 
+  async clearVerification(id: string): Promise<void> {
+    await this.prisma.parkingLot.update({ where: { id }, data: { verifiedAt: null } });
+  }
+
   async countByStatus(): Promise<Record<ParkingLotStatus, number>> {
     const rows = await this.prisma.parkingLot.groupBy({ by: ['status'], _count: { _all: true } });
     const counts = Object.fromEntries(PARKING_LOT_STATUSES.map((s) => [s, 0])) as Record<
@@ -264,6 +269,17 @@ export class PrismaParkingLotsRepository extends ParkingLotsRepository {
     >;
     for (const row of rows) counts[row.status] = row._count._all;
     return counts;
+  }
+
+  async capacityByShift(partnerId: string, parkingLotId?: string): Promise<Record<Shift, number>> {
+    const rows = await this.prisma.offer.groupBy({
+      by: ['shift'],
+      where: { active: true, parkingLot: { partnerId, ...(parkingLotId && { id: parkingLotId }) } },
+      _sum: { totalSpots: true },
+    });
+    const capacity = Object.fromEntries(SHIFTS.map((shift) => [shift, 0])) as Record<Shift, number>;
+    for (const row of rows) capacity[row.shift] = row._sum.totalSpots ?? 0;
+    return capacity;
   }
 
   async spotTotals(partnerId?: string): Promise<SpotTotals> {

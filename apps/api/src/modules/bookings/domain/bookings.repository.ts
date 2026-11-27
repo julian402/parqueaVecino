@@ -29,6 +29,23 @@ export interface BookingActivation {
   endsAt: Date;
 }
 
+/** Mensualidad por terminar, con lo necesario para avisarle al conductor. */
+export interface ExpiringBooking {
+  id: string;
+  plate: string;
+  endsAt: Date;
+  parkingLotName: string;
+  driver: { email: string; fullName: string };
+}
+
+/** Periodo en que una mensualidad ocupó su cupo (para la gráfica de ocupación). */
+export interface OccupancyInterval {
+  shift: Shift;
+  startsAt: Date;
+  /** Fin efectivo: fin de la vigencia o momento de la cancelación/reembolso. */
+  endsAt: Date;
+}
+
 export abstract class BookingsRepository {
   abstract create(data: NewBooking): Promise<BookingRecord>;
   abstract findById(id: string): Promise<BookingRecord | null>;
@@ -49,6 +66,19 @@ export abstract class BookingsRepository {
   abstract findStalePending(createdBefore: Date): Promise<BookingRecord[]>;
   /** Activas cuya vigencia terminó. */
   abstract findEndedActive(now: Date): Promise<BookingRecord[]>;
+  /**
+   * Activas que terminan entre `now` y `until`, sin aviso enviado y sin una renovación ya
+   * pagada (esas no necesitan recordatorio).
+   */
+  abstract findExpiringWithoutNotice(now: Date, until: Date): Promise<ExpiringBooking[]>;
+  abstract markExpiryNoticeSent(id: string, at: Date): Promise<void>;
+  /** Mensualidades de los parqueaderos del aliado que estuvieron vigentes en [from, to). */
+  abstract occupancyIntervals(
+    partnerId: string,
+    from: Date,
+    to: Date,
+    parkingLotId?: string,
+  ): Promise<OccupancyInterval[]>;
   abstract countByStatus(partnerId?: string): Promise<Record<BookingStatus, number>>;
   abstract recentForPartner(partnerId: string, limit: number): Promise<PartnerBooking[]>;
 }

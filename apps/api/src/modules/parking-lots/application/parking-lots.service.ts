@@ -15,6 +15,7 @@ import {
   type PartnerLotStatusInput,
   type ParkingLotInput,
   type ParkingLotUpdate,
+  type Shift,
 } from '@parqueavecino/contracts';
 import { AppConfigService } from '../../../config/app-config.service';
 import { SettingsService } from '../../settings/application/settings.service';
@@ -141,8 +142,18 @@ export class ParkingLotsService {
     return updated;
   }
 
+  /** Un documento obligatorio venció: el parqueadero pierde el sello hasta que el admin revise. */
+  revokeVerification(id: string): Promise<void> {
+    return this.repository.clearVerification(id);
+  }
+
   countByStatus(): Promise<Record<ParkingLotStatus, number>> {
     return this.repository.countByStatus();
+  }
+
+  /** Cupos publicados por franja (para la gráfica de ocupación del aliado). */
+  capacityByShift(partnerId: string, parkingLotId?: string): Promise<Record<Shift, number>> {
+    return this.repository.capacityByShift(partnerId, parkingLotId);
   }
 
   spotTotals(partnerId?: string): Promise<SpotTotals> {

@@ -22,12 +22,14 @@ export const routes = {
     overview: '/aliados',
     lots: '/aliados/parqueaderos',
     payouts: '/aliados/pagos',
+    documents: '/aliados/documentos',
   },
   admin: {
     overview: '/admin',
     users: '/admin/usuarios',
     lots: '/admin/parqueaderos',
     payments: '/admin/pagos',
+    documents: '/admin/documentos',
     settings: '/admin/configuracion',
   },
 } as const;

@@ -44,3 +44,35 @@ export function formatDateTime(iso: string): string {
     timeZone: env.NEXT_PUBLIC_APP_TIMEZONE,
   }).format(new Date(iso));
 }
+
+/** Fecha calendario sin hora (AAAA-MM-DD), p. ej. el vencimiento de una póliza: "31 ene 2027". */
+export function formatCalendarDate(isoDate: string): string {
+  // Se formatea en UTC para que la fecha no se corra un día por la zona horaria.
+  return new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeZone: 'UTC' }).format(
+    new Date(`${isoDate}T00:00:00Z`),
+  );
+}
+
+/** "850 KB", "2,4 MB". */
+export function formatFileSize(bytes: number): string {
+  const units = ['byte', 'kilobyte', 'megabyte'] as const;
+  let value = bytes;
+  let unit = 0;
+  while (value >= 1024 && unit < units.length - 1) {
+    value /= 1024;
+    unit += 1;
+  }
+  return new Intl.NumberFormat(locale, {
+    style: 'unit',
+    unit: units[unit],
+    unitDisplay: 'short',
+    maximumFractionDigits: unit === 0 ? 0 : 1,
+  }).format(value);
+}
+
+/** "7 a. m." — hora del día (0-23). */
+export function formatHour(hour: number): string {
+  return new Intl.DateTimeFormat(locale, { hour: 'numeric', timeZone: 'UTC' }).format(
+    new Date(Date.UTC(2000, 0, 1, hour)),
+  );
+}

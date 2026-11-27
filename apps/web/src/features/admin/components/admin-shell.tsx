@@ -1,6 +1,6 @@
 'use client';
 
-import { Building2, CreditCard, LayoutDashboard, Settings, Users } from 'lucide-react';
+import { Building2, CreditCard, FileCheck2, LayoutDashboard, Settings, Users } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { ReactNode } from 'react';
 import { PanelShell, type PanelNavItem } from '@/features/panel/components/panel-shell';
@@ -12,6 +12,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
     { href: routes.admin.overview, label: t('overview'), Icon: LayoutDashboard },
     { href: routes.admin.users, label: t('users'), Icon: Users },
     { href: routes.admin.lots, label: t('lots'), Icon: Building2 },
+    { href: routes.admin.documents, label: t('documents'), Icon: FileCheck2 },
     { href: routes.admin.payments, label: t('payments'), Icon: CreditCard },
     { href: routes.admin.settings, label: t('settings'), Icon: Settings },
   ];

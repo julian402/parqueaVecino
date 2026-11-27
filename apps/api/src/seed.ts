@@ -65,6 +65,19 @@ const defaultSettings: { [K in SettingKey]: { value: SettingValue<K>; descriptio
     value: 30,
     description: 'Minutos que un cupo queda apartado mientras el conductor paga',
   },
+  'booking.expiryNoticeDays': {
+    value: 3,
+    description:
+      'Días antes del fin de una mensualidad en que se avisa al conductor para renovarla',
+  },
+  'verification.expiryNoticeDays': {
+    value: 20,
+    description: 'Días antes del vencimiento de un documento (póliza) en que se avisa al aliado',
+  },
+  'verification.maxFileBytes': {
+    value: 5 * 1024 * 1024,
+    description: 'Tamaño máximo de cada documento de verificación, en bytes',
+  },
   'search.defaultRadiusMeters': {
     value: 1500,
     description: 'Radio de búsqueda por defecto',

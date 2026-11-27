@@ -1,4 +1,9 @@
-import type { BookingStatus, ParkingLotStatus, PaymentStatus } from '@parqueavecino/contracts';
+import type {
+  BookingStatus,
+  DocumentStatus,
+  ParkingLotStatus,
+  PaymentStatus,
+} from '@parqueavecino/contracts';
 import type { BadgeProps } from '@parqueavecino/ui';
 
 type Tone = NonNullable<BadgeProps['tone']>;
@@ -25,4 +30,11 @@ export const LOT_STATUS_TONE: Record<ParkingLotStatus, Tone> = {
   ACTIVE: 'success',
   PAUSED: 'neutral',
   SUSPENDED: 'danger',
+};
+
+export const DOCUMENT_STATUS_TONE: Record<DocumentStatus, Tone> = {
+  PENDING_REVIEW: 'warning',
+  APPROVED: 'success',
+  REJECTED: 'danger',
+  EXPIRED: 'danger',
 };

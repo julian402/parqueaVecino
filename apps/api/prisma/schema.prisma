@@ -1,6 +1,6 @@
 // Esquema de base de datos de ParqueaVecino.
 // Los enums deben coincidir con @parqueavecino/contracts (hay una prueba que lo verifica).
-// Las tablas de documentos y reseñas se agregan en sus fases (ver docs/PLAN.md).
+// La tabla de reseñas se agrega en su fase (ver docs/PLAN.md).
 
 generator client {
   provider     = "prisma-client"
@@ -58,6 +58,19 @@ enum PayoutAccountStatus {
   PENDING
   ACTION_REQUIRED
   ACTIVE
+}
+
+enum DocumentType {
+  LIABILITY_POLICY
+  RUT
+  E_INVOICING
+}
+
+enum DocumentStatus {
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+  EXPIRED
 }
 
 enum ParkingLotStatus {
@@ -139,8 +152,9 @@ model ParkingLot {
   updatedAt    DateTime         @updatedAt @map("updated_at")
 
   partner  User      @relation(fields: [partnerId], references: [id], onDelete: Restrict)
-  offers   Offer[]
-  bookings Booking[]
+  offers    Offer[]
+  bookings  Booking[]
+  documents ParkingLotDocument[]
 
   @@index([partnerId])
   @@index([status])
@@ -166,6 +180,34 @@ model Offer {
 
   @@unique([parkingLotId, shift, vehicleType])
   @@map("offers")
+}
+
+/// Documento de verificación de un parqueadero (póliza RC, RUT...). Uno vigente por tipo:
+/// subir otro lo reemplaza y vuelve a revisión. El archivo vive en S3 (solo se guarda la llave).
+model ParkingLotDocument {
+  id                 String         @id @default(uuid()) @db.Uuid
+  parkingLotId       String         @map("parking_lot_id") @db.Uuid
+  type               DocumentType
+  status             DocumentStatus @default(PENDING_REVIEW)
+  fileKey            String         @map("file_key")
+  fileName           String         @map("file_name")
+  contentType        String         @map("content_type")
+  sizeBytes          Int            @map("size_bytes")
+  /// Último día de vigencia (fecha en APP_TIMEZONE); null si el documento no vence.
+  expiresAt          DateTime?      @map("expires_at") @db.Date
+  rejectionReason    String?        @map("rejection_reason")
+  reviewedAt         DateTime?      @map("reviewed_at")
+  /// Cuándo se avisó al aliado que el documento está por vencer (una sola vez por archivo).
+  expiryNoticeSentAt DateTime?      @map("expiry_notice_sent_at")
+  uploadedAt         DateTime       @default(now()) @map("uploaded_at")
+  updatedAt          DateTime       @updatedAt @map("updated_at")
+
+  parkingLot ParkingLot @relation(fields: [parkingLotId], references: [id], onDelete: Cascade)
+
+  @@unique([parkingLotId, type])
+  @@index([status])
+  @@index([expiresAt])
+  @@map("parking_lot_documents")
 }
 
 /// Parámetros de negocio editables (comisión, franjas, topes...). Ver settingsSchemas en contracts.
@@ -195,6 +237,8 @@ model Booking {
   endsAt       DateTime?     @map("ends_at")
   /// Renovación: mensualidad que continúa esta (empieza cuando la anterior termina).
   renewalOfId  String?       @map("renewal_of_id") @db.Uuid
+  /// Cuándo se avisó al conductor que la mensualidad está por terminar (una sola vez).
+  expiryNoticeSentAt DateTime? @map("expiry_notice_sent_at")
   createdAt    DateTime      @default(now()) @map("created_at")
   updatedAt    DateTime      @updatedAt @map("updated_at")
 

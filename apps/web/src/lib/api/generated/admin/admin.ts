@@ -27,6 +27,11 @@ import type {
 import type {
   AdminCreateUser201,
   AdminCreateUserBody,
+  AdminDocumentsFile200,
+  AdminDocumentsList200,
+  AdminDocumentsListParams,
+  AdminDocumentsReview200,
+  AdminDocumentsReviewBody,
   AdminListParkingLots200,
   AdminListParkingLotsParams,
   AdminListPayments200,
@@ -84,6 +89,267 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getAdminDocumentsListUrl = (params?: AdminDocumentsListParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/admin/documents?${stringifiedParams}` : `/admin/documents`
+}
+
+export const adminDocumentsList = async (params?: AdminDocumentsListParams, options?: Parameters<typeof http>[1]): Promise<AdminDocumentsList200> => {
+
+  return http<AdminDocumentsList200>(getAdminDocumentsListUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getAdminDocumentsListQueryKey = (params?: AdminDocumentsListParams,) => {
+    return [
+    `/admin/documents`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getAdminDocumentsListQueryOptions = <TData = Awaited<ReturnType<typeof adminDocumentsList>>, TError = unknown>(params?: AdminDocumentsListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminDocumentsList>>, TError, TData>>, request?: SecondParameter<typeof http>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getAdminDocumentsListQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof adminDocumentsList>>> = ({ signal }) => adminDocumentsList(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof adminDocumentsList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type AdminDocumentsListQueryResult = NonNullable<Awaited<ReturnType<typeof adminDocumentsList>>>
+export type AdminDocumentsListQueryError = unknown
+
+
+export function useAdminDocumentsList<TData = Awaited<ReturnType<typeof adminDocumentsList>>, TError = unknown>(
+ params: undefined |  AdminDocumentsListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminDocumentsList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminDocumentsList>>,
+          TError,
+          Awaited<ReturnType<typeof adminDocumentsList>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminDocumentsList<TData = Awaited<ReturnType<typeof adminDocumentsList>>, TError = unknown>(
+ params?: AdminDocumentsListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminDocumentsList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminDocumentsList>>,
+          TError,
+          Awaited<ReturnType<typeof adminDocumentsList>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminDocumentsList<TData = Awaited<ReturnType<typeof adminDocumentsList>>, TError = unknown>(
+ params?: AdminDocumentsListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminDocumentsList>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminDocumentsList<TData = Awaited<ReturnType<typeof adminDocumentsList>>, TError = unknown>(
+ params?: AdminDocumentsListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminDocumentsList>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getAdminDocumentsListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+export const getAdminDocumentsReviewUrl = (id: string,) => {
+
+
+
+
+  return `/admin/documents/${id}/review`
+}
+
+export const adminDocumentsReview = async (id: string,
+    adminDocumentsReviewBody: AdminDocumentsReviewBody, options?: Parameters<typeof http>[1]): Promise<AdminDocumentsReview200> => {
+
+  return http<AdminDocumentsReview200>(getAdminDocumentsReviewUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: getHeaders({ 'Content-Type': 'application/json' }, options?.headers),
+    body: JSON.stringify(adminDocumentsReviewBody)
+  }
+);}
+
+
+
+
+
+export const getAdminDocumentsReviewMutationKey = () => ['adminDocumentsReview'] as const;
+
+export const getAdminDocumentsReviewMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminDocumentsReview>>, TError,AdminDocumentsReviewMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof adminDocumentsReview>>, TError,AdminDocumentsReviewMutationVariables, TContext> => {
+
+const mutationKey = getAdminDocumentsReviewMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminDocumentsReview>>, AdminDocumentsReviewMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  adminDocumentsReview(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AdminDocumentsReviewMutationResult = NonNullable<Awaited<ReturnType<typeof adminDocumentsReview>>>
+    export type AdminDocumentsReviewMutationBody = AdminDocumentsReviewBody
+    export type AdminDocumentsReviewMutationError = unknown
+    export type AdminDocumentsReviewMutationVariables = {id: string;data: AdminDocumentsReviewBody}
+
+    export const useAdminDocumentsReview = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminDocumentsReview>>, TError,AdminDocumentsReviewMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof adminDocumentsReview>>,
+        TError,
+        AdminDocumentsReviewMutationVariables,
+        TContext
+      > => {
+      return useMutation(getAdminDocumentsReviewMutationOptions(options), queryClient);
+    }
+    export const getAdminDocumentsFileUrl = (id: string,) => {
+
+
+
+
+  return `/admin/documents/${id}/file`
+}
+
+export const adminDocumentsFile = async (id: string, options?: Parameters<typeof http>[1]): Promise<AdminDocumentsFile200> => {
+
+  return http<AdminDocumentsFile200>(getAdminDocumentsFileUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getAdminDocumentsFileQueryKey = (id: string,) => {
+    return [
+    `/admin/documents/${id}/file`
+    ] as const;
+    }
+
+
+export const getAdminDocumentsFileQueryOptions = <TData = Awaited<ReturnType<typeof adminDocumentsFile>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminDocumentsFile>>, TError, TData>>, request?: SecondParameter<typeof http>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getAdminDocumentsFileQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof adminDocumentsFile>>> = ({ signal }) => adminDocumentsFile(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof adminDocumentsFile>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type AdminDocumentsFileQueryResult = NonNullable<Awaited<ReturnType<typeof adminDocumentsFile>>>
+export type AdminDocumentsFileQueryError = unknown
+
+
+export function useAdminDocumentsFile<TData = Awaited<ReturnType<typeof adminDocumentsFile>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminDocumentsFile>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminDocumentsFile>>,
+          TError,
+          Awaited<ReturnType<typeof adminDocumentsFile>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminDocumentsFile<TData = Awaited<ReturnType<typeof adminDocumentsFile>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminDocumentsFile>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminDocumentsFile>>,
+          TError,
+          Awaited<ReturnType<typeof adminDocumentsFile>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminDocumentsFile<TData = Awaited<ReturnType<typeof adminDocumentsFile>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminDocumentsFile>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminDocumentsFile<TData = Awaited<ReturnType<typeof adminDocumentsFile>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminDocumentsFile>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getAdminDocumentsFileQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
 
 export const getAdminStatsUrl = () => {
 

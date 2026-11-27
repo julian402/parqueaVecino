@@ -14,6 +14,7 @@ import * as ecs from 'aws-cdk-lib/aws-ecs';
 import * as efs from 'aws-cdk-lib/aws-efs';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import type * as rds from 'aws-cdk-lib/aws-rds';
+import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import type { Construct } from 'constructs';
 import type { EnvironmentConfig } from '../../config';
@@ -30,6 +31,9 @@ const HTTP_PORT = 80;
 const HTTPS_PORT = 443;
 /** Donde Caddy guarda certificados (XDG_DATA_HOME de la imagen oficial). */
 const CADDY_DATA_PATH = '/data';
+const REDIS_PORT = 6379;
+/** Tiempo que el navegador cachea la respuesta CORS previa al PUT de un archivo. */
+const UPLOADS_CORS_MAX_AGE_SECONDS = 3000;
 
 /** Health check de contenedor con el fetch de Node (las imágenes no traen curl). */
 function httpHealthCheck(url: string, startPeriod: Duration): ecs.HealthCheck {
@@ -48,10 +52,12 @@ function httpHealthCheck(url: string, startPeriod: Duration): ecs.HealthCheck {
 }
 
 /**
- * Una tarea Fargate con tres contenedores que comparten localhost:
+ * Una tarea Fargate con cuatro contenedores que comparten localhost:
  *
- *   Internet ──► caddy :80/:443 ──► /api/*, /health → api :3001
+ *   Internet ──► caddy :80/:443 ──► /api/*, /health → api :3001 ──► redis :6379 (colas BullMQ)
  *                (HTTPS, Let's Encrypt)  └──────────► resto → web :3000
+ *
+ *   Navegador ──PUT/GET con URL prefirmada──► S3 (documentos privados)
  *
  * Sin ALB ni CloudFront (DuckDNS solo admite IPs): la tarea publica su IP en DuckDNS al arrancar.
  * Web y API comparten origen, así que las cookies son de primera parte y no se necesita CORS.
@@ -60,7 +66,7 @@ function httpHealthCheck(url: string, startPeriod: Duration): ecs.HealthCheck {
 export class AppStack extends Stack {
   constructor(scope: Construct, id: string, props: AppStackProps) {
     super(scope, id, props);
-    const { app, appSettings, domain, geocoder } = props.config;
+    const { app, appSettings, domain, geocoder, jobs, uploads } = props.config;
     const dbSecret = props.database.secret;
     if (!dbSecret) throw new Error('La base de datos debe tener secreto generado');
 
@@ -91,6 +97,27 @@ export class AppStack extends Stack {
         JSON.stringify({ secretKey: 'disabled', webhookSecret: 'disabled' }),
       ),
       removalPolicy: RemovalPolicy.DESTROY,
+    });
+
+    // ---------- Archivos privados (documentos de verificación) ----------
+    // Nunca públicos: el navegador sube y lee con URLs prefirmadas de corta duración que firma
+    // la API con el rol de la tarea. CORS solo para el dominio de la app.
+    const uploadsBucket = new s3.Bucket(this, 'Uploads', {
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      encryption: s3.BucketEncryption.S3_MANAGED,
+      enforceSSL: true,
+      objectOwnership: s3.ObjectOwnership.BUCKET_OWNER_ENFORCED,
+      cors: [
+        {
+          allowedOrigins: [`https://${domain.name}`],
+          allowedMethods: [s3.HttpMethods.PUT, s3.HttpMethods.GET],
+          allowedHeaders: ['content-type'],
+          maxAge: UPLOADS_CORS_MAX_AGE_SECONDS,
+        },
+      ],
+      lifecycleRules: [{ abortIncompleteMultipartUploadAfter: Duration.days(1) }],
+      removalPolicy: uploads.destroyOnRemoval ? RemovalPolicy.DESTROY : RemovalPolicy.RETAIN,
+      autoDeleteObjects: uploads.destroyOnRemoval,
     });
 
     // ---------- Almacenamiento de certificados (EFS) ----------
@@ -146,8 +173,40 @@ export class AppStack extends Stack {
       },
     });
     certificates.grantRootAccess(taskDefinition.taskRole);
+    uploadsBucket.grantReadWrite(taskDefinition.taskRole);
+    uploadsBucket.grantDelete(taskDefinition.taskRole);
 
     const imageOptions = { ignoreMode: IgnoreMode.DOCKER, platform: Platform.LINUX_AMD64 };
+
+    // Redis solo para las colas de jobs: sin persistencia (los jobs se reprograman al arrancar)
+    // y sin desalojo de llaves (requisito de BullMQ).
+    const redis = taskDefinition.addContainer('redis', {
+      image: ecs.ContainerImage.fromRegistry(jobs.redisImage),
+      command: [
+        'redis-server',
+        '--bind',
+        '127.0.0.1',
+        '--port',
+        String(REDIS_PORT),
+        '--save',
+        '',
+        '--appendonly',
+        'no',
+        '--maxmemory',
+        `${jobs.redisMaxMemoryMb}mb`,
+        '--maxmemory-policy',
+        'noeviction',
+      ],
+      memoryReservationMiB: jobs.redisMaxMemoryMb * 2,
+      logging: ecs.LogDrivers.awsLogs({ logGroup, streamPrefix: 'redis' }),
+      healthCheck: {
+        command: ['CMD', 'redis-cli', 'ping'],
+        interval: Duration.seconds(10),
+        timeout: Duration.seconds(5),
+        retries: 3,
+        startPeriod: Duration.seconds(10),
+      },
+    });
 
     const api = taskDefinition.addContainer('api', {
       image: ecs.ContainerImage.fromAsset(REPO_ROOT, {
@@ -187,6 +246,12 @@ export class AppStack extends Stack {
         GEOCODER_BIAS_DEGREES: String(geocoder.biasDegrees),
         GEOCODER_CACHE_TTL_SECONDS: String(geocoder.cacheTtlSeconds),
         GEOCODER_TIMEOUT_MS: String(geocoder.timeoutMs),
+        // Archivos en S3 con el rol de la tarea (sin llaves ni endpoint).
+        S3_REGION: this.region,
+        S3_BUCKET_UPLOADS: uploadsBucket.bucketName,
+        S3_PRESIGN_TTL_SECONDS: String(uploads.presignTtlSeconds),
+        REDIS_URL: `redis://localhost:${REDIS_PORT}`,
+        EXPIRY_CHECK_INTERVAL_SECONDS: String(jobs.expiryCheckIntervalSeconds),
       },
       secrets: {
         DB_HOST: ecs.Secret.fromSecretsManager(dbSecret, 'host'),
@@ -200,6 +265,11 @@ export class AppStack extends Stack {
         STRIPE_SECRET_KEY: ecs.Secret.fromSecretsManager(stripeSecret, 'secretKey'),
         STRIPE_WEBHOOK_SECRET: ecs.Secret.fromSecretsManager(stripeSecret, 'webhookSecret'),
       },
+    });
+
+    api.addContainerDependencies({
+      container: redis,
+      condition: ecs.ContainerDependencyCondition.HEALTHY,
     });
 
     const web = taskDefinition.addContainer('web', {
@@ -276,6 +346,7 @@ export class AppStack extends Stack {
       value: stripeSecret.secretName,
       description: 'Cargar aquí secretKey y webhookSecret de Stripe (modo test)',
     });
+    new CfnOutput(this, 'UploadsBucketName', { value: uploadsBucket.bucketName });
     new CfnOutput(this, 'ClusterName', { value: cluster.clusterName });
     new CfnOutput(this, 'ServiceName', { value: service.serviceName });
   }

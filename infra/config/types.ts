@@ -49,6 +49,26 @@ export interface EnvironmentConfig {
     seedDemoData: boolean;
   };
 
+  /** Bucket S3 privado de archivos (documentos de verificación) con URLs prefirmadas. */
+  uploads: {
+    /** Segundos de validez de las URLs prefirmadas de subida y descarga. */
+    presignTtlSeconds: number;
+    /** true: al destruir el stack se vacía y borra el bucket (ambientes desechables). */
+    destroyOnRemoval: boolean;
+  };
+
+  /**
+   * Redis para las colas de BullMQ (jobs programados). Corre como contenedor dentro de la misma
+   * tarea (sin costo extra); los jobs se vuelven a programar al arrancar, así que no necesita
+   * persistencia. Con varias réplicas se cambiaría por ElastiCache.
+   */
+  jobs: {
+    redisImage: string;
+    redisMaxMemoryMb: number;
+    /** Cada cuánto se revisan vencimientos (avisos de renovación y de documentos), en segundos. */
+    expiryCheckIntervalSeconds: number;
+  };
+
   /** Variables no secretas de la app (las secretas van a Secrets Manager). */
   appSettings: {
     apiPrefix: string;

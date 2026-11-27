@@ -22,6 +22,16 @@ export const settingsSchemas = {
     .int()
     .min(5)
     .max(24 * 60),
+  /** Días antes del fin de una mensualidad en que se avisa al conductor para renovarla. */
+  'booking.expiryNoticeDays': z.number().int().min(1).max(30),
+  /** Días antes del vencimiento de un documento (póliza) en que se avisa al aliado. */
+  'verification.expiryNoticeDays': z.number().int().min(1).max(90),
+  /** Tamaño máximo de cada documento de verificación, en bytes. */
+  'verification.maxFileBytes': z
+    .number()
+    .int()
+    .min(100 * 1024)
+    .max(25 * 1024 * 1024),
   /** Radio de búsqueda por defecto, en metros. */
   'search.defaultRadiusMeters': z.number().int().positive(),
   /** Punto donde abre el mapa si el usuario no da ubicación (y sesgo del geocodificador). */

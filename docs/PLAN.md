@@ -84,13 +84,17 @@ Objetivo: cualquier integrante clona, corre `pnpm i && pnpm dev` y tiene todo ar
 
 ## Fase 4 — Mis mensualidades y panel del aliado (semanas 6–7) · Mockups 6, 7
 
-- ◐ Panel del conductor (`/mi-cuenta`, barra lateral): resumen, mensualidades activas con vigencia y código, cancelar, historial, perfil y vehículos, renovar ☑
-- ◐ Panel aliado con barra lateral: KPIs (ingreso neto, ocupación, mensualidades), ventas 14 días, editar datos, cupos y precios por franja, pausar ☑
-- ☐ Gráfica de ocupación por hora (últimos 7 días) — `partner-analytics`
-- ☐ `verification`: carga de documentos a S3 (URL prefirmada), estados y vencimientos
+- ☑ Panel del conductor (`/mi-cuenta`, barra lateral): resumen, mensualidades activas con vigencia y código, cancelar, historial, perfil y vehículos, renovar ☑
+- ☑ Panel aliado con barra lateral: KPIs (ingreso neto, ocupación, mensualidades), ventas 14 días, editar datos, cupos y precios por franja, pausar ☑
+- ☑ Gráfica de ocupación por hora (últimos 7 días) — `partner-analytics` (`GET /partner/analytics/occupancy`):
+  promedio por hora de las mensualidades vigentes según la franja de cada una, contra los cupos publicados
+- ☑ `verification`: póliza RC, RUT y facturación por parqueadero (`/aliados/documentos`), subida directa a S3
+  con URL prefirmada, revisión del admin (`/admin/documentos`, rechazo con motivo), aviso por correo y
+  pérdida del sello "Verificado" al vencer (ADR 0008)
 - ☑ **Panel admin** (`/admin`, rol ADMIN, barra lateral): aprobar/suspender/verificar parqueaderos, CRUD de
   usuarios (crear, editar rol, suspender, borrar), pagos, estadísticas globales, editar `system_settings`
-- ☐ Jobs BullMQ: vencimiento de mensualidades y de documentos (aviso "vence en 20 días")
+- ☑ Jobs BullMQ (puerto `JobScheduler`; Redis como contenedor de la tarea en AWS): barrido de reservas,
+  aviso "tu mensualidad termina en N días" y documentos que vencen en N días (`system_settings`)
 
 **Entregable:** los dos lados del marketplace operan.
 
@@ -127,17 +131,18 @@ despliegue automático desde `main`. Sirve para demo; los pendientes de abajo so
   - caché de geocodificación y de `system_settings` compartida (hoy en memoria);
   - bloqueo de cupo con TTL durante el pago (hoy fila en BD + barrido);
   - adapter de Socket.IO y colas BullMQ (Fase 5).
-- ☐ **Worker aparte (BullMQ)**: barrido de reservas sin pagar, vencimientos, correos y recibos PDF.
-  Hoy el barrido corre dentro de la API; con varias réplicas correría en todas.
+- ☐ **Worker aparte (BullMQ)**: los jobs ya van por BullMQ (una sola ejecución aunque haya varias
+  réplicas), pero el worker corre dentro de la API; separarlo cuando haya carga (recibos PDF, correos).
 - ☐ **Migraciones en una tarea ECS de un solo uso** antes del deploy (hoy al arrancar la API).
 - ☐ **Autoscaling** del servicio por CPU/peticiones (mín. 1, máx. 3) una vez exista el ALB.
 - ☐ Separar web y API en servicios distintos si el tráfico lo pide (hoy comparten tarea).
 
 ### AWS completo
 
-- ☐ **S3** con URLs prefirmadas: fotos de parqueaderos, documentos de verificación y recibos PDF;
-  CloudFront delante de las imágenes.
-- ☐ **SES** para correos (confirmación, recibo, alertas de cupo) en lugar de Mailpit.
+- ◐ **S3** con URLs prefirmadas: documentos de verificación ☑ · fotos de parqueaderos y recibos PDF ☐;
+  CloudFront delante de las imágenes ☐.
+- ☐ **SES** para correos (avisos de vencimiento y revisión ya existen con SMTP/Mailpit; en AWS hoy solo
+  se registran en el log), recibo y alertas de cupo.
 - ☐ **Alarmas CloudWatch**: tarea caída, 5xx de la API, CPU/memoria, conexiones y almacenamiento de RDS;
   avisos al correo del presupuesto.
 - ☐ RDS para datos reales: respaldo 7 días, `deletionProtection`, Multi-AZ opcional (hoy 1 día, sin

@@ -1,6 +1,7 @@
 import { BookingStatus, type BookingStatus as Status } from '@parqueavecino/contracts';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AppConfigService } from '../../../config/app-config.service';
+import type { NotificationsService } from '../../notifications/application/notifications.service';
 import type { ParkingLotsService } from '../../parking-lots/application/parking-lots.service';
 import { commissionFor, type PaymentsService } from '../../payments/application/payments.service';
 import type { SettingsService } from '../../settings/application/settings.service';
@@ -9,6 +10,7 @@ import {
   BookingsRepository,
   type BookingActivation,
   type BookingRecord,
+  type ExpiringBooking,
   type NewBooking,
 } from '../domain/bookings.repository';
 import { BookingsService, generateAccessCode, monthlyPeriod } from './bookings.service';
@@ -70,6 +72,36 @@ class MemoryBookings extends BookingsRepository {
       ),
     );
   }
+  noticesSent = new Map<string, Date>();
+  findExpiringWithoutNotice(now: Date, until: Date): Promise<ExpiringBooking[]> {
+    return Promise.resolve(
+      this.rows
+        .filter((r) => {
+          if (r.status !== BookingStatus.ACTIVE || !r.endsAt || this.noticesSent.has(r.id)) {
+            return false;
+          }
+          const ends = new Date(r.endsAt);
+          const renewed = this.rows.some(
+            (x) => x.renewalOfId === r.id && x.status === BookingStatus.ACTIVE,
+          );
+          return ends >= now && ends <= until && !renewed;
+        })
+        .map((r) => ({
+          id: r.id,
+          plate: r.plate,
+          endsAt: new Date(r.endsAt ?? 0),
+          parkingLotName: r.parkingLot.name,
+          driver: { email: 'conductor@test.co', fullName: 'Ana Pérez' },
+        })),
+    );
+  }
+  markExpiryNoticeSent(id: string, at: Date) {
+    this.noticesSent.set(id, at);
+    return Promise.resolve();
+  }
+  occupancyIntervals() {
+    return Promise.resolve([]);
+  }
   countByStatus() {
     return Promise.resolve({} as Record<Status, number>);
   }
@@ -105,6 +137,7 @@ describe('BookingsService', () => {
     refund: Fn;
   };
   let service: BookingsService;
+  let notifications: { bookingExpiring: Fn };
 
   beforeEach(() => {
     repo = new MemoryBookings();
@@ -121,15 +154,22 @@ describe('BookingsService', () => {
       cancelPending: vi.fn(),
       refund: vi.fn(),
     };
-    const settings = {
-      get: vi.fn((key: string) => Promise.resolve(key === 'booking.paymentHoldMinutes' ? 30 : 24)),
+    const settingValues: Record<string, number> = {
+      'booking.paymentHoldMinutes': 30,
+      'booking.expiryNoticeDays': 3,
     };
+    const settings = {
+      get: vi.fn((key: string) => Promise.resolve(settingValues[key] ?? 24)),
+    };
+    notifications = { bookingExpiring: vi.fn().mockResolvedValue(true) };
     service = new BookingsService(
       repo,
       lots as unknown as ParkingLotsService,
       payments as unknown as PaymentsService,
       { ensureVehicle: vi.fn() } as unknown as UsersService,
       settings as unknown as SettingsService,
+      notifications as unknown as NotificationsService,
+      { register: vi.fn() },
       { get: () => 0 } as unknown as AppConfigService,
     );
   });
@@ -234,6 +274,49 @@ describe('BookingsService', () => {
     payments.sync.mockResolvedValue('pending');
     await service.sweep(new Date(Date.now() + 31 * 60_000));
     expect(lots.releaseSpot).not.toHaveBeenCalled();
+  });
+
+  it('avisa una sola vez las mensualidades por terminar sin renovación pagada', async () => {
+    const now = new Date('2026-05-10T12:00:00Z');
+    const soon = {
+      startsAt: new Date('2026-04-12T12:00:00Z'),
+      endsAt: new Date('2026-05-12T12:00:00Z'),
+    };
+    const later = {
+      startsAt: new Date('2026-05-01T12:00:00Z'),
+      endsAt: new Date('2026-06-01T12:00:00Z'),
+    };
+    for (const period of [soon, later]) {
+      await service.create('d1', { offerId: 'o1', plate: 'ABC123' });
+      const row = repo.rows.at(-1);
+      if (!row) throw new Error('sin reserva');
+      await repo.transition(row.id, [BookingStatus.PENDING_PAYMENT], BookingStatus.ACTIVE, {
+        accessCode: 'X',
+        ...period,
+      });
+    }
+
+    await service.notifyExpiring(now);
+    await service.notifyExpiring(now);
+
+    expect(notifications.bookingExpiring).toHaveBeenCalledTimes(1);
+    expect(notifications.bookingExpiring).toHaveBeenCalledWith(
+      expect.objectContaining({ email: 'conductor@test.co' }),
+      expect.objectContaining({ plate: 'ABC123', endsAt: soon.endsAt }),
+    );
+    expect([...repo.noticesSent.keys()]).toEqual(['b1']);
+  });
+
+  it('si el correo falla, el aviso queda pendiente para el siguiente intento', async () => {
+    notifications.bookingExpiring.mockResolvedValue(false);
+    await service.create('d1', { offerId: 'o1', plate: 'ABC123' });
+    await repo.transition('b1', [BookingStatus.PENDING_PAYMENT], BookingStatus.ACTIVE, {
+      accessCode: 'X',
+      startsAt: new Date('2026-04-12T12:00:00Z'),
+      endsAt: new Date('2026-05-12T12:00:00Z'),
+    });
+    await service.notifyExpiring(new Date('2026-05-11T12:00:00Z'));
+    expect(repo.noticesSent.size).toBe(0);
   });
 
   it('solo renueva mensualidades activas', async () => {

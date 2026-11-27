@@ -5,6 +5,8 @@ import { seconds, ThrottlerModule } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
 import { DatabaseModule } from './common/database/database.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
+import { JobsModule } from './common/jobs/jobs.module';
+import { StorageModule } from './common/storage/storage.module';
 import { AppConfigModule } from './config/app-config.module';
 import { AppConfigService } from './config/app-config.service';
 import { AdminModule } from './modules/admin/admin.module';
@@ -12,10 +14,13 @@ import { AuthModule } from './modules/auth/auth.module';
 import { BookingsModule } from './modules/bookings/bookings.module';
 import { HealthModule } from './modules/health/health.module';
 import { GeocodingModule } from './modules/geocoding/geocoding.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 import { ParkingLotsModule } from './modules/parking-lots/parking-lots.module';
+import { PartnerAnalyticsModule } from './modules/partner-analytics/partner-analytics.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { UsersModule } from './modules/users/users.module';
+import { VerificationModule } from './modules/verification/verification.module';
 
 const REQUEST_ID_HEADER = 'x-request-id';
 
@@ -23,6 +28,8 @@ const REQUEST_ID_HEADER = 'x-request-id';
   imports: [
     AppConfigModule,
     DatabaseModule,
+    StorageModule,
+    JobsModule,
     LoggerModule.forRootAsync({
       inject: [AppConfigService],
       useFactory: (config: AppConfigService) => ({
@@ -61,6 +68,9 @@ const REQUEST_ID_HEADER = 'x-request-id';
     GeocodingModule,
     PaymentsModule,
     BookingsModule,
+    NotificationsModule,
+    VerificationModule,
+    PartnerAnalyticsModule,
     AdminModule,
   ],
   providers: [{ provide: APP_FILTER, useClass: AllExceptionsFilter }],

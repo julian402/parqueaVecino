@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { NotificationsModule } from '../notifications/notifications.module';
 import { ParkingLotsModule } from '../parking-lots/parking-lots.module';
 import { PaymentsModule } from '../payments/payments.module';
 import { SettingsModule } from '../settings/settings.module';
@@ -13,7 +14,7 @@ import {
 } from './presentation/bookings.controller';
 
 @Module({
-  imports: [ParkingLotsModule, PaymentsModule, UsersModule, SettingsModule],
+  imports: [ParkingLotsModule, PaymentsModule, UsersModule, SettingsModule, NotificationsModule],
   controllers: [BookingsController, PartnerController, PaymentWebhooksController],
   providers: [BookingsService, { provide: BookingsRepository, useClass: PrismaBookingsRepository }],
   exports: [BookingsService],
