@@ -68,7 +68,12 @@ export const prod: EnvironmentConfig = {
     timeoutMs: 5000,
   },
 
-  github: { owner: 'julian402', repo: 'parqueaVecino', deployBranch: 'main' },
+  github: {
+    owner: 'julian402',
+    repo: 'parqueaVecino',
+    deployBranch: 'main',
+    deployEnvironment: 'prod',
+  },
 
   monthlyBudgetUsd: 30,
   tags: { project: 'parqueavecino', environment: 'prod' },

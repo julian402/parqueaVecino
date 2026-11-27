@@ -16,7 +16,7 @@ const GITHUB_OIDC_URL = 'https://token.actions.githubusercontent.com';
 export class CiStack extends Stack {
   constructor(scope: Construct, id: string, props: CiStackProps) {
     super(scope, id, props);
-    const { owner, repo, deployBranch } = props.config.github;
+    const { owner, repo, deployBranch, deployEnvironment } = props.config.github;
 
     const provider = new iam.OpenIdConnectProvider(this, 'GitHubOidc', {
       url: GITHUB_OIDC_URL,
@@ -29,7 +29,12 @@ export class CiStack extends Stack {
       assumedBy: new iam.WebIdentityPrincipal(provider.openIdConnectProviderArn, {
         StringEquals: {
           'token.actions.githubusercontent.com:aud': 'sts.amazonaws.com',
-          'token.actions.githubusercontent.com:sub': `repo:${owner}/${repo}:ref:refs/heads/${deployBranch}`,
+          // Un job con `environment:` (deploy.yml usa el ambiente de GitHub) firma el token con
+          // `environment:<nombre>` en lugar de la rama; ese ambiente se limita a la rama en GitHub.
+          'token.actions.githubusercontent.com:sub': [
+            `repo:${owner}/${repo}:ref:refs/heads/${deployBranch}`,
+            `repo:${owner}/${repo}:environment:${deployEnvironment}`,
+          ],
         },
       }),
     });
