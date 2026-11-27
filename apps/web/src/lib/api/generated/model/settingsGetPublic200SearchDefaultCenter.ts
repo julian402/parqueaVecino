@@ -10,13 +10,13 @@ export type SettingsGetPublic200SearchDefaultCenter = {
   /** @minLength 2 */
   label: string;
   /**
-   * @minimum -90
-   * @maximum 90
-   */
+     * @minimum -90
+     * @maximum 90
+     */
   latitude: number;
   /**
-   * @minimum -180
-   * @maximum 180
-   */
+     * @minimum -180
+     * @maximum 180
+     */
   longitude: number;
 };

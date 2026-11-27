@@ -5,7 +5,10 @@
  * Mensualidades de parqueadero fraccionadas
  * OpenAPI spec version: 1.0
  */
-import { useMutation, useQuery } from '@tanstack/react-query';
+import {
+  useMutation,
+  useQuery
+} from '@tanstack/react-query';
 import type {
   DataTag,
   DefinedInitialDataOptions,
@@ -18,7 +21,7 @@ import type {
   UseMutationOptions,
   UseMutationResult,
   UseQueryOptions,
-  UseQueryResult,
+  UseQueryResult
 } from '@tanstack/react-query';
 
 import type {
@@ -31,47 +34,35 @@ import type {
   PartnerParkingLotsUpdateBody,
   PartnerParkingLotsUpsertOffers200,
   PartnerParkingLotsUpsertOffersBody,
-  PartnerSummary200,
+  PartnerSummary200
 } from '../model';
 
 import { http } from '../../http';
 
+
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
-const getHeaders = (
-  ...sources: (
-    | RequestInit['headers']
-    | Record<string, string | number | boolean | bigint | readonly string[] | undefined>
-  )[]
-) => {
+
+const getHeaders = (...sources: (RequestInit['headers'] | Record<string, string | number | boolean | bigint | readonly string[] | undefined>)[]) => {
   const seen = new Set<string>();
   const layers: [string, string | readonly string[]][][] = [];
   for (const source of sources.reverse()) {
     if (!source) continue;
-    const entries =
-      source instanceof Headers
-        ? source.entries()
-        : Symbol.iterator in source
-          ? Array.from(
-              source as Iterable<Iterable<string>>,
-              (entry) => Array.from(entry) as [string, string],
-            )
-          : Object.entries<string | number | boolean | bigint | readonly string[] | undefined>(
-              source,
-            );
+    const entries = source instanceof Headers
+      ? source.entries()
+      : Symbol.iterator in source
+        ? Array.from(source as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string])
+        : Object.entries<string | number | boolean | bigint | readonly string[] | undefined>(source);
     const layer: [string, string | readonly string[]][] = [];
     for (const [name, value] of entries) {
-      if (value !== undefined && !seen.has(name.toLowerCase()))
-        layer.push([name, typeof value === 'object' ? value : String(value)]);
+      if (value !== undefined && !seen.has(name.toLowerCase())) layer.push([name, typeof value === 'object' ? value : String(value)]);
     }
     for (const [name] of layer) seen.add(name.toLowerCase());
     layers.push(layer);
   }
-  return Object.fromEntries(layers.reverse().flat()) as Extract<
-    RequestInit['headers'],
-    Record<string, unknown>
-  >;
+  return Object.fromEntries(layers.reverse().flat()) as Extract<RequestInit['headers'], Record<string, unknown>>;
 };
+
 
 const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKey: K } => {
   const result = { queryKey } as T & { queryKey: K };
@@ -89,559 +80,459 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
 };
 
 export const getPartnerParkingLotsListUrl = () => {
-  return `/partner/parking-lots`;
-};
 
-export const partnerParkingLotsList = async (
-  options?: Parameters<typeof http>[1],
-): Promise<PartnerParkingLotsList200Item[]> => {
-  return http<PartnerParkingLotsList200Item[]>(getPartnerParkingLotsListUrl(), {
+
+
+
+  return `/partner/parking-lots`
+}
+
+export const partnerParkingLotsList = async ( options?: Parameters<typeof http>[1]): Promise<PartnerParkingLotsList200Item[]> => {
+
+  return http<PartnerParkingLotsList200Item[]>(getPartnerParkingLotsListUrl(),
+  {
     ...options,
-    method: 'GET',
-  });
-};
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
 
 export const getPartnerParkingLotsListQueryKey = () => {
-  return [`/partner/parking-lots`] as const;
-};
+    return [
+    `/partner/parking-lots`
+    ] as const;
+    }
 
-export const getPartnerParkingLotsListQueryOptions = <
-  TData = Awaited<ReturnType<typeof partnerParkingLotsList>>,
-  TError = unknown,
->(options?: {
-  query?: Partial<
-    UseQueryOptions<Awaited<ReturnType<typeof partnerParkingLotsList>>, TError, TData>
-  >;
-  request?: SecondParameter<typeof http>;
-}) => {
-  const { query: queryOptions, request: requestOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getPartnerParkingLotsListQueryKey();
+export const getPartnerParkingLotsListQueryOptions = <TData = Awaited<ReturnType<typeof partnerParkingLotsList>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof partnerParkingLotsList>>, TError, TData>>, request?: SecondParameter<typeof http>}
+) => {
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof partnerParkingLotsList>>> = ({ signal }) =>
-    partnerParkingLotsList({ signal, ...requestOptions });
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof partnerParkingLotsList>>,
-    TError,
-    TData
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
-};
+  const queryKey =  queryOptions?.queryKey ?? getPartnerParkingLotsListQueryKey();
 
-export type PartnerParkingLotsListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof partnerParkingLotsList>>
->;
-export type PartnerParkingLotsListQueryError = unknown;
 
-export function usePartnerParkingLotsList<
-  TData = Awaited<ReturnType<typeof partnerParkingLotsList>>,
-  TError = unknown,
->(
-  options: {
-    query: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof partnerParkingLotsList>>, TError, TData>
-    > &
-      Pick<
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof partnerParkingLotsList>>> = ({ signal }) => partnerParkingLotsList({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof partnerParkingLotsList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type PartnerParkingLotsListQueryResult = NonNullable<Awaited<ReturnType<typeof partnerParkingLotsList>>>
+export type PartnerParkingLotsListQueryError = unknown
+
+
+export function usePartnerParkingLotsList<TData = Awaited<ReturnType<typeof partnerParkingLotsList>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof partnerParkingLotsList>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof partnerParkingLotsList>>,
           TError,
           Awaited<ReturnType<typeof partnerParkingLotsList>>
-        >,
-        'initialData'
-      >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function usePartnerParkingLotsList<
-  TData = Awaited<ReturnType<typeof partnerParkingLotsList>>,
-  TError = unknown,
->(
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof partnerParkingLotsList>>, TError, TData>
-    > &
-      Pick<
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function usePartnerParkingLotsList<TData = Awaited<ReturnType<typeof partnerParkingLotsList>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof partnerParkingLotsList>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof partnerParkingLotsList>>,
           TError,
           Awaited<ReturnType<typeof partnerParkingLotsList>>
-        >,
-        'initialData'
-      >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function usePartnerParkingLotsList<
-  TData = Awaited<ReturnType<typeof partnerParkingLotsList>>,
-  TError = unknown,
->(
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof partnerParkingLotsList>>, TError, TData>
-    >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function usePartnerParkingLotsList<
-  TData = Awaited<ReturnType<typeof partnerParkingLotsList>>,
-  TError = unknown,
->(
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof partnerParkingLotsList>>, TError, TData>
-    >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-  const queryOptions = getPartnerParkingLotsListQueryOptions(options);
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function usePartnerParkingLotsList<TData = Awaited<ReturnType<typeof partnerParkingLotsList>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof partnerParkingLotsList>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function usePartnerParkingLotsList<TData = Awaited<ReturnType<typeof partnerParkingLotsList>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof partnerParkingLotsList>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
-    queryKey: DataTag<QueryKey, TData, TError>;
-  };
+  const queryOptions = getPartnerParkingLotsListQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return withQueryKey(query, queryOptions.queryKey);
 }
 
-export const getPartnerParkingLotsCreateUrl = () => {
-  return `/partner/parking-lots`;
-};
 
-export const partnerParkingLotsCreate = async (
-  partnerParkingLotsCreateBody: PartnerParkingLotsCreateBody,
-  options?: Parameters<typeof http>[1],
-): Promise<PartnerParkingLotsCreate201> => {
-  return http<PartnerParkingLotsCreate201>(getPartnerParkingLotsCreateUrl(), {
+
+
+
+
+export const getPartnerParkingLotsCreateUrl = () => {
+
+
+
+
+  return `/partner/parking-lots`
+}
+
+export const partnerParkingLotsCreate = async (partnerParkingLotsCreateBody: PartnerParkingLotsCreateBody, options?: Parameters<typeof http>[1]): Promise<PartnerParkingLotsCreate201> => {
+
+  return http<PartnerParkingLotsCreate201>(getPartnerParkingLotsCreateUrl(),
+  {
     ...options,
     method: 'POST',
     headers: getHeaders({ 'Content-Type': 'application/json' }, options?.headers),
-    body: JSON.stringify(partnerParkingLotsCreateBody),
-  });
-};
+    body: JSON.stringify(partnerParkingLotsCreateBody)
+  }
+);}
+
+
+
+
 
 export const getPartnerParkingLotsCreateMutationKey = () => ['partnerParkingLotsCreate'] as const;
 
-export const getPartnerParkingLotsCreateMutationOptions = <
-  TError = unknown,
-  TContext = unknown,
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof partnerParkingLotsCreate>>,
-    TError,
-    PartnerParkingLotsCreateMutationVariables,
-    TContext
-  >;
-  request?: SecondParameter<typeof http>;
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof partnerParkingLotsCreate>>,
-  TError,
-  PartnerParkingLotsCreateMutationVariables,
-  TContext
-> => {
-  const mutationKey = getPartnerParkingLotsCreateMutationKey();
-  const { mutation: mutationOptions, request: requestOptions } = options
-    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, request: undefined };
+export const getPartnerParkingLotsCreateMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof partnerParkingLotsCreate>>, TError,PartnerParkingLotsCreateMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof partnerParkingLotsCreate>>, TError,PartnerParkingLotsCreateMutationVariables, TContext> => {
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof partnerParkingLotsCreate>>,
-    PartnerParkingLotsCreateMutationVariables
-  > = (props) => {
-    const { data } = props ?? {};
+const mutationKey = getPartnerParkingLotsCreateMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
 
-    return partnerParkingLotsCreate(data, requestOptions);
-  };
 
-  return { mutationFn, ...mutationOptions };
-};
 
-export type PartnerParkingLotsCreateMutationResult = NonNullable<
-  Awaited<ReturnType<typeof partnerParkingLotsCreate>>
->;
-export type PartnerParkingLotsCreateMutationBody = PartnerParkingLotsCreateBody;
-export type PartnerParkingLotsCreateMutationError = unknown;
-export type PartnerParkingLotsCreateMutationVariables = { data: PartnerParkingLotsCreateBody };
 
-export const usePartnerParkingLotsCreate = <TError = unknown, TContext = unknown>(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof partnerParkingLotsCreate>>,
-      TError,
-      PartnerParkingLotsCreateMutationVariables,
-      TContext
-    >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseMutationResult<
-  Awaited<ReturnType<typeof partnerParkingLotsCreate>>,
-  TError,
-  PartnerParkingLotsCreateMutationVariables,
-  TContext
-> => {
-  return useMutation(getPartnerParkingLotsCreateMutationOptions(options), queryClient);
-};
-export const getPartnerParkingLotsUpdateUrl = (id: string) => {
-  return `/partner/parking-lots/${id}`;
-};
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof partnerParkingLotsCreate>>, PartnerParkingLotsCreateMutationVariables> = (props) => {
+          const {data} = props ?? {};
 
-export const partnerParkingLotsUpdate = async (
-  id: string,
-  partnerParkingLotsUpdateBody: PartnerParkingLotsUpdateBody,
-  options?: Parameters<typeof http>[1],
-): Promise<PartnerParkingLotsUpdate200> => {
-  return http<PartnerParkingLotsUpdate200>(getPartnerParkingLotsUpdateUrl(id), {
+          return  partnerParkingLotsCreate(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PartnerParkingLotsCreateMutationResult = NonNullable<Awaited<ReturnType<typeof partnerParkingLotsCreate>>>
+    export type PartnerParkingLotsCreateMutationBody = PartnerParkingLotsCreateBody
+    export type PartnerParkingLotsCreateMutationError = unknown
+    export type PartnerParkingLotsCreateMutationVariables = {data: PartnerParkingLotsCreateBody}
+
+    export const usePartnerParkingLotsCreate = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof partnerParkingLotsCreate>>, TError,PartnerParkingLotsCreateMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof partnerParkingLotsCreate>>,
+        TError,
+        PartnerParkingLotsCreateMutationVariables,
+        TContext
+      > => {
+      return useMutation(getPartnerParkingLotsCreateMutationOptions(options), queryClient);
+    }
+    export const getPartnerParkingLotsUpdateUrl = (id: string,) => {
+
+
+
+
+  return `/partner/parking-lots/${id}`
+}
+
+export const partnerParkingLotsUpdate = async (id: string,
+    partnerParkingLotsUpdateBody: PartnerParkingLotsUpdateBody, options?: Parameters<typeof http>[1]): Promise<PartnerParkingLotsUpdate200> => {
+
+  return http<PartnerParkingLotsUpdate200>(getPartnerParkingLotsUpdateUrl(id),
+  {
     ...options,
     method: 'PATCH',
     headers: getHeaders({ 'Content-Type': 'application/json' }, options?.headers),
-    body: JSON.stringify(partnerParkingLotsUpdateBody),
-  });
-};
+    body: JSON.stringify(partnerParkingLotsUpdateBody)
+  }
+);}
+
+
+
+
 
 export const getPartnerParkingLotsUpdateMutationKey = () => ['partnerParkingLotsUpdate'] as const;
 
-export const getPartnerParkingLotsUpdateMutationOptions = <
-  TError = unknown,
-  TContext = unknown,
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof partnerParkingLotsUpdate>>,
-    TError,
-    PartnerParkingLotsUpdateMutationVariables,
-    TContext
-  >;
-  request?: SecondParameter<typeof http>;
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof partnerParkingLotsUpdate>>,
-  TError,
-  PartnerParkingLotsUpdateMutationVariables,
-  TContext
-> => {
-  const mutationKey = getPartnerParkingLotsUpdateMutationKey();
-  const { mutation: mutationOptions, request: requestOptions } = options
-    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, request: undefined };
+export const getPartnerParkingLotsUpdateMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof partnerParkingLotsUpdate>>, TError,PartnerParkingLotsUpdateMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof partnerParkingLotsUpdate>>, TError,PartnerParkingLotsUpdateMutationVariables, TContext> => {
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof partnerParkingLotsUpdate>>,
-    PartnerParkingLotsUpdateMutationVariables
-  > = (props) => {
-    const { id, data } = props ?? {};
+const mutationKey = getPartnerParkingLotsUpdateMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
 
-    return partnerParkingLotsUpdate(id, data, requestOptions);
-  };
 
-  return { mutationFn, ...mutationOptions };
-};
 
-export type PartnerParkingLotsUpdateMutationResult = NonNullable<
-  Awaited<ReturnType<typeof partnerParkingLotsUpdate>>
->;
-export type PartnerParkingLotsUpdateMutationBody = PartnerParkingLotsUpdateBody;
-export type PartnerParkingLotsUpdateMutationError = unknown;
-export type PartnerParkingLotsUpdateMutationVariables = {
-  id: string;
-  data: PartnerParkingLotsUpdateBody;
-};
 
-export const usePartnerParkingLotsUpdate = <TError = unknown, TContext = unknown>(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof partnerParkingLotsUpdate>>,
-      TError,
-      PartnerParkingLotsUpdateMutationVariables,
-      TContext
-    >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseMutationResult<
-  Awaited<ReturnType<typeof partnerParkingLotsUpdate>>,
-  TError,
-  PartnerParkingLotsUpdateMutationVariables,
-  TContext
-> => {
-  return useMutation(getPartnerParkingLotsUpdateMutationOptions(options), queryClient);
-};
-export const getPartnerParkingLotsSetStatusUrl = (id: string) => {
-  return `/partner/parking-lots/${id}/status`;
-};
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof partnerParkingLotsUpdate>>, PartnerParkingLotsUpdateMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
 
-export const partnerParkingLotsSetStatus = async (
-  id: string,
-  partnerParkingLotsSetStatusBody: PartnerParkingLotsSetStatusBody,
-  options?: Parameters<typeof http>[1],
-): Promise<PartnerParkingLotsSetStatus200> => {
-  return http<PartnerParkingLotsSetStatus200>(getPartnerParkingLotsSetStatusUrl(id), {
+          return  partnerParkingLotsUpdate(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PartnerParkingLotsUpdateMutationResult = NonNullable<Awaited<ReturnType<typeof partnerParkingLotsUpdate>>>
+    export type PartnerParkingLotsUpdateMutationBody = PartnerParkingLotsUpdateBody
+    export type PartnerParkingLotsUpdateMutationError = unknown
+    export type PartnerParkingLotsUpdateMutationVariables = {id: string;data: PartnerParkingLotsUpdateBody}
+
+    export const usePartnerParkingLotsUpdate = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof partnerParkingLotsUpdate>>, TError,PartnerParkingLotsUpdateMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof partnerParkingLotsUpdate>>,
+        TError,
+        PartnerParkingLotsUpdateMutationVariables,
+        TContext
+      > => {
+      return useMutation(getPartnerParkingLotsUpdateMutationOptions(options), queryClient);
+    }
+    export const getPartnerParkingLotsSetStatusUrl = (id: string,) => {
+
+
+
+
+  return `/partner/parking-lots/${id}/status`
+}
+
+export const partnerParkingLotsSetStatus = async (id: string,
+    partnerParkingLotsSetStatusBody: PartnerParkingLotsSetStatusBody, options?: Parameters<typeof http>[1]): Promise<PartnerParkingLotsSetStatus200> => {
+
+  return http<PartnerParkingLotsSetStatus200>(getPartnerParkingLotsSetStatusUrl(id),
+  {
     ...options,
     method: 'PATCH',
     headers: getHeaders({ 'Content-Type': 'application/json' }, options?.headers),
-    body: JSON.stringify(partnerParkingLotsSetStatusBody),
-  });
-};
+    body: JSON.stringify(partnerParkingLotsSetStatusBody)
+  }
+);}
 
-export const getPartnerParkingLotsSetStatusMutationKey = () =>
-  ['partnerParkingLotsSetStatus'] as const;
 
-export const getPartnerParkingLotsSetStatusMutationOptions = <
-  TError = unknown,
-  TContext = unknown,
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof partnerParkingLotsSetStatus>>,
-    TError,
-    PartnerParkingLotsSetStatusMutationVariables,
-    TContext
-  >;
-  request?: SecondParameter<typeof http>;
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof partnerParkingLotsSetStatus>>,
-  TError,
-  PartnerParkingLotsSetStatusMutationVariables,
-  TContext
-> => {
-  const mutationKey = getPartnerParkingLotsSetStatusMutationKey();
-  const { mutation: mutationOptions, request: requestOptions } = options
-    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, request: undefined };
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof partnerParkingLotsSetStatus>>,
-    PartnerParkingLotsSetStatusMutationVariables
-  > = (props) => {
-    const { id, data } = props ?? {};
 
-    return partnerParkingLotsSetStatus(id, data, requestOptions);
-  };
 
-  return { mutationFn, ...mutationOptions };
-};
+export const getPartnerParkingLotsSetStatusMutationKey = () => ['partnerParkingLotsSetStatus'] as const;
 
-export type PartnerParkingLotsSetStatusMutationResult = NonNullable<
-  Awaited<ReturnType<typeof partnerParkingLotsSetStatus>>
->;
-export type PartnerParkingLotsSetStatusMutationBody = PartnerParkingLotsSetStatusBody;
-export type PartnerParkingLotsSetStatusMutationError = unknown;
-export type PartnerParkingLotsSetStatusMutationVariables = {
-  id: string;
-  data: PartnerParkingLotsSetStatusBody;
-};
+export const getPartnerParkingLotsSetStatusMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof partnerParkingLotsSetStatus>>, TError,PartnerParkingLotsSetStatusMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof partnerParkingLotsSetStatus>>, TError,PartnerParkingLotsSetStatusMutationVariables, TContext> => {
 
-export const usePartnerParkingLotsSetStatus = <TError = unknown, TContext = unknown>(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof partnerParkingLotsSetStatus>>,
-      TError,
-      PartnerParkingLotsSetStatusMutationVariables,
-      TContext
-    >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseMutationResult<
-  Awaited<ReturnType<typeof partnerParkingLotsSetStatus>>,
-  TError,
-  PartnerParkingLotsSetStatusMutationVariables,
-  TContext
-> => {
-  return useMutation(getPartnerParkingLotsSetStatusMutationOptions(options), queryClient);
-};
-export const getPartnerParkingLotsUpsertOffersUrl = (id: string) => {
-  return `/partner/parking-lots/${id}/offers`;
-};
+const mutationKey = getPartnerParkingLotsSetStatusMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
 
-export const partnerParkingLotsUpsertOffers = async (
-  id: string,
-  partnerParkingLotsUpsertOffersBody: PartnerParkingLotsUpsertOffersBody,
-  options?: Parameters<typeof http>[1],
-): Promise<PartnerParkingLotsUpsertOffers200> => {
-  return http<PartnerParkingLotsUpsertOffers200>(getPartnerParkingLotsUpsertOffersUrl(id), {
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof partnerParkingLotsSetStatus>>, PartnerParkingLotsSetStatusMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  partnerParkingLotsSetStatus(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PartnerParkingLotsSetStatusMutationResult = NonNullable<Awaited<ReturnType<typeof partnerParkingLotsSetStatus>>>
+    export type PartnerParkingLotsSetStatusMutationBody = PartnerParkingLotsSetStatusBody
+    export type PartnerParkingLotsSetStatusMutationError = unknown
+    export type PartnerParkingLotsSetStatusMutationVariables = {id: string;data: PartnerParkingLotsSetStatusBody}
+
+    export const usePartnerParkingLotsSetStatus = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof partnerParkingLotsSetStatus>>, TError,PartnerParkingLotsSetStatusMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof partnerParkingLotsSetStatus>>,
+        TError,
+        PartnerParkingLotsSetStatusMutationVariables,
+        TContext
+      > => {
+      return useMutation(getPartnerParkingLotsSetStatusMutationOptions(options), queryClient);
+    }
+    export const getPartnerParkingLotsUpsertOffersUrl = (id: string,) => {
+
+
+
+
+  return `/partner/parking-lots/${id}/offers`
+}
+
+export const partnerParkingLotsUpsertOffers = async (id: string,
+    partnerParkingLotsUpsertOffersBody: PartnerParkingLotsUpsertOffersBody, options?: Parameters<typeof http>[1]): Promise<PartnerParkingLotsUpsertOffers200> => {
+
+  return http<PartnerParkingLotsUpsertOffers200>(getPartnerParkingLotsUpsertOffersUrl(id),
+  {
     ...options,
     method: 'PUT',
     headers: getHeaders({ 'Content-Type': 'application/json' }, options?.headers),
-    body: JSON.stringify(partnerParkingLotsUpsertOffersBody),
-  });
-};
+    body: JSON.stringify(partnerParkingLotsUpsertOffersBody)
+  }
+);}
 
-export const getPartnerParkingLotsUpsertOffersMutationKey = () =>
-  ['partnerParkingLotsUpsertOffers'] as const;
 
-export const getPartnerParkingLotsUpsertOffersMutationOptions = <
-  TError = unknown,
-  TContext = unknown,
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof partnerParkingLotsUpsertOffers>>,
-    TError,
-    PartnerParkingLotsUpsertOffersMutationVariables,
-    TContext
-  >;
-  request?: SecondParameter<typeof http>;
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof partnerParkingLotsUpsertOffers>>,
-  TError,
-  PartnerParkingLotsUpsertOffersMutationVariables,
-  TContext
-> => {
-  const mutationKey = getPartnerParkingLotsUpsertOffersMutationKey();
-  const { mutation: mutationOptions, request: requestOptions } = options
-    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, request: undefined };
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof partnerParkingLotsUpsertOffers>>,
-    PartnerParkingLotsUpsertOffersMutationVariables
-  > = (props) => {
-    const { id, data } = props ?? {};
 
-    return partnerParkingLotsUpsertOffers(id, data, requestOptions);
-  };
 
-  return { mutationFn, ...mutationOptions };
-};
+export const getPartnerParkingLotsUpsertOffersMutationKey = () => ['partnerParkingLotsUpsertOffers'] as const;
 
-export type PartnerParkingLotsUpsertOffersMutationResult = NonNullable<
-  Awaited<ReturnType<typeof partnerParkingLotsUpsertOffers>>
->;
-export type PartnerParkingLotsUpsertOffersMutationBody = PartnerParkingLotsUpsertOffersBody;
-export type PartnerParkingLotsUpsertOffersMutationError = unknown;
-export type PartnerParkingLotsUpsertOffersMutationVariables = {
-  id: string;
-  data: PartnerParkingLotsUpsertOffersBody;
-};
+export const getPartnerParkingLotsUpsertOffersMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof partnerParkingLotsUpsertOffers>>, TError,PartnerParkingLotsUpsertOffersMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof partnerParkingLotsUpsertOffers>>, TError,PartnerParkingLotsUpsertOffersMutationVariables, TContext> => {
 
-export const usePartnerParkingLotsUpsertOffers = <TError = unknown, TContext = unknown>(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof partnerParkingLotsUpsertOffers>>,
-      TError,
-      PartnerParkingLotsUpsertOffersMutationVariables,
-      TContext
-    >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseMutationResult<
-  Awaited<ReturnType<typeof partnerParkingLotsUpsertOffers>>,
-  TError,
-  PartnerParkingLotsUpsertOffersMutationVariables,
-  TContext
-> => {
-  return useMutation(getPartnerParkingLotsUpsertOffersMutationOptions(options), queryClient);
-};
-export const getPartnerSummaryUrl = () => {
-  return `/partner/summary`;
-};
+const mutationKey = getPartnerParkingLotsUpsertOffersMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
 
-export const partnerSummary = async (
-  options?: Parameters<typeof http>[1],
-): Promise<PartnerSummary200> => {
-  return http<PartnerSummary200>(getPartnerSummaryUrl(), {
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof partnerParkingLotsUpsertOffers>>, PartnerParkingLotsUpsertOffersMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  partnerParkingLotsUpsertOffers(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PartnerParkingLotsUpsertOffersMutationResult = NonNullable<Awaited<ReturnType<typeof partnerParkingLotsUpsertOffers>>>
+    export type PartnerParkingLotsUpsertOffersMutationBody = PartnerParkingLotsUpsertOffersBody
+    export type PartnerParkingLotsUpsertOffersMutationError = unknown
+    export type PartnerParkingLotsUpsertOffersMutationVariables = {id: string;data: PartnerParkingLotsUpsertOffersBody}
+
+    export const usePartnerParkingLotsUpsertOffers = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof partnerParkingLotsUpsertOffers>>, TError,PartnerParkingLotsUpsertOffersMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof partnerParkingLotsUpsertOffers>>,
+        TError,
+        PartnerParkingLotsUpsertOffersMutationVariables,
+        TContext
+      > => {
+      return useMutation(getPartnerParkingLotsUpsertOffersMutationOptions(options), queryClient);
+    }
+    export const getPartnerSummaryUrl = () => {
+
+
+
+
+  return `/partner/summary`
+}
+
+export const partnerSummary = async ( options?: Parameters<typeof http>[1]): Promise<PartnerSummary200> => {
+
+  return http<PartnerSummary200>(getPartnerSummaryUrl(),
+  {
     ...options,
-    method: 'GET',
-  });
-};
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
 
 export const getPartnerSummaryQueryKey = () => {
-  return [`/partner/summary`] as const;
-};
+    return [
+    `/partner/summary`
+    ] as const;
+    }
 
-export const getPartnerSummaryQueryOptions = <
-  TData = Awaited<ReturnType<typeof partnerSummary>>,
-  TError = unknown,
->(options?: {
-  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof partnerSummary>>, TError, TData>>;
-  request?: SecondParameter<typeof http>;
-}) => {
-  const { query: queryOptions, request: requestOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getPartnerSummaryQueryKey();
+export const getPartnerSummaryQueryOptions = <TData = Awaited<ReturnType<typeof partnerSummary>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof partnerSummary>>, TError, TData>>, request?: SecondParameter<typeof http>}
+) => {
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof partnerSummary>>> = ({ signal }) =>
-    partnerSummary({ signal, ...requestOptions });
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof partnerSummary>>,
-    TError,
-    TData
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
-};
+  const queryKey =  queryOptions?.queryKey ?? getPartnerSummaryQueryKey();
 
-export type PartnerSummaryQueryResult = NonNullable<Awaited<ReturnType<typeof partnerSummary>>>;
-export type PartnerSummaryQueryError = unknown;
 
-export function usePartnerSummary<
-  TData = Awaited<ReturnType<typeof partnerSummary>>,
-  TError = unknown,
->(
-  options: {
-    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof partnerSummary>>, TError, TData>> &
-      Pick<
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof partnerSummary>>> = ({ signal }) => partnerSummary({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof partnerSummary>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type PartnerSummaryQueryResult = NonNullable<Awaited<ReturnType<typeof partnerSummary>>>
+export type PartnerSummaryQueryError = unknown
+
+
+export function usePartnerSummary<TData = Awaited<ReturnType<typeof partnerSummary>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof partnerSummary>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof partnerSummary>>,
           TError,
           Awaited<ReturnType<typeof partnerSummary>>
-        >,
-        'initialData'
-      >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function usePartnerSummary<
-  TData = Awaited<ReturnType<typeof partnerSummary>>,
-  TError = unknown,
->(
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof partnerSummary>>, TError, TData>> &
-      Pick<
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function usePartnerSummary<TData = Awaited<ReturnType<typeof partnerSummary>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof partnerSummary>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof partnerSummary>>,
           TError,
           Awaited<ReturnType<typeof partnerSummary>>
-        >,
-        'initialData'
-      >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function usePartnerSummary<
-  TData = Awaited<ReturnType<typeof partnerSummary>>,
-  TError = unknown,
->(
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof partnerSummary>>, TError, TData>>;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function usePartnerSummary<
-  TData = Awaited<ReturnType<typeof partnerSummary>>,
-  TError = unknown,
->(
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof partnerSummary>>, TError, TData>>;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-  const queryOptions = getPartnerSummaryQueryOptions(options);
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function usePartnerSummary<TData = Awaited<ReturnType<typeof partnerSummary>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof partnerSummary>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function usePartnerSummary<TData = Awaited<ReturnType<typeof partnerSummary>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof partnerSummary>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
-    queryKey: DataTag<QueryKey, TData, TError>;
-  };
+  const queryOptions = getPartnerSummaryQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return withQueryKey(query, queryOptions.queryKey);
 }
+
+
+
+
+
+

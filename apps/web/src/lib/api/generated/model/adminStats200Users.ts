@@ -9,9 +9,9 @@ import type { AdminStats200UsersByRole } from './adminStats200UsersByRole';
 
 export type AdminStats200Users = {
   /**
-   * @minimum -9007199254740991
-   * @maximum 9007199254740991
-   */
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     */
   total: number;
   byRole: AdminStats200UsersByRole;
 };

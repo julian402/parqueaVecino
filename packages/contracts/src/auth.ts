@@ -42,3 +42,7 @@ export const authUserSchema = z.object({
   role: z.enum(UserRole),
 });
 export type AuthUser = z.infer<typeof authUserSchema>;
+
+/** Sesión actual: `user` es null si no hay sesión (no es un error). */
+export const authSessionSchema = z.object({ user: authUserSchema.nullable() });
+export type AuthSession = z.infer<typeof authSessionSchema>;

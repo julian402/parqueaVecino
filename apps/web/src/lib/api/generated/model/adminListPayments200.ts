@@ -9,19 +9,19 @@ import type { AdminListPayments200ItemsItem } from './adminListPayments200ItemsI
 
 export type AdminListPayments200 = {
   /**
-   * @minimum -9007199254740991
-   * @maximum 9007199254740991
-   */
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     */
   total: number;
   /**
-   * @minimum -9007199254740991
-   * @maximum 9007199254740991
-   */
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     */
   page: number;
   /**
-   * @minimum -9007199254740991
-   * @maximum 9007199254740991
-   */
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     */
   pageSize: number;
   items: AdminListPayments200ItemsItem[];
 };

@@ -6,8 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 
-export type PartnerParkingLotsSetStatus200OffersItemVehicleType =
-  (typeof PartnerParkingLotsSetStatus200OffersItemVehicleType)[keyof typeof PartnerParkingLotsSetStatus200OffersItemVehicleType];
+export type PartnerParkingLotsSetStatus200OffersItemVehicleType = typeof PartnerParkingLotsSetStatus200OffersItemVehicleType[keyof typeof PartnerParkingLotsSetStatus200OffersItemVehicleType];
+
 
 export const PartnerParkingLotsSetStatus200OffersItemVehicleType = {
   CAR: 'CAR',

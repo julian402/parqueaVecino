@@ -6,8 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 
-export type AdminListParkingLots200ItemsItemOffersItemVehicleType =
-  (typeof AdminListParkingLots200ItemsItemOffersItemVehicleType)[keyof typeof AdminListParkingLots200ItemsItemOffersItemVehicleType];
+export type AdminListParkingLots200ItemsItemOffersItemVehicleType = typeof AdminListParkingLots200ItemsItemOffersItemVehicleType[keyof typeof AdminListParkingLots200ItemsItemOffersItemVehicleType];
+
 
 export const AdminListParkingLots200ItemsItemOffersItemVehicleType = {
   CAR: 'CAR',

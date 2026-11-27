@@ -6,8 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 
-export type PartnerSummary200RecentBookingsItemShift =
-  (typeof PartnerSummary200RecentBookingsItemShift)[keyof typeof PartnerSummary200RecentBookingsItemShift];
+export type PartnerSummary200RecentBookingsItemShift = typeof PartnerSummary200RecentBookingsItemShift[keyof typeof PartnerSummary200RecentBookingsItemShift];
+
 
 export const PartnerSummary200RecentBookingsItemShift = {
   DAY: 'DAY',

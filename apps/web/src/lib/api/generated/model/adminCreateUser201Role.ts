@@ -6,8 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 
-export type AdminCreateUser201Role =
-  (typeof AdminCreateUser201Role)[keyof typeof AdminCreateUser201Role];
+export type AdminCreateUser201Role = typeof AdminCreateUser201Role[keyof typeof AdminCreateUser201Role];
+
 
 export const AdminCreateUser201Role = {
   DRIVER: 'DRIVER',

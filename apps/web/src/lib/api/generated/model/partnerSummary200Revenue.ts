@@ -9,24 +9,24 @@ import type { PartnerSummary200RevenueDailyItem } from './partnerSummary200Reven
 
 export type PartnerSummary200Revenue = {
   /**
-   * @minimum -9007199254740991
-   * @maximum 9007199254740991
-   */
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     */
   grossMinor: number;
   /**
-   * @minimum -9007199254740991
-   * @maximum 9007199254740991
-   */
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     */
   commissionMinor: number;
   /**
-   * @minLength 3
-   * @maxLength 3
-   */
+     * @minLength 3
+     * @maxLength 3
+     */
   currency: string;
   daily: PartnerSummary200RevenueDailyItem[];
   /**
-   * @minimum -9007199254740991
-   * @maximum 9007199254740991
-   */
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     */
   netMinor: number;
 };

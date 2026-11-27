@@ -6,8 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 
-export type PartnerParkingLotsSetStatusBodyStatus =
-  (typeof PartnerParkingLotsSetStatusBodyStatus)[keyof typeof PartnerParkingLotsSetStatusBodyStatus];
+export type PartnerParkingLotsSetStatusBodyStatus = typeof PartnerParkingLotsSetStatusBodyStatus[keyof typeof PartnerParkingLotsSetStatusBodyStatus];
+
 
 export const PartnerParkingLotsSetStatusBodyStatus = {
   ACTIVE: 'ACTIVE',

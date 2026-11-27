@@ -9,8 +9,8 @@ import type { PartnerParkingLotsUpsertOffersBodyOffersItem } from './partnerPark
 
 export type PartnerParkingLotsUpsertOffersBody = {
   /**
-   * @minItems 1
-   * @maxItems 20
-   */
+     * @minItems 1
+     * @maxItems 20
+     */
   offers: PartnerParkingLotsUpsertOffersBodyOffersItem[];
 };

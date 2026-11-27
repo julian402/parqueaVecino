@@ -9,13 +9,13 @@
 export type PartnerSummary200RevenueDailyItem = {
   date: string;
   /**
-   * @minimum -9007199254740991
-   * @maximum 9007199254740991
-   */
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     */
   grossMinor: number;
   /**
-   * @minimum -9007199254740991
-   * @maximum 9007199254740991
-   */
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     */
   count: number;
 };

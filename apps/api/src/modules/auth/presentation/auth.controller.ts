@@ -2,7 +2,9 @@ import { Controller, Get, HttpCode, HttpStatus, Post, Req, Res, UseGuards } from
 import { SkipThrottle, ThrottlerGuard } from '@nestjs/throttler';
 import { ApiNoContentResponse, ApiTags } from '@nestjs/swagger';
 import {
+  authSessionSchema,
   authUserSchema,
+  type AuthSession,
   loginSchema,
   registerSchema,
   type AuthUser,
@@ -15,6 +17,7 @@ import { AppConfigService } from '../../../config/app-config.service';
 import { AuthService } from '../application/auth.service';
 import { clearSessionCookies, REFRESH_COOKIE, setSessionCookies } from './auth.cookies';
 import { CurrentUser, Public, type AuthenticatedUser } from './auth.decorators';
+import { extractToken } from './auth.guards';
 
 function readRefreshCookie(request: Request): string | undefined {
   return (request.cookies as Record<string, string | undefined> | undefined)?.[REFRESH_COOKIE];
@@ -78,6 +81,39 @@ export class AuthController {
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response): Promise<void> {
     await this.auth.logout(readRefreshCookie(req));
     clearSessionCookies(res, this.config);
+  }
+
+  /**
+   * Sesión actual sin errores para visitantes: responde 200 con `user: null` si no hay sesión.
+   * Si el access token venció pero hay refresh válido, renueva la sesión aquí mismo. Así la web
+   * no dispara 401 (me + refresh) en cada carga de página de un visitante anónimo.
+   */
+  @Public()
+  @SkipThrottle()
+  @Get('session')
+  @ApiZodResponse(authSessionSchema)
+  async session(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<AuthSession> {
+    const token = extractToken(req);
+    if (token) {
+      const user = await this.auth
+        .verifyAccessToken(token)
+        .then((payload) => this.auth.me(payload.sub))
+        .catch(() => null);
+      if (user) return { user };
+    }
+    const refreshToken = readRefreshCookie(req);
+    if (!refreshToken) return { user: null };
+    try {
+      const session = await this.auth.refresh(refreshToken);
+      setSessionCookies(res, session, this.config);
+      return { user: session.user };
+    } catch {
+      clearSessionCookies(res, this.config);
+      return { user: null };
+    }
   }
 
   @Get('me')

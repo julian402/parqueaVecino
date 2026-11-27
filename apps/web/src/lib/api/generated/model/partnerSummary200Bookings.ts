@@ -8,13 +8,13 @@
 
 export type PartnerSummary200Bookings = {
   /**
-   * @minimum -9007199254740991
-   * @maximum 9007199254740991
-   */
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     */
   active: number;
   /**
-   * @minimum -9007199254740991
-   * @maximum 9007199254740991
-   */
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     */
   pending: number;
 };

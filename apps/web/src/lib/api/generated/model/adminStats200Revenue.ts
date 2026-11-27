@@ -9,19 +9,19 @@ import type { AdminStats200RevenueDailyItem } from './adminStats200RevenueDailyI
 
 export type AdminStats200Revenue = {
   /**
-   * @minimum -9007199254740991
-   * @maximum 9007199254740991
-   */
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     */
   grossMinor: number;
   /**
-   * @minimum -9007199254740991
-   * @maximum 9007199254740991
-   */
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     */
   commissionMinor: number;
   /**
-   * @minLength 3
-   * @maxLength 3
-   */
+     * @minLength 3
+     * @maxLength 3
+     */
   currency: string;
   daily: AdminStats200RevenueDailyItem[];
 };

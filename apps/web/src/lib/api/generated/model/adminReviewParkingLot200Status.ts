@@ -6,8 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 
-export type AdminReviewParkingLot200Status =
-  (typeof AdminReviewParkingLot200Status)[keyof typeof AdminReviewParkingLot200Status];
+export type AdminReviewParkingLot200Status = typeof AdminReviewParkingLot200Status[keyof typeof AdminReviewParkingLot200Status];
+
 
 export const AdminReviewParkingLot200Status = {
   DRAFT: 'DRAFT',

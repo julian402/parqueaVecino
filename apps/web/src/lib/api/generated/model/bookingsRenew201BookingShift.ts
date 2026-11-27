@@ -6,8 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 
-export type BookingsRenew201BookingShift =
-  (typeof BookingsRenew201BookingShift)[keyof typeof BookingsRenew201BookingShift];
+export type BookingsRenew201BookingShift = typeof BookingsRenew201BookingShift[keyof typeof BookingsRenew201BookingShift];
+
 
 export const BookingsRenew201BookingShift = {
   DAY: 'DAY',

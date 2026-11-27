@@ -6,4 +6,4 @@
  * OpenAPI spec version: 1.0
  */
 
-export type AdminStats200BookingsByStatus = { [key: string]: number };
+export type AdminStats200BookingsByStatus = {[key: string]: number};

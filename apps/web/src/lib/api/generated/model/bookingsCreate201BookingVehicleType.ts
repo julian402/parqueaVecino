@@ -6,8 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 
-export type BookingsCreate201BookingVehicleType =
-  (typeof BookingsCreate201BookingVehicleType)[keyof typeof BookingsCreate201BookingVehicleType];
+export type BookingsCreate201BookingVehicleType = typeof BookingsCreate201BookingVehicleType[keyof typeof BookingsCreate201BookingVehicleType];
+
 
 export const BookingsCreate201BookingVehicleType = {
   CAR: 'CAR',

@@ -6,8 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 
-export type ParkingLotsGet200Status =
-  (typeof ParkingLotsGet200Status)[keyof typeof ParkingLotsGet200Status];
+export type ParkingLotsGet200Status = typeof ParkingLotsGet200Status[keyof typeof ParkingLotsGet200Status];
+
 
 export const ParkingLotsGet200Status = {
   DRAFT: 'DRAFT',

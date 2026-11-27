@@ -6,8 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 
-export type AdminUpdateUser200Role =
-  (typeof AdminUpdateUser200Role)[keyof typeof AdminUpdateUser200Role];
+export type AdminUpdateUser200Role = typeof AdminUpdateUser200Role[keyof typeof AdminUpdateUser200Role];
+
 
 export const AdminUpdateUser200Role = {
   DRIVER: 'DRIVER',

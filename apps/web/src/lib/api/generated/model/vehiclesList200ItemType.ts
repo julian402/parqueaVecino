@@ -6,8 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 
-export type VehiclesList200ItemType =
-  (typeof VehiclesList200ItemType)[keyof typeof VehiclesList200ItemType];
+export type VehiclesList200ItemType = typeof VehiclesList200ItemType[keyof typeof VehiclesList200ItemType];
+
 
 export const VehiclesList200ItemType = {
   CAR: 'CAR',

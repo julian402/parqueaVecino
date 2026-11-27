@@ -5,7 +5,10 @@
  * Mensualidades de parqueadero fraccionadas
  * OpenAPI spec version: 1.0
  */
-import { useMutation, useQuery } from '@tanstack/react-query';
+import {
+  useMutation,
+  useQuery
+} from '@tanstack/react-query';
 import type {
   DataTag,
   DefinedInitialDataOptions,
@@ -18,7 +21,7 @@ import type {
   UseMutationOptions,
   UseMutationResult,
   UseQueryOptions,
-  UseQueryResult,
+  UseQueryResult
 } from '@tanstack/react-query';
 
 import type {
@@ -28,47 +31,35 @@ import type {
   BookingsCreateBody,
   BookingsList200Item,
   BookingsReceipt200,
-  BookingsRenew201,
+  BookingsRenew201
 } from '../model';
 
 import { http } from '../../http';
 
+
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
-const getHeaders = (
-  ...sources: (
-    | RequestInit['headers']
-    | Record<string, string | number | boolean | bigint | readonly string[] | undefined>
-  )[]
-) => {
+
+const getHeaders = (...sources: (RequestInit['headers'] | Record<string, string | number | boolean | bigint | readonly string[] | undefined>)[]) => {
   const seen = new Set<string>();
   const layers: [string, string | readonly string[]][][] = [];
   for (const source of sources.reverse()) {
     if (!source) continue;
-    const entries =
-      source instanceof Headers
-        ? source.entries()
-        : Symbol.iterator in source
-          ? Array.from(
-              source as Iterable<Iterable<string>>,
-              (entry) => Array.from(entry) as [string, string],
-            )
-          : Object.entries<string | number | boolean | bigint | readonly string[] | undefined>(
-              source,
-            );
+    const entries = source instanceof Headers
+      ? source.entries()
+      : Symbol.iterator in source
+        ? Array.from(source as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string])
+        : Object.entries<string | number | boolean | bigint | readonly string[] | undefined>(source);
     const layer: [string, string | readonly string[]][] = [];
     for (const [name, value] of entries) {
-      if (value !== undefined && !seen.has(name.toLowerCase()))
-        layer.push([name, typeof value === 'object' ? value : String(value)]);
+      if (value !== undefined && !seen.has(name.toLowerCase())) layer.push([name, typeof value === 'object' ? value : String(value)]);
     }
     for (const [name] of layer) seen.add(name.toLowerCase());
     layers.push(layer);
   }
-  return Object.fromEntries(layers.reverse().flat()) as Extract<
-    RequestInit['headers'],
-    Record<string, unknown>
-  >;
+  return Object.fromEntries(layers.reverse().flat()) as Extract<RequestInit['headers'], Record<string, unknown>>;
 };
+
 
 const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKey: K } => {
   const result = { queryKey } as T & { queryKey: K };
@@ -86,551 +77,482 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
 };
 
 export const getBookingsCreateUrl = () => {
-  return `/bookings`;
-};
 
-export const bookingsCreate = async (
-  bookingsCreateBody: BookingsCreateBody,
-  options?: Parameters<typeof http>[1],
-): Promise<BookingsCreate201> => {
-  return http<BookingsCreate201>(getBookingsCreateUrl(), {
+
+
+
+  return `/bookings`
+}
+
+export const bookingsCreate = async (bookingsCreateBody: BookingsCreateBody, options?: Parameters<typeof http>[1]): Promise<BookingsCreate201> => {
+
+  return http<BookingsCreate201>(getBookingsCreateUrl(),
+  {
     ...options,
     method: 'POST',
     headers: getHeaders({ 'Content-Type': 'application/json' }, options?.headers),
-    body: JSON.stringify(bookingsCreateBody),
-  });
-};
+    body: JSON.stringify(bookingsCreateBody)
+  }
+);}
+
+
+
+
 
 export const getBookingsCreateMutationKey = () => ['bookingsCreate'] as const;
 
-export const getBookingsCreateMutationOptions = <TError = unknown, TContext = unknown>(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof bookingsCreate>>,
-    TError,
-    BookingsCreateMutationVariables,
-    TContext
-  >;
-  request?: SecondParameter<typeof http>;
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof bookingsCreate>>,
-  TError,
-  BookingsCreateMutationVariables,
-  TContext
-> => {
-  const mutationKey = getBookingsCreateMutationKey();
-  const { mutation: mutationOptions, request: requestOptions } = options
-    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, request: undefined };
+export const getBookingsCreateMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bookingsCreate>>, TError,BookingsCreateMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof bookingsCreate>>, TError,BookingsCreateMutationVariables, TContext> => {
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof bookingsCreate>>,
-    BookingsCreateMutationVariables
-  > = (props) => {
-    const { data } = props ?? {};
+const mutationKey = getBookingsCreateMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
 
-    return bookingsCreate(data, requestOptions);
-  };
 
-  return { mutationFn, ...mutationOptions };
-};
 
-export type BookingsCreateMutationResult = NonNullable<Awaited<ReturnType<typeof bookingsCreate>>>;
-export type BookingsCreateMutationBody = BookingsCreateBody;
-export type BookingsCreateMutationError = unknown;
-export type BookingsCreateMutationVariables = { data: BookingsCreateBody };
 
-export const useBookingsCreate = <TError = unknown, TContext = unknown>(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof bookingsCreate>>,
-      TError,
-      BookingsCreateMutationVariables,
-      TContext
-    >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseMutationResult<
-  Awaited<ReturnType<typeof bookingsCreate>>,
-  TError,
-  BookingsCreateMutationVariables,
-  TContext
-> => {
-  return useMutation(getBookingsCreateMutationOptions(options), queryClient);
-};
-export const getBookingsListUrl = () => {
-  return `/bookings`;
-};
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof bookingsCreate>>, BookingsCreateMutationVariables> = (props) => {
+          const {data} = props ?? {};
 
-export const bookingsList = async (
-  options?: Parameters<typeof http>[1],
-): Promise<BookingsList200Item[]> => {
-  return http<BookingsList200Item[]>(getBookingsListUrl(), {
+          return  bookingsCreate(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type BookingsCreateMutationResult = NonNullable<Awaited<ReturnType<typeof bookingsCreate>>>
+    export type BookingsCreateMutationBody = BookingsCreateBody
+    export type BookingsCreateMutationError = unknown
+    export type BookingsCreateMutationVariables = {data: BookingsCreateBody}
+
+    export const useBookingsCreate = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bookingsCreate>>, TError,BookingsCreateMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof bookingsCreate>>,
+        TError,
+        BookingsCreateMutationVariables,
+        TContext
+      > => {
+      return useMutation(getBookingsCreateMutationOptions(options), queryClient);
+    }
+    export const getBookingsListUrl = () => {
+
+
+
+
+  return `/bookings`
+}
+
+export const bookingsList = async ( options?: Parameters<typeof http>[1]): Promise<BookingsList200Item[]> => {
+
+  return http<BookingsList200Item[]>(getBookingsListUrl(),
+  {
     ...options,
-    method: 'GET',
-  });
-};
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
 
 export const getBookingsListQueryKey = () => {
-  return [`/bookings`] as const;
-};
+    return [
+    `/bookings`
+    ] as const;
+    }
 
-export const getBookingsListQueryOptions = <
-  TData = Awaited<ReturnType<typeof bookingsList>>,
-  TError = unknown,
->(options?: {
-  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof bookingsList>>, TError, TData>>;
-  request?: SecondParameter<typeof http>;
-}) => {
-  const { query: queryOptions, request: requestOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getBookingsListQueryKey();
-
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof bookingsList>>> = ({ signal }) =>
-    bookingsList({ signal, ...requestOptions });
-
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof bookingsList>>,
-    TError,
-    TData
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
-};
-
-export type BookingsListQueryResult = NonNullable<Awaited<ReturnType<typeof bookingsList>>>;
-export type BookingsListQueryError = unknown;
-
-export function useBookingsList<TData = Awaited<ReturnType<typeof bookingsList>>, TError = unknown>(
-  options: {
-    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof bookingsList>>, TError, TData>> &
-      Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof bookingsList>>,
-          TError,
-          Awaited<ReturnType<typeof bookingsList>>
-        >,
-        'initialData'
-      >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useBookingsList<TData = Awaited<ReturnType<typeof bookingsList>>, TError = unknown>(
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof bookingsList>>, TError, TData>> &
-      Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof bookingsList>>,
-          TError,
-          Awaited<ReturnType<typeof bookingsList>>
-        >,
-        'initialData'
-      >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useBookingsList<TData = Awaited<ReturnType<typeof bookingsList>>, TError = unknown>(
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof bookingsList>>, TError, TData>>;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useBookingsList<TData = Awaited<ReturnType<typeof bookingsList>>, TError = unknown>(
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof bookingsList>>, TError, TData>>;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-  const queryOptions = getBookingsListQueryOptions(options);
-
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
-    queryKey: DataTag<QueryKey, TData, TError>;
-  };
-
-  return withQueryKey(query, queryOptions.queryKey);
-}
-
-export const getBookingsCheckoutUrl = (id: string) => {
-  return `/bookings/${id}/checkout`;
-};
-
-export const bookingsCheckout = async (
-  id: string,
-  options?: Parameters<typeof http>[1],
-): Promise<BookingsCheckout200> => {
-  return http<BookingsCheckout200>(getBookingsCheckoutUrl(id), {
-    ...options,
-    method: 'GET',
-  });
-};
-
-export const getBookingsCheckoutQueryKey = (id: string) => {
-  return [`/bookings/${id}/checkout`] as const;
-};
-
-export const getBookingsCheckoutQueryOptions = <
-  TData = Awaited<ReturnType<typeof bookingsCheckout>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof bookingsCheckout>>, TError, TData>>;
-    request?: SecondParameter<typeof http>;
-  },
+export const getBookingsListQueryOptions = <TData = Awaited<ReturnType<typeof bookingsList>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof bookingsList>>, TError, TData>>, request?: SecondParameter<typeof http>}
 ) => {
-  const { query: queryOptions, request: requestOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getBookingsCheckoutQueryKey(id);
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof bookingsCheckout>>> = ({ signal }) =>
-    bookingsCheckout(id, { signal, ...requestOptions });
+  const queryKey =  queryOptions?.queryKey ?? getBookingsListQueryKey();
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: id !== null && id !== undefined,
-    ...queryOptions,
-  } as UseQueryOptions<Awaited<ReturnType<typeof bookingsCheckout>>, TError, TData> & {
-    queryKey: DataTag<QueryKey, TData, TError>;
-  };
-};
 
-export type BookingsCheckoutQueryResult = NonNullable<Awaited<ReturnType<typeof bookingsCheckout>>>;
-export type BookingsCheckoutQueryError = unknown;
 
-export function useBookingsCheckout<
-  TData = Awaited<ReturnType<typeof bookingsCheckout>>,
-  TError = unknown,
->(
-  id: string,
-  options: {
-    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof bookingsCheckout>>, TError, TData>> &
-      Pick<
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof bookingsList>>> = ({ signal }) => bookingsList({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof bookingsList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type BookingsListQueryResult = NonNullable<Awaited<ReturnType<typeof bookingsList>>>
+export type BookingsListQueryError = unknown
+
+
+export function useBookingsList<TData = Awaited<ReturnType<typeof bookingsList>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof bookingsList>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof bookingsCheckout>>,
+          Awaited<ReturnType<typeof bookingsList>>,
           TError,
-          Awaited<ReturnType<typeof bookingsCheckout>>
-        >,
-        'initialData'
-      >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useBookingsCheckout<
-  TData = Awaited<ReturnType<typeof bookingsCheckout>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof bookingsCheckout>>, TError, TData>> &
-      Pick<
+          Awaited<ReturnType<typeof bookingsList>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useBookingsList<TData = Awaited<ReturnType<typeof bookingsList>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof bookingsList>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof bookingsCheckout>>,
+          Awaited<ReturnType<typeof bookingsList>>,
           TError,
-          Awaited<ReturnType<typeof bookingsCheckout>>
-        >,
-        'initialData'
-      >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useBookingsCheckout<
-  TData = Awaited<ReturnType<typeof bookingsCheckout>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof bookingsCheckout>>, TError, TData>>;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useBookingsCheckout<
-  TData = Awaited<ReturnType<typeof bookingsCheckout>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof bookingsCheckout>>, TError, TData>>;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-  const queryOptions = getBookingsCheckoutQueryOptions(id, options);
+          Awaited<ReturnType<typeof bookingsList>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useBookingsList<TData = Awaited<ReturnType<typeof bookingsList>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof bookingsList>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useBookingsList<TData = Awaited<ReturnType<typeof bookingsList>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof bookingsList>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
-    queryKey: DataTag<QueryKey, TData, TError>;
-  };
+  const queryOptions = getBookingsListQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return withQueryKey(query, queryOptions.queryKey);
 }
 
-export const getBookingsRenewUrl = (id: string) => {
-  return `/bookings/${id}/renew`;
-};
 
-export const bookingsRenew = async (
-  id: string,
-  options?: Parameters<typeof http>[1],
-): Promise<BookingsRenew201> => {
-  return http<BookingsRenew201>(getBookingsRenewUrl(id), {
+
+
+
+
+export const getBookingsCheckoutUrl = (id: string,) => {
+
+
+
+
+  return `/bookings/${id}/checkout`
+}
+
+export const bookingsCheckout = async (id: string, options?: Parameters<typeof http>[1]): Promise<BookingsCheckout200> => {
+
+  return http<BookingsCheckout200>(getBookingsCheckoutUrl(id),
+  {
     ...options,
-    method: 'POST',
-  });
-};
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getBookingsCheckoutQueryKey = (id: string,) => {
+    return [
+    `/bookings/${id}/checkout`
+    ] as const;
+    }
+
+
+export const getBookingsCheckoutQueryOptions = <TData = Awaited<ReturnType<typeof bookingsCheckout>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof bookingsCheckout>>, TError, TData>>, request?: SecondParameter<typeof http>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getBookingsCheckoutQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof bookingsCheckout>>> = ({ signal }) => bookingsCheckout(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof bookingsCheckout>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type BookingsCheckoutQueryResult = NonNullable<Awaited<ReturnType<typeof bookingsCheckout>>>
+export type BookingsCheckoutQueryError = unknown
+
+
+export function useBookingsCheckout<TData = Awaited<ReturnType<typeof bookingsCheckout>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof bookingsCheckout>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof bookingsCheckout>>,
+          TError,
+          Awaited<ReturnType<typeof bookingsCheckout>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useBookingsCheckout<TData = Awaited<ReturnType<typeof bookingsCheckout>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof bookingsCheckout>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof bookingsCheckout>>,
+          TError,
+          Awaited<ReturnType<typeof bookingsCheckout>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useBookingsCheckout<TData = Awaited<ReturnType<typeof bookingsCheckout>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof bookingsCheckout>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useBookingsCheckout<TData = Awaited<ReturnType<typeof bookingsCheckout>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof bookingsCheckout>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getBookingsCheckoutQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+export const getBookingsRenewUrl = (id: string,) => {
+
+
+
+
+  return `/bookings/${id}/renew`
+}
+
+export const bookingsRenew = async (id: string, options?: Parameters<typeof http>[1]): Promise<BookingsRenew201> => {
+
+  return http<BookingsRenew201>(getBookingsRenewUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
 
 export const getBookingsRenewMutationKey = () => ['bookingsRenew'] as const;
 
-export const getBookingsRenewMutationOptions = <TError = unknown, TContext = unknown>(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof bookingsRenew>>,
-    TError,
-    BookingsRenewMutationVariables,
-    TContext
-  >;
-  request?: SecondParameter<typeof http>;
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof bookingsRenew>>,
-  TError,
-  BookingsRenewMutationVariables,
-  TContext
-> => {
-  const mutationKey = getBookingsRenewMutationKey();
-  const { mutation: mutationOptions, request: requestOptions } = options
-    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, request: undefined };
+export const getBookingsRenewMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bookingsRenew>>, TError,BookingsRenewMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof bookingsRenew>>, TError,BookingsRenewMutationVariables, TContext> => {
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof bookingsRenew>>,
-    BookingsRenewMutationVariables
-  > = (props) => {
-    const { id } = props ?? {};
+const mutationKey = getBookingsRenewMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
 
-    return bookingsRenew(id, requestOptions);
-  };
 
-  return { mutationFn, ...mutationOptions };
-};
 
-export type BookingsRenewMutationResult = NonNullable<Awaited<ReturnType<typeof bookingsRenew>>>;
 
-export type BookingsRenewMutationError = unknown;
-export type BookingsRenewMutationVariables = { id: string };
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof bookingsRenew>>, BookingsRenewMutationVariables> = (props) => {
+          const {id} = props ?? {};
 
-export const useBookingsRenew = <TError = unknown, TContext = unknown>(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof bookingsRenew>>,
-      TError,
-      BookingsRenewMutationVariables,
-      TContext
-    >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseMutationResult<
-  Awaited<ReturnType<typeof bookingsRenew>>,
-  TError,
-  BookingsRenewMutationVariables,
-  TContext
-> => {
-  return useMutation(getBookingsRenewMutationOptions(options), queryClient);
-};
-export const getBookingsReceiptUrl = (id: string) => {
-  return `/bookings/${id}/receipt`;
-};
+          return  bookingsRenew(id,requestOptions)
+        }
 
-export const bookingsReceipt = async (
-  id: string,
-  options?: Parameters<typeof http>[1],
-): Promise<BookingsReceipt200> => {
-  return http<BookingsReceipt200>(getBookingsReceiptUrl(id), {
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type BookingsRenewMutationResult = NonNullable<Awaited<ReturnType<typeof bookingsRenew>>>
+
+    export type BookingsRenewMutationError = unknown
+    export type BookingsRenewMutationVariables = {id: string}
+
+    export const useBookingsRenew = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bookingsRenew>>, TError,BookingsRenewMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof bookingsRenew>>,
+        TError,
+        BookingsRenewMutationVariables,
+        TContext
+      > => {
+      return useMutation(getBookingsRenewMutationOptions(options), queryClient);
+    }
+    export const getBookingsReceiptUrl = (id: string,) => {
+
+
+
+
+  return `/bookings/${id}/receipt`
+}
+
+export const bookingsReceipt = async (id: string, options?: Parameters<typeof http>[1]): Promise<BookingsReceipt200> => {
+
+  return http<BookingsReceipt200>(getBookingsReceiptUrl(id),
+  {
     ...options,
-    method: 'GET',
-  });
-};
+    method: 'GET'
 
-export const getBookingsReceiptQueryKey = (id: string) => {
-  return [`/bookings/${id}/receipt`] as const;
-};
 
-export const getBookingsReceiptQueryOptions = <
-  TData = Awaited<ReturnType<typeof bookingsReceipt>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof bookingsReceipt>>, TError, TData>>;
-    request?: SecondParameter<typeof http>;
-  },
+  }
+);}
+
+
+
+
+
+export const getBookingsReceiptQueryKey = (id: string,) => {
+    return [
+    `/bookings/${id}/receipt`
+    ] as const;
+    }
+
+
+export const getBookingsReceiptQueryOptions = <TData = Awaited<ReturnType<typeof bookingsReceipt>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof bookingsReceipt>>, TError, TData>>, request?: SecondParameter<typeof http>}
 ) => {
-  const { query: queryOptions, request: requestOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getBookingsReceiptQueryKey(id);
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof bookingsReceipt>>> = ({ signal }) =>
-    bookingsReceipt(id, { signal, ...requestOptions });
+  const queryKey =  queryOptions?.queryKey ?? getBookingsReceiptQueryKey(id);
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: id !== null && id !== undefined,
-    ...queryOptions,
-  } as UseQueryOptions<Awaited<ReturnType<typeof bookingsReceipt>>, TError, TData> & {
-    queryKey: DataTag<QueryKey, TData, TError>;
-  };
-};
 
-export type BookingsReceiptQueryResult = NonNullable<Awaited<ReturnType<typeof bookingsReceipt>>>;
-export type BookingsReceiptQueryError = unknown;
 
-export function useBookingsReceipt<
-  TData = Awaited<ReturnType<typeof bookingsReceipt>>,
-  TError = unknown,
->(
-  id: string,
-  options: {
-    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof bookingsReceipt>>, TError, TData>> &
-      Pick<
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof bookingsReceipt>>> = ({ signal }) => bookingsReceipt(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof bookingsReceipt>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type BookingsReceiptQueryResult = NonNullable<Awaited<ReturnType<typeof bookingsReceipt>>>
+export type BookingsReceiptQueryError = unknown
+
+
+export function useBookingsReceipt<TData = Awaited<ReturnType<typeof bookingsReceipt>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof bookingsReceipt>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof bookingsReceipt>>,
           TError,
           Awaited<ReturnType<typeof bookingsReceipt>>
-        >,
-        'initialData'
-      >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useBookingsReceipt<
-  TData = Awaited<ReturnType<typeof bookingsReceipt>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof bookingsReceipt>>, TError, TData>> &
-      Pick<
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useBookingsReceipt<TData = Awaited<ReturnType<typeof bookingsReceipt>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof bookingsReceipt>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof bookingsReceipt>>,
           TError,
           Awaited<ReturnType<typeof bookingsReceipt>>
-        >,
-        'initialData'
-      >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useBookingsReceipt<
-  TData = Awaited<ReturnType<typeof bookingsReceipt>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof bookingsReceipt>>, TError, TData>>;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useBookingsReceipt<
-  TData = Awaited<ReturnType<typeof bookingsReceipt>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof bookingsReceipt>>, TError, TData>>;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-  const queryOptions = getBookingsReceiptQueryOptions(id, options);
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useBookingsReceipt<TData = Awaited<ReturnType<typeof bookingsReceipt>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof bookingsReceipt>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useBookingsReceipt<TData = Awaited<ReturnType<typeof bookingsReceipt>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof bookingsReceipt>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
-    queryKey: DataTag<QueryKey, TData, TError>;
-  };
+  const queryOptions = getBookingsReceiptQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return withQueryKey(query, queryOptions.queryKey);
 }
 
-export const getBookingsCancelUrl = (id: string) => {
-  return `/bookings/${id}/cancel`;
-};
 
-export const bookingsCancel = async (
-  id: string,
-  options?: Parameters<typeof http>[1],
-): Promise<BookingsCancel200> => {
-  return http<BookingsCancel200>(getBookingsCancelUrl(id), {
+
+
+
+
+export const getBookingsCancelUrl = (id: string,) => {
+
+
+
+
+  return `/bookings/${id}/cancel`
+}
+
+export const bookingsCancel = async (id: string, options?: Parameters<typeof http>[1]): Promise<BookingsCancel200> => {
+
+  return http<BookingsCancel200>(getBookingsCancelUrl(id),
+  {
     ...options,
-    method: 'POST',
-  });
-};
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
 
 export const getBookingsCancelMutationKey = () => ['bookingsCancel'] as const;
 
-export const getBookingsCancelMutationOptions = <TError = unknown, TContext = unknown>(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof bookingsCancel>>,
-    TError,
-    BookingsCancelMutationVariables,
-    TContext
-  >;
-  request?: SecondParameter<typeof http>;
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof bookingsCancel>>,
-  TError,
-  BookingsCancelMutationVariables,
-  TContext
-> => {
-  const mutationKey = getBookingsCancelMutationKey();
-  const { mutation: mutationOptions, request: requestOptions } = options
-    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, request: undefined };
+export const getBookingsCancelMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bookingsCancel>>, TError,BookingsCancelMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof bookingsCancel>>, TError,BookingsCancelMutationVariables, TContext> => {
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof bookingsCancel>>,
-    BookingsCancelMutationVariables
-  > = (props) => {
-    const { id } = props ?? {};
+const mutationKey = getBookingsCancelMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
 
-    return bookingsCancel(id, requestOptions);
-  };
 
-  return { mutationFn, ...mutationOptions };
-};
 
-export type BookingsCancelMutationResult = NonNullable<Awaited<ReturnType<typeof bookingsCancel>>>;
 
-export type BookingsCancelMutationError = unknown;
-export type BookingsCancelMutationVariables = { id: string };
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof bookingsCancel>>, BookingsCancelMutationVariables> = (props) => {
+          const {id} = props ?? {};
 
-export const useBookingsCancel = <TError = unknown, TContext = unknown>(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof bookingsCancel>>,
-      TError,
-      BookingsCancelMutationVariables,
-      TContext
-    >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseMutationResult<
-  Awaited<ReturnType<typeof bookingsCancel>>,
-  TError,
-  BookingsCancelMutationVariables,
-  TContext
-> => {
-  return useMutation(getBookingsCancelMutationOptions(options), queryClient);
-};
+          return  bookingsCancel(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type BookingsCancelMutationResult = NonNullable<Awaited<ReturnType<typeof bookingsCancel>>>
+
+    export type BookingsCancelMutationError = unknown
+    export type BookingsCancelMutationVariables = {id: string}
+
+    export const useBookingsCancel = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bookingsCancel>>, TError,BookingsCancelMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof bookingsCancel>>,
+        TError,
+        BookingsCancelMutationVariables,
+        TContext
+      > => {
+      return useMutation(getBookingsCancelMutationOptions(options), queryClient);
+    }

@@ -12,7 +12,7 @@ import { AuthService } from '../application/auth.service';
 import { ACCESS_COOKIE } from './auth.cookies';
 import { IS_PUBLIC_KEY, ROLES_KEY, type RequestWithUser } from './auth.decorators';
 
-function extractToken(request: Request): string | undefined {
+export function extractToken(request: Request): string | undefined {
   const cookies = request.cookies as Record<string, string | undefined> | undefined;
   const fromCookie = cookies?.[ACCESS_COOKIE];
   if (fromCookie) return fromCookie;

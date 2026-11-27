@@ -14,24 +14,24 @@ export type PartnerParkingLotsSetStatus200OffersItem = {
   shift: PartnerParkingLotsSetStatus200OffersItemShift;
   vehicleType: PartnerParkingLotsSetStatus200OffersItemVehicleType;
   /**
-   * @minimum -9007199254740991
-   * @maximum 9007199254740991
-   */
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     */
   totalSpots: number;
   /**
-   * @minimum -9007199254740991
-   * @maximum 9007199254740991
-   */
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     */
   availableSpots: number;
   /**
-   * @minimum -9007199254740991
-   * @maximum 9007199254740991
-   */
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     */
   monthlyPriceMinor: number;
   /**
-   * @minLength 3
-   * @maxLength 3
-   */
+     * @minLength 3
+     * @maxLength 3
+     */
   currency: string;
   active: boolean;
 };

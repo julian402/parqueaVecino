@@ -9,19 +9,19 @@ import type { AdminListParkingLots200ItemsItem } from './adminListParkingLots200
 
 export type AdminListParkingLots200 = {
   /**
-   * @minimum -9007199254740991
-   * @maximum 9007199254740991
-   */
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     */
   total: number;
   /**
-   * @minimum -9007199254740991
-   * @maximum 9007199254740991
-   */
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     */
   page: number;
   /**
-   * @minimum -9007199254740991
-   * @maximum 9007199254740991
-   */
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     */
   pageSize: number;
   items: AdminListParkingLots200ItemsItem[];
 };

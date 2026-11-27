@@ -5,7 +5,9 @@
  * Mensualidades de parqueadero fraccionadas
  * OpenAPI spec version: 1.0
  */
-import { useQuery } from '@tanstack/react-query';
+import {
+  useQuery
+} from '@tanstack/react-query';
 import type {
   DataTag,
   DefinedInitialDataOptions,
@@ -15,14 +17,20 @@ import type {
   QueryKey,
   UndefinedInitialDataOptions,
   UseQueryOptions,
-  UseQueryResult,
+  UseQueryResult
 } from '@tanstack/react-query';
 
-import type { GeocodingSearch200Item, GeocodingSearchParams } from '../model';
+import type {
+  GeocodingSearch200Item,
+  GeocodingSearchParams
+} from '../model';
 
 import { http } from '../../http';
 
+
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
+
+
 
 const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKey: K } => {
   const result = { queryKey } as T & { queryKey: K };
@@ -39,126 +47,103 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   return result;
 };
 
-export const getGeocodingSearchUrl = (params: GeocodingSearchParams) => {
+export const getGeocodingSearchUrl = (params: GeocodingSearchParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : String(value));
+      normalizedParams.append(key, value === null ? 'null' : String(value))
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/geocoding?${stringifiedParams}` : `/geocoding`;
-};
+  return stringifiedParams.length > 0 ? `/geocoding?${stringifiedParams}` : `/geocoding`
+}
 
-export const geocodingSearch = async (
-  params: GeocodingSearchParams,
-  options?: Parameters<typeof http>[1],
-): Promise<GeocodingSearch200Item[]> => {
-  return http<GeocodingSearch200Item[]>(getGeocodingSearchUrl(params), {
+export const geocodingSearch = async (params: GeocodingSearchParams, options?: Parameters<typeof http>[1]): Promise<GeocodingSearch200Item[]> => {
+
+  return http<GeocodingSearch200Item[]>(getGeocodingSearchUrl(params),
+  {
     ...options,
-    method: 'GET',
-  });
-};
+    method: 'GET'
 
-export const getGeocodingSearchQueryKey = (params?: GeocodingSearchParams) => {
-  return [`/geocoding`, ...(params ? [params] : [])] as const;
-};
 
-export const getGeocodingSearchQueryOptions = <
-  TData = Awaited<ReturnType<typeof geocodingSearch>>,
-  TError = unknown,
->(
-  params: GeocodingSearchParams,
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof geocodingSearch>>, TError, TData>>;
-    request?: SecondParameter<typeof http>;
-  },
+  }
+);}
+
+
+
+
+
+export const getGeocodingSearchQueryKey = (params?: GeocodingSearchParams,) => {
+    return [
+    `/geocoding`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGeocodingSearchQueryOptions = <TData = Awaited<ReturnType<typeof geocodingSearch>>, TError = unknown>(params: GeocodingSearchParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof geocodingSearch>>, TError, TData>>, request?: SecondParameter<typeof http>}
 ) => {
-  const { query: queryOptions, request: requestOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getGeocodingSearchQueryKey(params);
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof geocodingSearch>>> = ({ signal }) =>
-    geocodingSearch(params, { signal, ...requestOptions });
+  const queryKey =  queryOptions?.queryKey ?? getGeocodingSearchQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof geocodingSearch>>,
-    TError,
-    TData
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
-};
 
-export type GeocodingSearchQueryResult = NonNullable<Awaited<ReturnType<typeof geocodingSearch>>>;
-export type GeocodingSearchQueryError = unknown;
 
-export function useGeocodingSearch<
-  TData = Awaited<ReturnType<typeof geocodingSearch>>,
-  TError = unknown,
->(
-  params: GeocodingSearchParams,
-  options: {
-    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof geocodingSearch>>, TError, TData>> &
-      Pick<
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof geocodingSearch>>> = ({ signal }) => geocodingSearch(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof geocodingSearch>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GeocodingSearchQueryResult = NonNullable<Awaited<ReturnType<typeof geocodingSearch>>>
+export type GeocodingSearchQueryError = unknown
+
+
+export function useGeocodingSearch<TData = Awaited<ReturnType<typeof geocodingSearch>>, TError = unknown>(
+ params: GeocodingSearchParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof geocodingSearch>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof geocodingSearch>>,
           TError,
           Awaited<ReturnType<typeof geocodingSearch>>
-        >,
-        'initialData'
-      >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useGeocodingSearch<
-  TData = Awaited<ReturnType<typeof geocodingSearch>>,
-  TError = unknown,
->(
-  params: GeocodingSearchParams,
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof geocodingSearch>>, TError, TData>> &
-      Pick<
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGeocodingSearch<TData = Awaited<ReturnType<typeof geocodingSearch>>, TError = unknown>(
+ params: GeocodingSearchParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof geocodingSearch>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof geocodingSearch>>,
           TError,
           Awaited<ReturnType<typeof geocodingSearch>>
-        >,
-        'initialData'
-      >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useGeocodingSearch<
-  TData = Awaited<ReturnType<typeof geocodingSearch>>,
-  TError = unknown,
->(
-  params: GeocodingSearchParams,
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof geocodingSearch>>, TError, TData>>;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useGeocodingSearch<
-  TData = Awaited<ReturnType<typeof geocodingSearch>>,
-  TError = unknown,
->(
-  params: GeocodingSearchParams,
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof geocodingSearch>>, TError, TData>>;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-  const queryOptions = getGeocodingSearchQueryOptions(params, options);
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGeocodingSearch<TData = Awaited<ReturnType<typeof geocodingSearch>>, TError = unknown>(
+ params: GeocodingSearchParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof geocodingSearch>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGeocodingSearch<TData = Awaited<ReturnType<typeof geocodingSearch>>, TError = unknown>(
+ params: GeocodingSearchParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof geocodingSearch>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
-    queryKey: DataTag<QueryKey, TData, TError>;
-  };
+  const queryOptions = getGeocodingSearchQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return withQueryKey(query, queryOptions.queryKey);
 }
+
+
+
+
+
+

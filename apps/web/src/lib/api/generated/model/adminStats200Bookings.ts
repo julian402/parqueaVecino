@@ -9,9 +9,9 @@ import type { AdminStats200BookingsByStatus } from './adminStats200BookingsBySta
 
 export type AdminStats200Bookings = {
   /**
-   * @minimum -9007199254740991
-   * @maximum 9007199254740991
-   */
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     */
   total: number;
   byStatus: AdminStats200BookingsByStatus;
 };

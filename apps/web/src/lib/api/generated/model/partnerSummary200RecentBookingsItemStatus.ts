@@ -6,8 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 
-export type PartnerSummary200RecentBookingsItemStatus =
-  (typeof PartnerSummary200RecentBookingsItemStatus)[keyof typeof PartnerSummary200RecentBookingsItemStatus];
+export type PartnerSummary200RecentBookingsItemStatus = typeof PartnerSummary200RecentBookingsItemStatus[keyof typeof PartnerSummary200RecentBookingsItemStatus];
+
 
 export const PartnerSummary200RecentBookingsItemStatus = {
   PENDING_PAYMENT: 'PENDING_PAYMENT',

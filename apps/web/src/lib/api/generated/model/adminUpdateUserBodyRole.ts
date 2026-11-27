@@ -6,8 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 
-export type AdminUpdateUserBodyRole =
-  (typeof AdminUpdateUserBodyRole)[keyof typeof AdminUpdateUserBodyRole];
+export type AdminUpdateUserBodyRole = typeof AdminUpdateUserBodyRole[keyof typeof AdminUpdateUserBodyRole];
+
 
 export const AdminUpdateUserBodyRole = {
   DRIVER: 'DRIVER',

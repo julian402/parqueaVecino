@@ -10,18 +10,18 @@ import type { ParkingLotsSearch200ResultsItem } from './parkingLotsSearch200Resu
 export type ParkingLotsSearch200 = {
   results: ParkingLotsSearch200ResultsItem[];
   /**
-   * @minimum -9007199254740991
-   * @maximum 9007199254740991
-   */
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     */
   totalLots: number;
   /**
-   * @minimum -9007199254740991
-   * @maximum 9007199254740991
-   */
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     */
   totalAvailableSpots: number;
   /**
-   * @minimum -9007199254740991
-   * @maximum 9007199254740991
-   */
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     */
   radiusMeters: number;
 };

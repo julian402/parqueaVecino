@@ -6,7 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 
-export type AdminListUsersRole = (typeof AdminListUsersRole)[keyof typeof AdminListUsersRole];
+export type AdminListUsersRole = typeof AdminListUsersRole[keyof typeof AdminListUsersRole];
+
 
 export const AdminListUsersRole = {
   DRIVER: 'DRIVER',

@@ -6,8 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 
-export type VehiclesCreate201Type =
-  (typeof VehiclesCreate201Type)[keyof typeof VehiclesCreate201Type];
+export type VehiclesCreate201Type = typeof VehiclesCreate201Type[keyof typeof VehiclesCreate201Type];
+
 
 export const VehiclesCreate201Type = {
   CAR: 'CAR',

@@ -6,8 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 
-export type BookingsRenew201BookingStatus =
-  (typeof BookingsRenew201BookingStatus)[keyof typeof BookingsRenew201BookingStatus];
+export type BookingsRenew201BookingStatus = typeof BookingsRenew201BookingStatus[keyof typeof BookingsRenew201BookingStatus];
+
 
 export const BookingsRenew201BookingStatus = {
   PENDING_PAYMENT: 'PENDING_PAYMENT',

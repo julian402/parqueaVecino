@@ -6,8 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 
-export type AdminListPaymentsStatus =
-  (typeof AdminListPaymentsStatus)[keyof typeof AdminListPaymentsStatus];
+export type AdminListPaymentsStatus = typeof AdminListPaymentsStatus[keyof typeof AdminListPaymentsStatus];
+
 
 export const AdminListPaymentsStatus = {
   PENDING: 'PENDING',

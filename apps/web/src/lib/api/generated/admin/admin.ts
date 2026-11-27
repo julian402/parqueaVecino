@@ -5,7 +5,10 @@
  * Mensualidades de parqueadero fraccionadas
  * OpenAPI spec version: 1.0
  */
-import { useMutation, useQuery } from '@tanstack/react-query';
+import {
+  useMutation,
+  useQuery
+} from '@tanstack/react-query';
 import type {
   DataTag,
   DefinedInitialDataOptions,
@@ -18,7 +21,7 @@ import type {
   UseMutationOptions,
   UseMutationResult,
   UseQueryOptions,
-  UseQueryResult,
+  UseQueryResult
 } from '@tanstack/react-query';
 
 import type {
@@ -37,47 +40,35 @@ import type {
   AdminUpdateSetting200,
   AdminUpdateSettingBody,
   AdminUpdateUser200,
-  AdminUpdateUserBody,
+  AdminUpdateUserBody
 } from '../model';
 
 import { http } from '../../http';
 
+
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
-const getHeaders = (
-  ...sources: (
-    | RequestInit['headers']
-    | Record<string, string | number | boolean | bigint | readonly string[] | undefined>
-  )[]
-) => {
+
+const getHeaders = (...sources: (RequestInit['headers'] | Record<string, string | number | boolean | bigint | readonly string[] | undefined>)[]) => {
   const seen = new Set<string>();
   const layers: [string, string | readonly string[]][][] = [];
   for (const source of sources.reverse()) {
     if (!source) continue;
-    const entries =
-      source instanceof Headers
-        ? source.entries()
-        : Symbol.iterator in source
-          ? Array.from(
-              source as Iterable<Iterable<string>>,
-              (entry) => Array.from(entry) as [string, string],
-            )
-          : Object.entries<string | number | boolean | bigint | readonly string[] | undefined>(
-              source,
-            );
+    const entries = source instanceof Headers
+      ? source.entries()
+      : Symbol.iterator in source
+        ? Array.from(source as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string])
+        : Object.entries<string | number | boolean | bigint | readonly string[] | undefined>(source);
     const layer: [string, string | readonly string[]][] = [];
     for (const [name, value] of entries) {
-      if (value !== undefined && !seen.has(name.toLowerCase()))
-        layer.push([name, typeof value === 'object' ? value : String(value)]);
+      if (value !== undefined && !seen.has(name.toLowerCase())) layer.push([name, typeof value === 'object' ? value : String(value)]);
     }
     for (const [name] of layer) seen.add(name.toLowerCase());
     layers.push(layer);
   }
-  return Object.fromEntries(layers.reverse().flat()) as Extract<
-    RequestInit['headers'],
-    Record<string, unknown>
-  >;
+  return Object.fromEntries(layers.reverse().flat()) as Extract<RequestInit['headers'], Record<string, unknown>>;
 };
+
 
 const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKey: K } => {
   const result = { queryKey } as T & { queryKey: K };
@@ -95,985 +86,826 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
 };
 
 export const getAdminStatsUrl = () => {
-  return `/admin/stats`;
-};
 
-export const adminStats = async (options?: Parameters<typeof http>[1]): Promise<AdminStats200> => {
-  return http<AdminStats200>(getAdminStatsUrl(), {
+
+
+
+  return `/admin/stats`
+}
+
+export const adminStats = async ( options?: Parameters<typeof http>[1]): Promise<AdminStats200> => {
+
+  return http<AdminStats200>(getAdminStatsUrl(),
+  {
     ...options,
-    method: 'GET',
-  });
-};
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
 
 export const getAdminStatsQueryKey = () => {
-  return [`/admin/stats`] as const;
-};
+    return [
+    `/admin/stats`
+    ] as const;
+    }
 
-export const getAdminStatsQueryOptions = <
-  TData = Awaited<ReturnType<typeof adminStats>>,
-  TError = unknown,
->(options?: {
-  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminStats>>, TError, TData>>;
-  request?: SecondParameter<typeof http>;
-}) => {
-  const { query: queryOptions, request: requestOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getAdminStatsQueryKey();
+export const getAdminStatsQueryOptions = <TData = Awaited<ReturnType<typeof adminStats>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminStats>>, TError, TData>>, request?: SecondParameter<typeof http>}
+) => {
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof adminStats>>> = ({ signal }) =>
-    adminStats({ signal, ...requestOptions });
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof adminStats>>,
-    TError,
-    TData
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
-};
+  const queryKey =  queryOptions?.queryKey ?? getAdminStatsQueryKey();
 
-export type AdminStatsQueryResult = NonNullable<Awaited<ReturnType<typeof adminStats>>>;
-export type AdminStatsQueryError = unknown;
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof adminStats>>> = ({ signal }) => adminStats({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof adminStats>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type AdminStatsQueryResult = NonNullable<Awaited<ReturnType<typeof adminStats>>>
+export type AdminStatsQueryError = unknown
+
 
 export function useAdminStats<TData = Awaited<ReturnType<typeof adminStats>>, TError = unknown>(
-  options: {
-    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminStats>>, TError, TData>> &
-      Pick<
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminStats>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof adminStats>>,
           TError,
           Awaited<ReturnType<typeof adminStats>>
-        >,
-        'initialData'
-      >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useAdminStats<TData = Awaited<ReturnType<typeof adminStats>>, TError = unknown>(
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminStats>>, TError, TData>> &
-      Pick<
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminStats>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof adminStats>>,
           TError,
           Awaited<ReturnType<typeof adminStats>>
-        >,
-        'initialData'
-      >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useAdminStats<TData = Awaited<ReturnType<typeof adminStats>>, TError = unknown>(
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminStats>>, TError, TData>>;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminStats>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useAdminStats<TData = Awaited<ReturnType<typeof adminStats>>, TError = unknown>(
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminStats>>, TError, TData>>;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-  const queryOptions = getAdminStatsQueryOptions(options);
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminStats>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
-    queryKey: DataTag<QueryKey, TData, TError>;
-  };
+  const queryOptions = getAdminStatsQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return withQueryKey(query, queryOptions.queryKey);
 }
 
-export const getAdminListUsersUrl = (params?: AdminListUsersParams) => {
+
+
+
+
+
+export const getAdminListUsersUrl = (params?: AdminListUsersParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : String(value));
+      normalizedParams.append(key, value === null ? 'null' : String(value))
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/admin/users?${stringifiedParams}` : `/admin/users`;
-};
+  return stringifiedParams.length > 0 ? `/admin/users?${stringifiedParams}` : `/admin/users`
+}
 
-export const adminListUsers = async (
-  params?: AdminListUsersParams,
-  options?: Parameters<typeof http>[1],
-): Promise<AdminListUsers200> => {
-  return http<AdminListUsers200>(getAdminListUsersUrl(params), {
+export const adminListUsers = async (params?: AdminListUsersParams, options?: Parameters<typeof http>[1]): Promise<AdminListUsers200> => {
+
+  return http<AdminListUsers200>(getAdminListUsersUrl(params),
+  {
     ...options,
-    method: 'GET',
-  });
-};
+    method: 'GET'
 
-export const getAdminListUsersQueryKey = (params?: AdminListUsersParams) => {
-  return [`/admin/users`, ...(params ? [params] : [])] as const;
-};
 
-export const getAdminListUsersQueryOptions = <
-  TData = Awaited<ReturnType<typeof adminListUsers>>,
-  TError = unknown,
->(
-  params?: AdminListUsersParams,
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminListUsers>>, TError, TData>>;
-    request?: SecondParameter<typeof http>;
-  },
+  }
+);}
+
+
+
+
+
+export const getAdminListUsersQueryKey = (params?: AdminListUsersParams,) => {
+    return [
+    `/admin/users`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getAdminListUsersQueryOptions = <TData = Awaited<ReturnType<typeof adminListUsers>>, TError = unknown>(params?: AdminListUsersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminListUsers>>, TError, TData>>, request?: SecondParameter<typeof http>}
 ) => {
-  const { query: queryOptions, request: requestOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getAdminListUsersQueryKey(params);
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof adminListUsers>>> = ({ signal }) =>
-    adminListUsers(params, { signal, ...requestOptions });
+  const queryKey =  queryOptions?.queryKey ?? getAdminListUsersQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof adminListUsers>>,
-    TError,
-    TData
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
-};
 
-export type AdminListUsersQueryResult = NonNullable<Awaited<ReturnType<typeof adminListUsers>>>;
-export type AdminListUsersQueryError = unknown;
 
-export function useAdminListUsers<
-  TData = Awaited<ReturnType<typeof adminListUsers>>,
-  TError = unknown,
->(
-  params: undefined | AdminListUsersParams,
-  options: {
-    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminListUsers>>, TError, TData>> &
-      Pick<
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof adminListUsers>>> = ({ signal }) => adminListUsers(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof adminListUsers>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type AdminListUsersQueryResult = NonNullable<Awaited<ReturnType<typeof adminListUsers>>>
+export type AdminListUsersQueryError = unknown
+
+
+export function useAdminListUsers<TData = Awaited<ReturnType<typeof adminListUsers>>, TError = unknown>(
+ params: undefined |  AdminListUsersParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminListUsers>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof adminListUsers>>,
           TError,
           Awaited<ReturnType<typeof adminListUsers>>
-        >,
-        'initialData'
-      >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useAdminListUsers<
-  TData = Awaited<ReturnType<typeof adminListUsers>>,
-  TError = unknown,
->(
-  params?: AdminListUsersParams,
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminListUsers>>, TError, TData>> &
-      Pick<
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminListUsers<TData = Awaited<ReturnType<typeof adminListUsers>>, TError = unknown>(
+ params?: AdminListUsersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminListUsers>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof adminListUsers>>,
           TError,
           Awaited<ReturnType<typeof adminListUsers>>
-        >,
-        'initialData'
-      >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useAdminListUsers<
-  TData = Awaited<ReturnType<typeof adminListUsers>>,
-  TError = unknown,
->(
-  params?: AdminListUsersParams,
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminListUsers>>, TError, TData>>;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useAdminListUsers<
-  TData = Awaited<ReturnType<typeof adminListUsers>>,
-  TError = unknown,
->(
-  params?: AdminListUsersParams,
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminListUsers>>, TError, TData>>;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-  const queryOptions = getAdminListUsersQueryOptions(params, options);
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminListUsers<TData = Awaited<ReturnType<typeof adminListUsers>>, TError = unknown>(
+ params?: AdminListUsersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminListUsers>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminListUsers<TData = Awaited<ReturnType<typeof adminListUsers>>, TError = unknown>(
+ params?: AdminListUsersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminListUsers>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
-    queryKey: DataTag<QueryKey, TData, TError>;
-  };
+  const queryOptions = getAdminListUsersQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return withQueryKey(query, queryOptions.queryKey);
 }
 
-export const getAdminCreateUserUrl = () => {
-  return `/admin/users`;
-};
 
-export const adminCreateUser = async (
-  adminCreateUserBody: AdminCreateUserBody,
-  options?: Parameters<typeof http>[1],
-): Promise<AdminCreateUser201> => {
-  return http<AdminCreateUser201>(getAdminCreateUserUrl(), {
+
+
+
+
+export const getAdminCreateUserUrl = () => {
+
+
+
+
+  return `/admin/users`
+}
+
+export const adminCreateUser = async (adminCreateUserBody: AdminCreateUserBody, options?: Parameters<typeof http>[1]): Promise<AdminCreateUser201> => {
+
+  return http<AdminCreateUser201>(getAdminCreateUserUrl(),
+  {
     ...options,
     method: 'POST',
     headers: getHeaders({ 'Content-Type': 'application/json' }, options?.headers),
-    body: JSON.stringify(adminCreateUserBody),
-  });
-};
+    body: JSON.stringify(adminCreateUserBody)
+  }
+);}
+
+
+
+
 
 export const getAdminCreateUserMutationKey = () => ['adminCreateUser'] as const;
 
-export const getAdminCreateUserMutationOptions = <TError = unknown, TContext = unknown>(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof adminCreateUser>>,
-    TError,
-    AdminCreateUserMutationVariables,
-    TContext
-  >;
-  request?: SecondParameter<typeof http>;
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof adminCreateUser>>,
-  TError,
-  AdminCreateUserMutationVariables,
-  TContext
-> => {
-  const mutationKey = getAdminCreateUserMutationKey();
-  const { mutation: mutationOptions, request: requestOptions } = options
-    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, request: undefined };
+export const getAdminCreateUserMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminCreateUser>>, TError,AdminCreateUserMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof adminCreateUser>>, TError,AdminCreateUserMutationVariables, TContext> => {
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof adminCreateUser>>,
-    AdminCreateUserMutationVariables
-  > = (props) => {
-    const { data } = props ?? {};
+const mutationKey = getAdminCreateUserMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
 
-    return adminCreateUser(data, requestOptions);
-  };
 
-  return { mutationFn, ...mutationOptions };
-};
 
-export type AdminCreateUserMutationResult = NonNullable<
-  Awaited<ReturnType<typeof adminCreateUser>>
->;
-export type AdminCreateUserMutationBody = AdminCreateUserBody;
-export type AdminCreateUserMutationError = unknown;
-export type AdminCreateUserMutationVariables = { data: AdminCreateUserBody };
 
-export const useAdminCreateUser = <TError = unknown, TContext = unknown>(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof adminCreateUser>>,
-      TError,
-      AdminCreateUserMutationVariables,
-      TContext
-    >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseMutationResult<
-  Awaited<ReturnType<typeof adminCreateUser>>,
-  TError,
-  AdminCreateUserMutationVariables,
-  TContext
-> => {
-  return useMutation(getAdminCreateUserMutationOptions(options), queryClient);
-};
-export const getAdminUpdateUserUrl = (id: string) => {
-  return `/admin/users/${id}`;
-};
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminCreateUser>>, AdminCreateUserMutationVariables> = (props) => {
+          const {data} = props ?? {};
 
-export const adminUpdateUser = async (
-  id: string,
-  adminUpdateUserBody: AdminUpdateUserBody,
-  options?: Parameters<typeof http>[1],
-): Promise<AdminUpdateUser200> => {
-  return http<AdminUpdateUser200>(getAdminUpdateUserUrl(id), {
+          return  adminCreateUser(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AdminCreateUserMutationResult = NonNullable<Awaited<ReturnType<typeof adminCreateUser>>>
+    export type AdminCreateUserMutationBody = AdminCreateUserBody
+    export type AdminCreateUserMutationError = unknown
+    export type AdminCreateUserMutationVariables = {data: AdminCreateUserBody}
+
+    export const useAdminCreateUser = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminCreateUser>>, TError,AdminCreateUserMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof adminCreateUser>>,
+        TError,
+        AdminCreateUserMutationVariables,
+        TContext
+      > => {
+      return useMutation(getAdminCreateUserMutationOptions(options), queryClient);
+    }
+    export const getAdminUpdateUserUrl = (id: string,) => {
+
+
+
+
+  return `/admin/users/${id}`
+}
+
+export const adminUpdateUser = async (id: string,
+    adminUpdateUserBody: AdminUpdateUserBody, options?: Parameters<typeof http>[1]): Promise<AdminUpdateUser200> => {
+
+  return http<AdminUpdateUser200>(getAdminUpdateUserUrl(id),
+  {
     ...options,
     method: 'PATCH',
     headers: getHeaders({ 'Content-Type': 'application/json' }, options?.headers),
-    body: JSON.stringify(adminUpdateUserBody),
-  });
-};
+    body: JSON.stringify(adminUpdateUserBody)
+  }
+);}
+
+
+
+
 
 export const getAdminUpdateUserMutationKey = () => ['adminUpdateUser'] as const;
 
-export const getAdminUpdateUserMutationOptions = <TError = unknown, TContext = unknown>(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof adminUpdateUser>>,
-    TError,
-    AdminUpdateUserMutationVariables,
-    TContext
-  >;
-  request?: SecondParameter<typeof http>;
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof adminUpdateUser>>,
-  TError,
-  AdminUpdateUserMutationVariables,
-  TContext
-> => {
-  const mutationKey = getAdminUpdateUserMutationKey();
-  const { mutation: mutationOptions, request: requestOptions } = options
-    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, request: undefined };
+export const getAdminUpdateUserMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminUpdateUser>>, TError,AdminUpdateUserMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof adminUpdateUser>>, TError,AdminUpdateUserMutationVariables, TContext> => {
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof adminUpdateUser>>,
-    AdminUpdateUserMutationVariables
-  > = (props) => {
-    const { id, data } = props ?? {};
+const mutationKey = getAdminUpdateUserMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
 
-    return adminUpdateUser(id, data, requestOptions);
-  };
 
-  return { mutationFn, ...mutationOptions };
-};
 
-export type AdminUpdateUserMutationResult = NonNullable<
-  Awaited<ReturnType<typeof adminUpdateUser>>
->;
-export type AdminUpdateUserMutationBody = AdminUpdateUserBody;
-export type AdminUpdateUserMutationError = unknown;
-export type AdminUpdateUserMutationVariables = { id: string; data: AdminUpdateUserBody };
 
-export const useAdminUpdateUser = <TError = unknown, TContext = unknown>(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof adminUpdateUser>>,
-      TError,
-      AdminUpdateUserMutationVariables,
-      TContext
-    >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseMutationResult<
-  Awaited<ReturnType<typeof adminUpdateUser>>,
-  TError,
-  AdminUpdateUserMutationVariables,
-  TContext
-> => {
-  return useMutation(getAdminUpdateUserMutationOptions(options), queryClient);
-};
-export const getAdminDeleteUserUrl = (id: string) => {
-  return `/admin/users/${id}`;
-};
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminUpdateUser>>, AdminUpdateUserMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
 
-export const adminDeleteUser = async (
-  id: string,
-  options?: Parameters<typeof http>[1],
-): Promise<void> => {
-  return http<void>(getAdminDeleteUserUrl(id), {
+          return  adminUpdateUser(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AdminUpdateUserMutationResult = NonNullable<Awaited<ReturnType<typeof adminUpdateUser>>>
+    export type AdminUpdateUserMutationBody = AdminUpdateUserBody
+    export type AdminUpdateUserMutationError = unknown
+    export type AdminUpdateUserMutationVariables = {id: string;data: AdminUpdateUserBody}
+
+    export const useAdminUpdateUser = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminUpdateUser>>, TError,AdminUpdateUserMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof adminUpdateUser>>,
+        TError,
+        AdminUpdateUserMutationVariables,
+        TContext
+      > => {
+      return useMutation(getAdminUpdateUserMutationOptions(options), queryClient);
+    }
+    export const getAdminDeleteUserUrl = (id: string,) => {
+
+
+
+
+  return `/admin/users/${id}`
+}
+
+export const adminDeleteUser = async (id: string, options?: Parameters<typeof http>[1]): Promise<void> => {
+
+  return http<void>(getAdminDeleteUserUrl(id),
+  {
     ...options,
-    method: 'DELETE',
-  });
-};
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
 
 export const getAdminDeleteUserMutationKey = () => ['adminDeleteUser'] as const;
 
-export const getAdminDeleteUserMutationOptions = <TError = unknown, TContext = unknown>(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof adminDeleteUser>>,
-    TError,
-    AdminDeleteUserMutationVariables,
-    TContext
-  >;
-  request?: SecondParameter<typeof http>;
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof adminDeleteUser>>,
-  TError,
-  AdminDeleteUserMutationVariables,
-  TContext
-> => {
-  const mutationKey = getAdminDeleteUserMutationKey();
-  const { mutation: mutationOptions, request: requestOptions } = options
-    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, request: undefined };
+export const getAdminDeleteUserMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminDeleteUser>>, TError,AdminDeleteUserMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof adminDeleteUser>>, TError,AdminDeleteUserMutationVariables, TContext> => {
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof adminDeleteUser>>,
-    AdminDeleteUserMutationVariables
-  > = (props) => {
-    const { id } = props ?? {};
+const mutationKey = getAdminDeleteUserMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
 
-    return adminDeleteUser(id, requestOptions);
-  };
 
-  return { mutationFn, ...mutationOptions };
-};
 
-export type AdminDeleteUserMutationResult = NonNullable<
-  Awaited<ReturnType<typeof adminDeleteUser>>
->;
 
-export type AdminDeleteUserMutationError = unknown;
-export type AdminDeleteUserMutationVariables = { id: string };
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminDeleteUser>>, AdminDeleteUserMutationVariables> = (props) => {
+          const {id} = props ?? {};
 
-export const useAdminDeleteUser = <TError = unknown, TContext = unknown>(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof adminDeleteUser>>,
-      TError,
-      AdminDeleteUserMutationVariables,
-      TContext
-    >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseMutationResult<
-  Awaited<ReturnType<typeof adminDeleteUser>>,
-  TError,
-  AdminDeleteUserMutationVariables,
-  TContext
-> => {
-  return useMutation(getAdminDeleteUserMutationOptions(options), queryClient);
-};
-export const getAdminListParkingLotsUrl = (params?: AdminListParkingLotsParams) => {
+          return  adminDeleteUser(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AdminDeleteUserMutationResult = NonNullable<Awaited<ReturnType<typeof adminDeleteUser>>>
+
+    export type AdminDeleteUserMutationError = unknown
+    export type AdminDeleteUserMutationVariables = {id: string}
+
+    export const useAdminDeleteUser = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminDeleteUser>>, TError,AdminDeleteUserMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof adminDeleteUser>>,
+        TError,
+        AdminDeleteUserMutationVariables,
+        TContext
+      > => {
+      return useMutation(getAdminDeleteUserMutationOptions(options), queryClient);
+    }
+    export const getAdminListParkingLotsUrl = (params?: AdminListParkingLotsParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : String(value));
+      normalizedParams.append(key, value === null ? 'null' : String(value))
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/admin/parking-lots?${stringifiedParams}`
-    : `/admin/parking-lots`;
-};
+  return stringifiedParams.length > 0 ? `/admin/parking-lots?${stringifiedParams}` : `/admin/parking-lots`
+}
 
-export const adminListParkingLots = async (
-  params?: AdminListParkingLotsParams,
-  options?: Parameters<typeof http>[1],
-): Promise<AdminListParkingLots200> => {
-  return http<AdminListParkingLots200>(getAdminListParkingLotsUrl(params), {
+export const adminListParkingLots = async (params?: AdminListParkingLotsParams, options?: Parameters<typeof http>[1]): Promise<AdminListParkingLots200> => {
+
+  return http<AdminListParkingLots200>(getAdminListParkingLotsUrl(params),
+  {
     ...options,
-    method: 'GET',
-  });
-};
+    method: 'GET'
 
-export const getAdminListParkingLotsQueryKey = (params?: AdminListParkingLotsParams) => {
-  return [`/admin/parking-lots`, ...(params ? [params] : [])] as const;
-};
 
-export const getAdminListParkingLotsQueryOptions = <
-  TData = Awaited<ReturnType<typeof adminListParkingLots>>,
-  TError = unknown,
->(
-  params?: AdminListParkingLotsParams,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof adminListParkingLots>>, TError, TData>
-    >;
-    request?: SecondParameter<typeof http>;
-  },
+  }
+);}
+
+
+
+
+
+export const getAdminListParkingLotsQueryKey = (params?: AdminListParkingLotsParams,) => {
+    return [
+    `/admin/parking-lots`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getAdminListParkingLotsQueryOptions = <TData = Awaited<ReturnType<typeof adminListParkingLots>>, TError = unknown>(params?: AdminListParkingLotsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminListParkingLots>>, TError, TData>>, request?: SecondParameter<typeof http>}
 ) => {
-  const { query: queryOptions, request: requestOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getAdminListParkingLotsQueryKey(params);
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof adminListParkingLots>>> = ({ signal }) =>
-    adminListParkingLots(params, { signal, ...requestOptions });
+  const queryKey =  queryOptions?.queryKey ?? getAdminListParkingLotsQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof adminListParkingLots>>,
-    TError,
-    TData
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
-};
 
-export type AdminListParkingLotsQueryResult = NonNullable<
-  Awaited<ReturnType<typeof adminListParkingLots>>
->;
-export type AdminListParkingLotsQueryError = unknown;
 
-export function useAdminListParkingLots<
-  TData = Awaited<ReturnType<typeof adminListParkingLots>>,
-  TError = unknown,
->(
-  params: undefined | AdminListParkingLotsParams,
-  options: {
-    query: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof adminListParkingLots>>, TError, TData>
-    > &
-      Pick<
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof adminListParkingLots>>> = ({ signal }) => adminListParkingLots(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof adminListParkingLots>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type AdminListParkingLotsQueryResult = NonNullable<Awaited<ReturnType<typeof adminListParkingLots>>>
+export type AdminListParkingLotsQueryError = unknown
+
+
+export function useAdminListParkingLots<TData = Awaited<ReturnType<typeof adminListParkingLots>>, TError = unknown>(
+ params: undefined |  AdminListParkingLotsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminListParkingLots>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof adminListParkingLots>>,
           TError,
           Awaited<ReturnType<typeof adminListParkingLots>>
-        >,
-        'initialData'
-      >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useAdminListParkingLots<
-  TData = Awaited<ReturnType<typeof adminListParkingLots>>,
-  TError = unknown,
->(
-  params?: AdminListParkingLotsParams,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof adminListParkingLots>>, TError, TData>
-    > &
-      Pick<
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminListParkingLots<TData = Awaited<ReturnType<typeof adminListParkingLots>>, TError = unknown>(
+ params?: AdminListParkingLotsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminListParkingLots>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof adminListParkingLots>>,
           TError,
           Awaited<ReturnType<typeof adminListParkingLots>>
-        >,
-        'initialData'
-      >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useAdminListParkingLots<
-  TData = Awaited<ReturnType<typeof adminListParkingLots>>,
-  TError = unknown,
->(
-  params?: AdminListParkingLotsParams,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof adminListParkingLots>>, TError, TData>
-    >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useAdminListParkingLots<
-  TData = Awaited<ReturnType<typeof adminListParkingLots>>,
-  TError = unknown,
->(
-  params?: AdminListParkingLotsParams,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof adminListParkingLots>>, TError, TData>
-    >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-  const queryOptions = getAdminListParkingLotsQueryOptions(params, options);
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminListParkingLots<TData = Awaited<ReturnType<typeof adminListParkingLots>>, TError = unknown>(
+ params?: AdminListParkingLotsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminListParkingLots>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminListParkingLots<TData = Awaited<ReturnType<typeof adminListParkingLots>>, TError = unknown>(
+ params?: AdminListParkingLotsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminListParkingLots>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
-    queryKey: DataTag<QueryKey, TData, TError>;
-  };
+  const queryOptions = getAdminListParkingLotsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return withQueryKey(query, queryOptions.queryKey);
 }
 
-export const getAdminReviewParkingLotUrl = (id: string) => {
-  return `/admin/parking-lots/${id}/review`;
-};
 
-export const adminReviewParkingLot = async (
-  id: string,
-  adminReviewParkingLotBody: AdminReviewParkingLotBody,
-  options?: Parameters<typeof http>[1],
-): Promise<AdminReviewParkingLot200> => {
-  return http<AdminReviewParkingLot200>(getAdminReviewParkingLotUrl(id), {
+
+
+
+
+export const getAdminReviewParkingLotUrl = (id: string,) => {
+
+
+
+
+  return `/admin/parking-lots/${id}/review`
+}
+
+export const adminReviewParkingLot = async (id: string,
+    adminReviewParkingLotBody: AdminReviewParkingLotBody, options?: Parameters<typeof http>[1]): Promise<AdminReviewParkingLot200> => {
+
+  return http<AdminReviewParkingLot200>(getAdminReviewParkingLotUrl(id),
+  {
     ...options,
     method: 'PATCH',
     headers: getHeaders({ 'Content-Type': 'application/json' }, options?.headers),
-    body: JSON.stringify(adminReviewParkingLotBody),
-  });
-};
+    body: JSON.stringify(adminReviewParkingLotBody)
+  }
+);}
+
+
+
+
 
 export const getAdminReviewParkingLotMutationKey = () => ['adminReviewParkingLot'] as const;
 
-export const getAdminReviewParkingLotMutationOptions = <
-  TError = unknown,
-  TContext = unknown,
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof adminReviewParkingLot>>,
-    TError,
-    AdminReviewParkingLotMutationVariables,
-    TContext
-  >;
-  request?: SecondParameter<typeof http>;
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof adminReviewParkingLot>>,
-  TError,
-  AdminReviewParkingLotMutationVariables,
-  TContext
-> => {
-  const mutationKey = getAdminReviewParkingLotMutationKey();
-  const { mutation: mutationOptions, request: requestOptions } = options
-    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, request: undefined };
+export const getAdminReviewParkingLotMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminReviewParkingLot>>, TError,AdminReviewParkingLotMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof adminReviewParkingLot>>, TError,AdminReviewParkingLotMutationVariables, TContext> => {
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof adminReviewParkingLot>>,
-    AdminReviewParkingLotMutationVariables
-  > = (props) => {
-    const { id, data } = props ?? {};
+const mutationKey = getAdminReviewParkingLotMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
 
-    return adminReviewParkingLot(id, data, requestOptions);
-  };
 
-  return { mutationFn, ...mutationOptions };
-};
 
-export type AdminReviewParkingLotMutationResult = NonNullable<
-  Awaited<ReturnType<typeof adminReviewParkingLot>>
->;
-export type AdminReviewParkingLotMutationBody = AdminReviewParkingLotBody;
-export type AdminReviewParkingLotMutationError = unknown;
-export type AdminReviewParkingLotMutationVariables = {
-  id: string;
-  data: AdminReviewParkingLotBody;
-};
 
-export const useAdminReviewParkingLot = <TError = unknown, TContext = unknown>(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof adminReviewParkingLot>>,
-      TError,
-      AdminReviewParkingLotMutationVariables,
-      TContext
-    >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseMutationResult<
-  Awaited<ReturnType<typeof adminReviewParkingLot>>,
-  TError,
-  AdminReviewParkingLotMutationVariables,
-  TContext
-> => {
-  return useMutation(getAdminReviewParkingLotMutationOptions(options), queryClient);
-};
-export const getAdminListPaymentsUrl = (params?: AdminListPaymentsParams) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminReviewParkingLot>>, AdminReviewParkingLotMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  adminReviewParkingLot(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AdminReviewParkingLotMutationResult = NonNullable<Awaited<ReturnType<typeof adminReviewParkingLot>>>
+    export type AdminReviewParkingLotMutationBody = AdminReviewParkingLotBody
+    export type AdminReviewParkingLotMutationError = unknown
+    export type AdminReviewParkingLotMutationVariables = {id: string;data: AdminReviewParkingLotBody}
+
+    export const useAdminReviewParkingLot = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminReviewParkingLot>>, TError,AdminReviewParkingLotMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof adminReviewParkingLot>>,
+        TError,
+        AdminReviewParkingLotMutationVariables,
+        TContext
+      > => {
+      return useMutation(getAdminReviewParkingLotMutationOptions(options), queryClient);
+    }
+    export const getAdminListPaymentsUrl = (params?: AdminListPaymentsParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : String(value));
+      normalizedParams.append(key, value === null ? 'null' : String(value))
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/admin/payments?${stringifiedParams}` : `/admin/payments`;
-};
+  return stringifiedParams.length > 0 ? `/admin/payments?${stringifiedParams}` : `/admin/payments`
+}
 
-export const adminListPayments = async (
-  params?: AdminListPaymentsParams,
-  options?: Parameters<typeof http>[1],
-): Promise<AdminListPayments200> => {
-  return http<AdminListPayments200>(getAdminListPaymentsUrl(params), {
+export const adminListPayments = async (params?: AdminListPaymentsParams, options?: Parameters<typeof http>[1]): Promise<AdminListPayments200> => {
+
+  return http<AdminListPayments200>(getAdminListPaymentsUrl(params),
+  {
     ...options,
-    method: 'GET',
-  });
-};
+    method: 'GET'
 
-export const getAdminListPaymentsQueryKey = (params?: AdminListPaymentsParams) => {
-  return [`/admin/payments`, ...(params ? [params] : [])] as const;
-};
 
-export const getAdminListPaymentsQueryOptions = <
-  TData = Awaited<ReturnType<typeof adminListPayments>>,
-  TError = unknown,
->(
-  params?: AdminListPaymentsParams,
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminListPayments>>, TError, TData>>;
-    request?: SecondParameter<typeof http>;
-  },
+  }
+);}
+
+
+
+
+
+export const getAdminListPaymentsQueryKey = (params?: AdminListPaymentsParams,) => {
+    return [
+    `/admin/payments`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getAdminListPaymentsQueryOptions = <TData = Awaited<ReturnType<typeof adminListPayments>>, TError = unknown>(params?: AdminListPaymentsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminListPayments>>, TError, TData>>, request?: SecondParameter<typeof http>}
 ) => {
-  const { query: queryOptions, request: requestOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getAdminListPaymentsQueryKey(params);
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof adminListPayments>>> = ({ signal }) =>
-    adminListPayments(params, { signal, ...requestOptions });
+  const queryKey =  queryOptions?.queryKey ?? getAdminListPaymentsQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof adminListPayments>>,
-    TError,
-    TData
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
-};
 
-export type AdminListPaymentsQueryResult = NonNullable<
-  Awaited<ReturnType<typeof adminListPayments>>
->;
-export type AdminListPaymentsQueryError = unknown;
 
-export function useAdminListPayments<
-  TData = Awaited<ReturnType<typeof adminListPayments>>,
-  TError = unknown,
->(
-  params: undefined | AdminListPaymentsParams,
-  options: {
-    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminListPayments>>, TError, TData>> &
-      Pick<
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof adminListPayments>>> = ({ signal }) => adminListPayments(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof adminListPayments>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type AdminListPaymentsQueryResult = NonNullable<Awaited<ReturnType<typeof adminListPayments>>>
+export type AdminListPaymentsQueryError = unknown
+
+
+export function useAdminListPayments<TData = Awaited<ReturnType<typeof adminListPayments>>, TError = unknown>(
+ params: undefined |  AdminListPaymentsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminListPayments>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof adminListPayments>>,
           TError,
           Awaited<ReturnType<typeof adminListPayments>>
-        >,
-        'initialData'
-      >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useAdminListPayments<
-  TData = Awaited<ReturnType<typeof adminListPayments>>,
-  TError = unknown,
->(
-  params?: AdminListPaymentsParams,
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminListPayments>>, TError, TData>> &
-      Pick<
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminListPayments<TData = Awaited<ReturnType<typeof adminListPayments>>, TError = unknown>(
+ params?: AdminListPaymentsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminListPayments>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof adminListPayments>>,
           TError,
           Awaited<ReturnType<typeof adminListPayments>>
-        >,
-        'initialData'
-      >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useAdminListPayments<
-  TData = Awaited<ReturnType<typeof adminListPayments>>,
-  TError = unknown,
->(
-  params?: AdminListPaymentsParams,
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminListPayments>>, TError, TData>>;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useAdminListPayments<
-  TData = Awaited<ReturnType<typeof adminListPayments>>,
-  TError = unknown,
->(
-  params?: AdminListPaymentsParams,
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminListPayments>>, TError, TData>>;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-  const queryOptions = getAdminListPaymentsQueryOptions(params, options);
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminListPayments<TData = Awaited<ReturnType<typeof adminListPayments>>, TError = unknown>(
+ params?: AdminListPaymentsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminListPayments>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminListPayments<TData = Awaited<ReturnType<typeof adminListPayments>>, TError = unknown>(
+ params?: AdminListPaymentsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminListPayments>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
-    queryKey: DataTag<QueryKey, TData, TError>;
-  };
+  const queryOptions = getAdminListPaymentsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return withQueryKey(query, queryOptions.queryKey);
 }
+
+
+
+
+
 
 export const getAdminListSettingsUrl = () => {
-  return `/admin/settings`;
-};
 
-export const adminListSettings = async (
-  options?: Parameters<typeof http>[1],
-): Promise<AdminListSettings200Item[]> => {
-  return http<AdminListSettings200Item[]>(getAdminListSettingsUrl(), {
+
+
+
+  return `/admin/settings`
+}
+
+export const adminListSettings = async ( options?: Parameters<typeof http>[1]): Promise<AdminListSettings200Item[]> => {
+
+  return http<AdminListSettings200Item[]>(getAdminListSettingsUrl(),
+  {
     ...options,
-    method: 'GET',
-  });
-};
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
 
 export const getAdminListSettingsQueryKey = () => {
-  return [`/admin/settings`] as const;
-};
+    return [
+    `/admin/settings`
+    ] as const;
+    }
 
-export const getAdminListSettingsQueryOptions = <
-  TData = Awaited<ReturnType<typeof adminListSettings>>,
-  TError = unknown,
->(options?: {
-  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminListSettings>>, TError, TData>>;
-  request?: SecondParameter<typeof http>;
-}) => {
-  const { query: queryOptions, request: requestOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getAdminListSettingsQueryKey();
+export const getAdminListSettingsQueryOptions = <TData = Awaited<ReturnType<typeof adminListSettings>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminListSettings>>, TError, TData>>, request?: SecondParameter<typeof http>}
+) => {
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof adminListSettings>>> = ({ signal }) =>
-    adminListSettings({ signal, ...requestOptions });
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof adminListSettings>>,
-    TError,
-    TData
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
-};
+  const queryKey =  queryOptions?.queryKey ?? getAdminListSettingsQueryKey();
 
-export type AdminListSettingsQueryResult = NonNullable<
-  Awaited<ReturnType<typeof adminListSettings>>
->;
-export type AdminListSettingsQueryError = unknown;
 
-export function useAdminListSettings<
-  TData = Awaited<ReturnType<typeof adminListSettings>>,
-  TError = unknown,
->(
-  options: {
-    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminListSettings>>, TError, TData>> &
-      Pick<
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof adminListSettings>>> = ({ signal }) => adminListSettings({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof adminListSettings>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type AdminListSettingsQueryResult = NonNullable<Awaited<ReturnType<typeof adminListSettings>>>
+export type AdminListSettingsQueryError = unknown
+
+
+export function useAdminListSettings<TData = Awaited<ReturnType<typeof adminListSettings>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminListSettings>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof adminListSettings>>,
           TError,
           Awaited<ReturnType<typeof adminListSettings>>
-        >,
-        'initialData'
-      >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useAdminListSettings<
-  TData = Awaited<ReturnType<typeof adminListSettings>>,
-  TError = unknown,
->(
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminListSettings>>, TError, TData>> &
-      Pick<
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminListSettings<TData = Awaited<ReturnType<typeof adminListSettings>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminListSettings>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof adminListSettings>>,
           TError,
           Awaited<ReturnType<typeof adminListSettings>>
-        >,
-        'initialData'
-      >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useAdminListSettings<
-  TData = Awaited<ReturnType<typeof adminListSettings>>,
-  TError = unknown,
->(
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminListSettings>>, TError, TData>>;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useAdminListSettings<
-  TData = Awaited<ReturnType<typeof adminListSettings>>,
-  TError = unknown,
->(
-  options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminListSettings>>, TError, TData>>;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-  const queryOptions = getAdminListSettingsQueryOptions(options);
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminListSettings<TData = Awaited<ReturnType<typeof adminListSettings>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminListSettings>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminListSettings<TData = Awaited<ReturnType<typeof adminListSettings>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminListSettings>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
-    queryKey: DataTag<QueryKey, TData, TError>;
-  };
+  const queryOptions = getAdminListSettingsQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return withQueryKey(query, queryOptions.queryKey);
 }
 
-export const getAdminUpdateSettingUrl = (key: string) => {
-  return `/admin/settings/${key}`;
-};
 
-export const adminUpdateSetting = async (
-  key: string,
-  adminUpdateSettingBody: AdminUpdateSettingBody,
-  options?: Parameters<typeof http>[1],
-): Promise<AdminUpdateSetting200> => {
-  return http<AdminUpdateSetting200>(getAdminUpdateSettingUrl(key), {
+
+
+
+
+export const getAdminUpdateSettingUrl = (key: string,) => {
+
+
+
+
+  return `/admin/settings/${key}`
+}
+
+export const adminUpdateSetting = async (key: string,
+    adminUpdateSettingBody: AdminUpdateSettingBody, options?: Parameters<typeof http>[1]): Promise<AdminUpdateSetting200> => {
+
+  return http<AdminUpdateSetting200>(getAdminUpdateSettingUrl(key),
+  {
     ...options,
     method: 'PUT',
     headers: getHeaders({ 'Content-Type': 'application/json' }, options?.headers),
-    body: JSON.stringify(adminUpdateSettingBody),
-  });
-};
+    body: JSON.stringify(adminUpdateSettingBody)
+  }
+);}
+
+
+
+
 
 export const getAdminUpdateSettingMutationKey = () => ['adminUpdateSetting'] as const;
 
-export const getAdminUpdateSettingMutationOptions = <
-  TError = unknown,
-  TContext = unknown,
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof adminUpdateSetting>>,
-    TError,
-    AdminUpdateSettingMutationVariables,
-    TContext
-  >;
-  request?: SecondParameter<typeof http>;
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof adminUpdateSetting>>,
-  TError,
-  AdminUpdateSettingMutationVariables,
-  TContext
-> => {
-  const mutationKey = getAdminUpdateSettingMutationKey();
-  const { mutation: mutationOptions, request: requestOptions } = options
-    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, request: undefined };
+export const getAdminUpdateSettingMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminUpdateSetting>>, TError,AdminUpdateSettingMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof adminUpdateSetting>>, TError,AdminUpdateSettingMutationVariables, TContext> => {
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof adminUpdateSetting>>,
-    AdminUpdateSettingMutationVariables
-  > = (props) => {
-    const { key, data } = props ?? {};
+const mutationKey = getAdminUpdateSettingMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
 
-    return adminUpdateSetting(key, data, requestOptions);
-  };
 
-  return { mutationFn, ...mutationOptions };
-};
 
-export type AdminUpdateSettingMutationResult = NonNullable<
-  Awaited<ReturnType<typeof adminUpdateSetting>>
->;
-export type AdminUpdateSettingMutationBody = AdminUpdateSettingBody;
-export type AdminUpdateSettingMutationError = unknown;
-export type AdminUpdateSettingMutationVariables = { key: string; data: AdminUpdateSettingBody };
 
-export const useAdminUpdateSetting = <TError = unknown, TContext = unknown>(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof adminUpdateSetting>>,
-      TError,
-      AdminUpdateSettingMutationVariables,
-      TContext
-    >;
-    request?: SecondParameter<typeof http>;
-  },
-  queryClient?: QueryClient,
-): UseMutationResult<
-  Awaited<ReturnType<typeof adminUpdateSetting>>,
-  TError,
-  AdminUpdateSettingMutationVariables,
-  TContext
-> => {
-  return useMutation(getAdminUpdateSettingMutationOptions(options), queryClient);
-};
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminUpdateSetting>>, AdminUpdateSettingMutationVariables> = (props) => {
+          const {key,data} = props ?? {};
+
+          return  adminUpdateSetting(key,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AdminUpdateSettingMutationResult = NonNullable<Awaited<ReturnType<typeof adminUpdateSetting>>>
+    export type AdminUpdateSettingMutationBody = AdminUpdateSettingBody
+    export type AdminUpdateSettingMutationError = unknown
+    export type AdminUpdateSettingMutationVariables = {key: string;data: AdminUpdateSettingBody}
+
+    export const useAdminUpdateSetting = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminUpdateSetting>>, TError,AdminUpdateSettingMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof adminUpdateSetting>>,
+        TError,
+        AdminUpdateSettingMutationVariables,
+        TContext
+      > => {
+      return useMutation(getAdminUpdateSettingMutationOptions(options), queryClient);
+    }

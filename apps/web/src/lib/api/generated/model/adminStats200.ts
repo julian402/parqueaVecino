@@ -16,9 +16,9 @@ export type AdminStats200 = {
   bookings: AdminStats200Bookings;
   revenue: AdminStats200Revenue;
   /**
-   * @minimum 0
-   * @maximum 1
-   */
+     * @minimum 0
+     * @maximum 1
+     */
   occupancy: number;
   paymentsEnabled: boolean;
 };

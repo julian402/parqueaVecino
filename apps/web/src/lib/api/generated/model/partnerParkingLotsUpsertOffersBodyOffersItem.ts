@@ -12,14 +12,14 @@ export type PartnerParkingLotsUpsertOffersBodyOffersItem = {
   shift: PartnerParkingLotsUpsertOffersBodyOffersItemShift;
   vehicleType: PartnerParkingLotsUpsertOffersBodyOffersItemVehicleType;
   /**
-   * @minimum 0
-   * @maximum 10000
-   */
+     * @minimum 0
+     * @maximum 10000
+     */
   totalSpots: number;
   /**
-   * @maximum 9007199254740991
-   * @exclusiveMinimum 0
-   */
+     * @maximum 9007199254740991
+     * @exclusiveMinimum 0
+     */
   monthlyPriceMinor: number;
   active?: boolean;
 };

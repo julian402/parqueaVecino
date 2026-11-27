@@ -77,9 +77,14 @@ describe('API e2e', () => {
       );
 
       await agent.get(`${API}/auth/me`).expect(200);
+      const session = await agent.get(`${API}/auth/session`).expect(200);
+      expect(session.body).toMatchObject({ user: { email: driver.email } });
       await agent.post(`${API}/auth/refresh`).expect(200);
       await agent.post(`${API}/auth/logout`).expect(204);
       await agent.post(`${API}/auth/refresh`).expect(401);
+      // Sin sesión: 200 con user null (sin errores para visitantes).
+      const anonymous = await agent.get(`${API}/auth/session`).expect(200);
+      expect(anonymous.body).toEqual({ user: null });
     });
 
     it('no permite correos duplicados ni roles admin', async () => {

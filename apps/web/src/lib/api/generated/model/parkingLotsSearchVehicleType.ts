@@ -6,8 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 
-export type ParkingLotsSearchVehicleType =
-  (typeof ParkingLotsSearchVehicleType)[keyof typeof ParkingLotsSearchVehicleType];
+export type ParkingLotsSearchVehicleType = typeof ParkingLotsSearchVehicleType[keyof typeof ParkingLotsSearchVehicleType];
+
 
 export const ParkingLotsSearchVehicleType = {
   CAR: 'CAR',

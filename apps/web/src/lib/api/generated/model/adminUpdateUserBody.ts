@@ -9,20 +9,20 @@ import type { AdminUpdateUserBodyRole } from './adminUpdateUserBodyRole';
 
 export type AdminUpdateUserBody = {
   /**
-   * @minLength 2
-   * @maxLength 120
-   */
+     * @minLength 2
+     * @maxLength 120
+     */
   fullName?: string;
   /**
-   * @nullable
-   * @pattern ^\+?\d{7,15}$
-   */
+     * @nullable
+     * @pattern ^\+?\d{7,15}$
+     */
   phone?: string | null;
   role?: AdminUpdateUserBodyRole;
   isActive?: boolean;
   /**
-   * @minLength 8
-   * @maxLength 128
-   */
+     * @minLength 8
+     * @maxLength 128
+     */
   password?: string;
 };

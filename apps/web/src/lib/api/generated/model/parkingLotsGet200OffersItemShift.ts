@@ -6,8 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 
-export type ParkingLotsGet200OffersItemShift =
-  (typeof ParkingLotsGet200OffersItemShift)[keyof typeof ParkingLotsGet200OffersItemShift];
+export type ParkingLotsGet200OffersItemShift = typeof ParkingLotsGet200OffersItemShift[keyof typeof ParkingLotsGet200OffersItemShift];
+
 
 export const ParkingLotsGet200OffersItemShift = {
   DAY: 'DAY',

@@ -2,24 +2,30 @@
 
 import type { AuthUser } from '@parqueavecino/contracts';
 import { useQueryClient } from '@tanstack/react-query';
-import { getAuthMeQueryKey, useAuthLogout, useAuthMe } from '@/lib/api/generated/auth/auth';
-import { HttpError } from '@/lib/api/http';
+import {
+  getAuthSessionQueryKey,
+  useAuthLogout,
+  useAuthSession,
+} from '@/lib/api/generated/auth/auth';
 
-/** Sesión actual. `user` es null si no hay sesión (401), sin tratarlo como error. */
+/**
+ * Sesión actual. Usa `/auth/session`, que responde 200 con `user: null` a los visitantes
+ * (sin 401 en consola) y renueva la sesión si el access token venció.
+ */
 export function useSession() {
-  const query = useAuthMe({ query: { staleTime: 60_000 } });
-  const isAnonymous = query.error instanceof HttpError && query.error.status === 401;
+  const query = useAuthSession({ query: { staleTime: 60_000 } });
+  const user = query.data?.user ?? null;
   return {
-    user: query.data ?? null,
+    user,
     isLoading: query.isLoading,
-    isAnonymous,
+    isAnonymous: query.isSuccess && !user,
   };
 }
 
 /** Guarda el usuario en caché tras login/registro, sin pedir /auth/me otra vez. */
 export function useSetSessionUser() {
   const queryClient = useQueryClient();
-  return (user: AuthUser) => queryClient.setQueryData(getAuthMeQueryKey(), user);
+  return (user: AuthUser) => queryClient.setQueryData(getAuthSessionQueryKey(), { user });
 }
 
 export function useSignOut() {

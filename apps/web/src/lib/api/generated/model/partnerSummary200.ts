@@ -11,19 +11,19 @@ import type { PartnerSummary200Revenue } from './partnerSummary200Revenue';
 
 export type PartnerSummary200 = {
   /**
-   * @minimum -9007199254740991
-   * @maximum 9007199254740991
-   */
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     */
   lots: number;
   /**
-   * @minimum -9007199254740991
-   * @maximum 9007199254740991
-   */
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     */
   totalSpots: number;
   /**
-   * @minimum -9007199254740991
-   * @maximum 9007199254740991
-   */
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     */
   availableSpots: number;
   bookings: PartnerSummary200Bookings;
   revenue: PartnerSummary200Revenue;

@@ -6,8 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 
-export type BookingsList200ItemStatus =
-  (typeof BookingsList200ItemStatus)[keyof typeof BookingsList200ItemStatus];
+export type BookingsList200ItemStatus = typeof BookingsList200ItemStatus[keyof typeof BookingsList200ItemStatus];
+
 
 export const BookingsList200ItemStatus = {
   PENDING_PAYMENT: 'PENDING_PAYMENT',

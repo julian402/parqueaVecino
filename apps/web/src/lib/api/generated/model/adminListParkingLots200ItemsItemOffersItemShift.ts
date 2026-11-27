@@ -6,8 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 
-export type AdminListParkingLots200ItemsItemOffersItemShift =
-  (typeof AdminListParkingLots200ItemsItemOffersItemShift)[keyof typeof AdminListParkingLots200ItemsItemOffersItemShift];
+export type AdminListParkingLots200ItemsItemOffersItemShift = typeof AdminListParkingLots200ItemsItemOffersItemShift[keyof typeof AdminListParkingLots200ItemsItemOffersItemShift];
+
 
 export const AdminListParkingLots200ItemsItemOffersItemShift = {
   DAY: 'DAY',

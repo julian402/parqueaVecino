@@ -6,8 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 
-export type BookingsReceipt200BookingShift =
-  (typeof BookingsReceipt200BookingShift)[keyof typeof BookingsReceipt200BookingShift];
+export type BookingsReceipt200BookingShift = typeof BookingsReceipt200BookingShift[keyof typeof BookingsReceipt200BookingShift];
+
 
 export const BookingsReceipt200BookingShift = {
   DAY: 'DAY',
