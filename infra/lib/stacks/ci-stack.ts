@@ -51,6 +51,16 @@ export class CiStack extends Stack {
       }),
     );
 
+    // Lectura de las salidas de los stacks de este ambiente (paso "URL publicada" del deploy).
+    role.addToPolicy(
+      new iam.PolicyStatement({
+        actions: ['cloudformation:DescribeStacks'],
+        resources: [
+          `arn:aws:cloudformation:${this.region}:${this.account}:stack/ParqueaVecino-${props.config.name}-*/*`,
+        ],
+      }),
+    );
+
     new CfnOutput(this, 'DeployRoleArn', { value: role.roleArn });
   }
 }
