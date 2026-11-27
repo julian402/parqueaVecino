@@ -1,20 +1,33 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
 import {
   PaymentStatus,
+  PayoutAccountStatus,
   type AdminPaymentListQuery,
   type AdminPaymentPage,
+  type PayoutAccount,
+  type ProviderLink,
   type RevenueSummary,
 } from '@parqueavecino/contracts';
 import { AppConfigService } from '../../../config/app-config.service';
 import { SettingsService } from '../../settings/application/settings.service';
-import { PaymentProvider, type PaymentEvent } from '../domain/payment-provider';
+import {
+  PaymentProvider,
+  type PaymentEvent,
+  type ProviderPayoutStatus,
+} from '../domain/payment-provider';
 import { PaymentsRepository, type PaymentRecord } from '../domain/payments.repository';
+import {
+  PayoutAccountsRepository,
+  type PayoutAccountRecord,
+} from '../domain/payout-accounts.repository';
 
 /** Días de la serie de ingresos en los paneles. */
 const REVENUE_DAYS = 14;
 
 export interface ChargeRequest {
   bookingId: string;
+  /** Aliado dueño del parqueadero: si su cuenta conectada está activa, el pago va a ella. */
+  payeeId: string;
   amountMinor: number;
   currency: string;
   description: string;
@@ -29,9 +42,27 @@ export function commissionFor(amountMinor: number, basisPoints: number): number 
 
 const OUTCOME_BY_EVENT: Record<PaymentEvent['type'], PaymentOutcome> = {
   'payment.succeeded': 'succeeded',
+  // Un rechazo no cierra el cobro: el libro sigue pendiente y el checkout puede reintentar.
+  'payment.declined': 'pending',
   'payment.failed': 'failed',
   'payment.refunded': 'refunded',
 };
+
+const PAYOUT_STATUS: Record<ProviderPayoutStatus, PayoutAccountStatus> = {
+  active: PayoutAccountStatus.ACTIVE,
+  pending: PayoutAccountStatus.PENDING,
+  action_required: PayoutAccountStatus.ACTION_REQUIRED,
+};
+
+/** Ruta de la web a la que vuelve el aliado desde el onboarding de la pasarela. */
+const PARTNER_PAYOUTS_PATH = '/aliados/pagos';
+
+/** Aliado que conecta su cuenta (datos para prellenar el onboarding). */
+export interface Payee {
+  id: string;
+  email: string;
+  fullName: string;
+}
 
 const STATUS_BY_OUTCOME: Record<Exclude<PaymentOutcome, 'pending'>, PaymentStatus> = {
   succeeded: PaymentStatus.SUCCEEDED,
@@ -41,9 +72,12 @@ const STATUS_BY_OUTCOME: Record<Exclude<PaymentOutcome, 'pending'>, PaymentStatu
 
 @Injectable()
 export class PaymentsService {
+  private readonly logger = new Logger(PaymentsService.name);
+
   constructor(
     private readonly provider: PaymentProvider,
     private readonly repository: PaymentsRepository,
+    private readonly payoutAccounts: PayoutAccountsRepository,
     private readonly settings: SettingsService,
     private readonly config: AppConfigService,
   ) {}
@@ -56,10 +90,12 @@ export class PaymentsService {
   async startCharge(request: ChargeRequest): Promise<{ clientSecret: string | null }> {
     const basisPoints = await this.settings.get('commission.basisPoints');
     const commissionMinor = commissionFor(request.amountMinor, basisPoints);
+    const destinationRef = await this.activeDestination(request.payeeId);
     const payment = await this.provider.createPayment({
       amountMinor: request.amountMinor,
       currency: request.currency,
       commissionMinor,
+      destinationAccountId: destinationRef ?? undefined,
       description: request.description,
       // Una reserva = un cobro: repetir la petición no crea un segundo PaymentIntent.
       idempotencyKey: `booking-${request.bookingId}`,
@@ -72,6 +108,7 @@ export class PaymentsService {
       amountMinor: request.amountMinor,
       commissionMinor,
       currency: request.currency,
+      destinationRef,
     });
     return { clientSecret: payment.clientSecret };
   }
@@ -123,7 +160,9 @@ export class PaymentsService {
   async refund(bookingId: string): Promise<void> {
     const payment = await this.repository.findLatestForBooking(bookingId);
     if (payment?.status !== PaymentStatus.SUCCEEDED) return;
-    await this.provider.refundPayment(payment.providerRef, `refund-${payment.id}`);
+    await this.provider.refundPayment(payment.providerRef, `refund-${payment.id}`, {
+      reverseTransfer: payment.destinationRef !== null,
+    });
     await this.repository.setStatus(payment.id, PaymentStatus.REFUNDED);
   }
 
@@ -148,6 +187,73 @@ export class PaymentsService {
       days: REVENUE_DAYS,
       partnerId,
     });
+  }
+
+  /** Cuenta de pagos del aliado, con el estado actualizado desde la pasarela. */
+  async payoutAccount(userId: string): Promise<PayoutAccount> {
+    if (!this.provider.enabled) return { paymentsEnabled: false, status: null };
+    const account = await this.payoutAccounts.findByUser(userId);
+    return { paymentsEnabled: true, status: account ? await this.refreshStatus(account) : null };
+  }
+
+  /**
+   * Enlace al onboarding de la pasarela (Stripe Connect). Crea la cuenta conectada la primera
+   * vez; las siguientes reutiliza la misma para continuar donde quedó.
+   */
+  async startOnboarding(payee: Payee): Promise<ProviderLink> {
+    const page = new URL(PARTNER_PAYOUTS_PATH, this.webUrl()).href;
+    const account =
+      (await this.payoutAccounts.findByUser(payee.id)) ??
+      (await this.payoutAccounts.create({
+        userId: payee.id,
+        provider: this.provider.name,
+        providerRef: await this.provider.createPayoutAccount({
+          email: payee.email,
+          displayName: payee.fullName,
+          idempotencyKey: `payout-account-${payee.id}`,
+          metadata: { userId: payee.id },
+        }),
+      }));
+    const url = await this.provider.createOnboardingLink(account.providerRef, {
+      returnUrl: `${page}?onboarding=return`,
+      refreshUrl: `${page}?onboarding=refresh`,
+    });
+    return { url };
+  }
+
+  /** Panel de la cuenta conectada (pagos recibidos y transferencias al banco). */
+  async dashboardLink(userId: string): Promise<ProviderLink> {
+    const account = await this.payoutAccounts.findByUser(userId);
+    if (!account) throw new NotFoundException('Aún no conectas tu cuenta de pagos');
+    return { url: await this.provider.createDashboardLink(account.providerRef) };
+  }
+
+  /**
+   * Cuenta a la que se envía un cobro. Se vuelve a consultar en la pasarela antes de cobrar
+   * (los requisitos cambian); si no está activa o la consulta falla, cobra la plataforma.
+   */
+  private async activeDestination(payeeId: string): Promise<string | null> {
+    const account = await this.payoutAccounts.findByUser(payeeId);
+    if (!account) return null;
+    try {
+      const status = await this.refreshStatus(account);
+      return status === PayoutAccountStatus.ACTIVE ? account.providerRef : null;
+    } catch (error) {
+      this.logger.warn({ err: error, payeeId }, 'No se pudo consultar la cuenta conectada');
+      return null;
+    }
+  }
+
+  private async refreshStatus(account: PayoutAccountRecord): Promise<PayoutAccountStatus> {
+    const status = PAYOUT_STATUS[await this.provider.getPayoutStatus(account.providerRef)];
+    if (status !== account.status) await this.payoutAccounts.setStatus(account.userId, status);
+    return status;
+  }
+
+  private webUrl(): string {
+    const url = this.config.get('WEB_URL');
+    if (!url) throw new ServiceUnavailableException('Falta WEB_URL para conectar pagos');
+    return url;
   }
 
   private async record(payment: PaymentRecord, outcome: PaymentOutcome): Promise<void> {

@@ -81,6 +81,7 @@ class MemoryBookings extends BookingsRepository {
 const offer = {
   offerId: 'o1',
   parkingLotId: 'l1',
+  partnerId: 'p1',
   shift: 'NIGHT' as const,
   vehicleType: 'CAR' as const,
   monthlyPriceMinor: 18_000_000,

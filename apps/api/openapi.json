@@ -814,6 +814,10 @@
                               ]
                             }
                           },
+                          "photo": {
+                            "nullable": true,
+                            "type": "string"
+                          },
                           "distanceMeters": {
                             "type": "integer",
                             "minimum": -9007199254740991,
@@ -879,6 +883,7 @@
                           "longitude",
                           "verified",
                           "amenities",
+                          "photo",
                           "distanceMeters",
                           "offer"
                         ],
@@ -980,6 +985,12 @@
                         ]
                       }
                     },
+                    "photos": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
                     "status": {
                       "type": "string",
                       "enum": [
@@ -1067,6 +1078,7 @@
                     "longitude",
                     "description",
                     "amenities",
+                    "photos",
                     "status",
                     "verified",
                     "offers"
@@ -1135,6 +1147,12 @@
                             "BIKE_SPOT",
                             "EV_CHARGER"
                           ]
+                        }
+                      },
+                      "photos": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
                         }
                       },
                       "status": {
@@ -1224,6 +1242,7 @@
                       "longitude",
                       "description",
                       "amenities",
+                      "photos",
                       "status",
                       "verified",
                       "offers"
@@ -1357,6 +1376,12 @@
                         ]
                       }
                     },
+                    "photos": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
                     "status": {
                       "type": "string",
                       "enum": [
@@ -1444,6 +1469,7 @@
                     "longitude",
                     "description",
                     "amenities",
+                    "photos",
                     "status",
                     "verified",
                     "offers"
@@ -1580,6 +1606,12 @@
                         ]
                       }
                     },
+                    "photos": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
                     "status": {
                       "type": "string",
                       "enum": [
@@ -1667,6 +1699,7 @@
                     "longitude",
                     "description",
                     "amenities",
+                    "photos",
                     "status",
                     "verified",
                     "offers"
@@ -1766,6 +1799,12 @@
                         ]
                       }
                     },
+                    "photos": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
                     "status": {
                       "type": "string",
                       "enum": [
@@ -1853,6 +1892,7 @@
                     "longitude",
                     "description",
                     "amenities",
+                    "photos",
                     "status",
                     "verified",
                     "offers"
@@ -1992,6 +2032,12 @@
                         ]
                       }
                     },
+                    "photos": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
                     "status": {
                       "type": "string",
                       "enum": [
@@ -2079,6 +2125,7 @@
                     "longitude",
                     "description",
                     "amenities",
+                    "photos",
                     "status",
                     "verified",
                     "offers"
@@ -2143,6 +2190,108 @@
         },
         "tags": [
           "geocoding"
+        ]
+      }
+    },
+    "/partner/payout-account": {
+      "get": {
+        "operationId": "partnerPayoutsGet",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "paymentsEnabled": {
+                      "type": "boolean"
+                    },
+                    "status": {
+                      "nullable": true,
+                      "type": "string",
+                      "enum": [
+                        "PENDING",
+                        "ACTION_REQUIRED",
+                        "ACTIVE"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "paymentsEnabled",
+                    "status"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "partner"
+        ]
+      }
+    },
+    "/partner/payout-account/onboarding": {
+      "post": {
+        "operationId": "partnerPayoutsOnboarding",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string",
+                      "format": "uri"
+                    }
+                  },
+                  "required": [
+                    "url"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "partner"
+        ]
+      }
+    },
+    "/partner/payout-account/dashboard": {
+      "post": {
+        "operationId": "partnerPayoutsDashboard",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string",
+                      "format": "uri"
+                    }
+                  },
+                  "required": [
+                    "url"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "partner"
         ]
       }
     },
@@ -4063,6 +4212,12 @@
                               ]
                             }
                           },
+                          "photos": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
                           "status": {
                             "type": "string",
                             "enum": [
@@ -4177,6 +4332,7 @@
                           "longitude",
                           "description",
                           "amenities",
+                          "photos",
                           "status",
                           "verified",
                           "offers",
@@ -4294,6 +4450,12 @@
                         ]
                       }
                     },
+                    "photos": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
                     "status": {
                       "type": "string",
                       "enum": [
@@ -4408,6 +4570,7 @@
                     "longitude",
                     "description",
                     "amenities",
+                    "photos",
                     "status",
                     "verified",
                     "offers",

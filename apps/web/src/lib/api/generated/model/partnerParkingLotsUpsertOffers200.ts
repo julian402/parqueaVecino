@@ -22,6 +22,7 @@ export type PartnerParkingLotsUpsertOffers200 = {
   /** @nullable */
   description: string | null;
   amenities: PartnerParkingLotsUpsertOffers200AmenitiesItem[];
+  photos: string[];
   status: PartnerParkingLotsUpsertOffers200Status;
   verified: boolean;
   offers: PartnerParkingLotsUpsertOffers200OffersItem[];

@@ -21,6 +21,7 @@ export const routes = {
   partner: {
     overview: '/aliados',
     lots: '/aliados/parqueaderos',
+    payouts: '/aliados/pagos',
   },
   admin: {
     overview: '/admin',

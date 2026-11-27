@@ -97,7 +97,12 @@ export function LotDetail({ id }: { id: string }) {
 
       <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_24rem] lg:grid-cols-[minmax(0,1fr)_26rem]">
         <div className="flex flex-col gap-6">
-          <ParkingThumbnail caption={lot.neighborhood} className="h-56 w-full md:h-72" />
+          <ParkingThumbnail
+            caption={lot.neighborhood}
+            src={lot.photos[0]}
+            alt={lot.name}
+            className="h-56 w-full md:h-72"
+          />
 
           <header className="flex flex-col gap-2">
             <div className="flex flex-wrap items-center gap-2">

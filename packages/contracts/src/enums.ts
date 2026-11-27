@@ -74,6 +74,18 @@ export const PaymentStatus = {
 export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus];
 export const PAYMENT_STATUSES = values(PaymentStatus);
 
+/** Cuenta conectada del aliado (Stripe Connect) para recibir sus pagos. */
+export const PayoutAccountStatus = {
+  /** Datos enviados; la pasarela los está verificando. */
+  PENDING: 'PENDING',
+  /** Falta información (onboarding sin terminar o requisitos nuevos). */
+  ACTION_REQUIRED: 'ACTION_REQUIRED',
+  /** Recibe transferencias: los pagos llegan a su cuenta menos la comisión. */
+  ACTIVE: 'ACTIVE',
+} as const;
+export type PayoutAccountStatus = (typeof PayoutAccountStatus)[keyof typeof PayoutAccountStatus];
+export const PAYOUT_ACCOUNT_STATUSES = values(PayoutAccountStatus);
+
 /** Orden de los resultados de búsqueda. */
 export const SearchSort = { PRICE: 'PRICE', DISTANCE: 'DISTANCE' } as const;
 export type SearchSort = (typeof SearchSort)[keyof typeof SearchSort];

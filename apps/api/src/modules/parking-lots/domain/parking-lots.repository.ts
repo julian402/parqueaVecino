@@ -33,6 +33,8 @@ export interface LotSearchCriteria {
 export interface ReservedOffer {
   offerId: string;
   parkingLotId: string;
+  /** Dueño del parqueadero: a su cuenta conectada va el pago (menos la comisión). */
+  partnerId: string;
   shift: Shift;
   vehicleType: VehicleType;
   monthlyPriceMinor: number;

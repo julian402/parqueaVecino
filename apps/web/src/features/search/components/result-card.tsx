@@ -36,7 +36,12 @@ export function ResultCard({ result, href, active = false, onHover }: ResultCard
         full && 'opacity-70',
       )}
     >
-      <ParkingThumbnail caption={result.neighborhood} className="size-24 md:size-28" />
+      <ParkingThumbnail
+        caption={result.neighborhood}
+        src={result.photo}
+        alt={result.name}
+        className="size-24 md:size-28"
+      />
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <div className="flex items-start justify-between gap-2">
           <h3 className="truncate font-bold">{result.name}</h3>

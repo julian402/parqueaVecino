@@ -13,7 +13,14 @@ export default defineConfig({
     include: ['test/e2e/**/*.e2e.ts'],
     globalSetup: ['test/e2e/global-setup.ts'],
     // Las pruebas hacen muchos logins seguidos: el límite de intentos se prueba aparte.
-    env: { DATABASE_URL: testDatabaseUrl, LOG_LEVEL: 'error', AUTH_RATE_LIMIT_MAX: '1000' },
+    env: {
+      DATABASE_URL: testDatabaseUrl,
+      LOG_LEVEL: 'error',
+      AUTH_RATE_LIMIT_MAX: '1000',
+      // El barrido de reservas se prueba en unitarias; aquí no debe correr en segundo plano.
+      BOOKINGS_SWEEP_INTERVAL_SECONDS: '0',
+      WEB_URL: 'http://localhost:3000',
+    },
     fileParallelism: false,
     testTimeout: 20_000,
     hookTimeout: 60_000,

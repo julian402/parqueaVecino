@@ -23,6 +23,7 @@ export type AdminReviewParkingLot200 = {
   /** @nullable */
   description: string | null;
   amenities: AdminReviewParkingLot200AmenitiesItem[];
+  photos: string[];
   status: AdminReviewParkingLot200Status;
   verified: boolean;
   offers: AdminReviewParkingLot200OffersItem[];

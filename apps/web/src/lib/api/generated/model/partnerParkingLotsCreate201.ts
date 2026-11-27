@@ -22,6 +22,7 @@ export type PartnerParkingLotsCreate201 = {
   /** @nullable */
   description: string | null;
   amenities: PartnerParkingLotsCreate201AmenitiesItem[];
+  photos: string[];
   status: PartnerParkingLotsCreate201Status;
   verified: boolean;
   offers: PartnerParkingLotsCreate201OffersItem[];

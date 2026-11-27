@@ -13,6 +13,7 @@ const result = (id: string, availableSpots: number): SearchResult => ({
   longitude: -74.0631,
   verified: true,
   amenities: [],
+  photo: null,
   distanceMeters: 300,
   offer: {
     shift: 'NIGHT',

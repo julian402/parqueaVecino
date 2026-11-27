@@ -17,6 +17,7 @@ const lot: ParkingLotRecord = {
   longitude: -74.0631,
   description: null,
   amenities: [],
+  photos: [],
   status: 'PENDING_VERIFICATION',
   verified: false,
   offers: [],

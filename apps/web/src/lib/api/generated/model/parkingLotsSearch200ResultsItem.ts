@@ -19,6 +19,8 @@ export type ParkingLotsSearch200ResultsItem = {
   longitude: number;
   verified: boolean;
   amenities: ParkingLotsSearch200ResultsItemAmenitiesItem[];
+  /** @nullable */
+  photo: string | null;
   /**
      * @minimum -9007199254740991
      * @maximum 9007199254740991

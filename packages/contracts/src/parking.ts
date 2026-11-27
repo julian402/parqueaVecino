@@ -86,6 +86,8 @@ export const parkingLotSchema = z.object({
   longitude: z.number(),
   description: z.string().nullable(),
   amenities: z.array(z.enum(Amenity)),
+  /** URLs de las fotos; la primera es la portada. Vacío = imagen provisional. */
+  photos: z.array(z.string()),
   status: z.enum(ParkingLotStatus),
   verified: z.boolean(),
   offers: z.array(offerSchema),

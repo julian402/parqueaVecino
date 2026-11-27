@@ -145,14 +145,18 @@ el bundler de Next no resuelve su URL. El estado de la búsqueda vive en la URL 
 
 ## 7. Flujo de pago (sandbox)
 
-1. Aliado hace onboarding a Stripe Connect Express (modo test) desde su panel.
+1. Aliado conecta su cuenta en `/aliados/pagos`: cuenta Stripe Connect con Accounts v2 (panel
+   Express, configuración `recipient`) y onboarding alojado por Stripe (ADR 0007).
 2. Conductor elige franja → `POST /bookings` crea reserva `PENDING_PAYMENT` y **bloquea el cupo**
    con TTL (Redis) para evitar sobreventa.
-3. API crea PaymentIntent/Checkout con `application_fee_amount = precio × comisión` (de `settings`)
-   y `transfer_data.destination = cuenta del aliado`, con _idempotency key_.
-4. Webhook firmado (`payment_intent.succeeded` / `payment_failed`, `charge.refunded`,
-   `account.updated`) → actualiza reserva a `ACTIVE`, registra movimientos, emite evento de
-   disponibilidad, encola correo + recibo.
+3. API crea el PaymentIntent con _idempotency key_. Si la cuenta del aliado tiene las transferencias
+   activas (se consulta antes de cobrar): `transfer_data.destination = cuenta del aliado` y
+   `application_fee_amount = precio × comisión` (de `settings`). Si no, cobra la plataforma y la
+   comisión queda en el libro. El reembolso revierte la transferencia y la comisión.
+4. Webhook firmado (`payment_intent.succeeded`, `payment_intent.payment_failed` → reintentable,
+   `payment_intent.canceled`, `charge.refunded`) → actualiza la reserva y el libro de movimientos
+   (idempotente). Probado en `apps/api/test/e2e/payments.e2e.ts` con eventos firmados como los de
+   `stripe listen`.
 5. Local: `stripe listen --forward-to localhost:<API_PORT>/payments/webhooks/stripe` (contenedor stripe-cli).
 
 Estados de reserva: `PENDING_PAYMENT → ACTIVE → EXPIRED | CANCELLED | REFUNDED`.
@@ -190,4 +194,4 @@ Pendiente por fase: S3 (documentos/recibos), ElastiCache (tiempo real), worker d
 
 Toda decisión relevante se documenta en `docs/adr/NNNN-titulo.md` (contexto, decisión,
 consecuencias). Primeras ADRs: monorepo, NestJS, Prisma+PostGIS, Stripe detrás de puerto, auth
-propia vs Cognito, ECS Fargate vs App Runner.
+propia vs Cognito, ECS Fargate vs App Runner, Stripe Connect con Accounts v2 (0007).

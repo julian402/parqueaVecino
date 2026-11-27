@@ -42,6 +42,8 @@ export const searchResultSchema = z.object({
   longitude: z.number(),
   verified: z.boolean(),
   amenities: z.array(z.enum(Amenity)),
+  /** Portada del parqueadero (null = imagen provisional). */
+  photo: z.string().nullable(),
   distanceMeters: z.number().int(),
   offer: searchOfferSchema,
 });

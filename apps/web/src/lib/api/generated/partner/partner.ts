@@ -34,6 +34,9 @@ import type {
   PartnerParkingLotsUpdateBody,
   PartnerParkingLotsUpsertOffers200,
   PartnerParkingLotsUpsertOffersBody,
+  PartnerPayoutsDashboard201,
+  PartnerPayoutsGet200,
+  PartnerPayoutsOnboarding201,
   PartnerSummary200
 } from '../model';
 
@@ -442,6 +445,233 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
         TContext
       > => {
       return useMutation(getPartnerParkingLotsUpsertOffersMutationOptions(options), queryClient);
+    }
+    export const getPartnerPayoutsGetUrl = () => {
+
+
+
+
+  return `/partner/payout-account`
+}
+
+export const partnerPayoutsGet = async ( options?: Parameters<typeof http>[1]): Promise<PartnerPayoutsGet200> => {
+
+  return http<PartnerPayoutsGet200>(getPartnerPayoutsGetUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getPartnerPayoutsGetQueryKey = () => {
+    return [
+    `/partner/payout-account`
+    ] as const;
+    }
+
+
+export const getPartnerPayoutsGetQueryOptions = <TData = Awaited<ReturnType<typeof partnerPayoutsGet>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof partnerPayoutsGet>>, TError, TData>>, request?: SecondParameter<typeof http>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getPartnerPayoutsGetQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof partnerPayoutsGet>>> = ({ signal }) => partnerPayoutsGet({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof partnerPayoutsGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type PartnerPayoutsGetQueryResult = NonNullable<Awaited<ReturnType<typeof partnerPayoutsGet>>>
+export type PartnerPayoutsGetQueryError = unknown
+
+
+export function usePartnerPayoutsGet<TData = Awaited<ReturnType<typeof partnerPayoutsGet>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof partnerPayoutsGet>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof partnerPayoutsGet>>,
+          TError,
+          Awaited<ReturnType<typeof partnerPayoutsGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function usePartnerPayoutsGet<TData = Awaited<ReturnType<typeof partnerPayoutsGet>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof partnerPayoutsGet>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof partnerPayoutsGet>>,
+          TError,
+          Awaited<ReturnType<typeof partnerPayoutsGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function usePartnerPayoutsGet<TData = Awaited<ReturnType<typeof partnerPayoutsGet>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof partnerPayoutsGet>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function usePartnerPayoutsGet<TData = Awaited<ReturnType<typeof partnerPayoutsGet>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof partnerPayoutsGet>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getPartnerPayoutsGetQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+export const getPartnerPayoutsOnboardingUrl = () => {
+
+
+
+
+  return `/partner/payout-account/onboarding`
+}
+
+export const partnerPayoutsOnboarding = async ( options?: Parameters<typeof http>[1]): Promise<PartnerPayoutsOnboarding201> => {
+
+  return http<PartnerPayoutsOnboarding201>(getPartnerPayoutsOnboardingUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getPartnerPayoutsOnboardingMutationKey = () => ['partnerPayoutsOnboarding'] as const;
+
+export const getPartnerPayoutsOnboardingMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof partnerPayoutsOnboarding>>, TError,void, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof partnerPayoutsOnboarding>>, TError,void, TContext> => {
+
+const mutationKey = getPartnerPayoutsOnboardingMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof partnerPayoutsOnboarding>>, void> = () => {
+
+
+          return  partnerPayoutsOnboarding(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PartnerPayoutsOnboardingMutationResult = NonNullable<Awaited<ReturnType<typeof partnerPayoutsOnboarding>>>
+
+    export type PartnerPayoutsOnboardingMutationError = unknown
+
+
+    export const usePartnerPayoutsOnboarding = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof partnerPayoutsOnboarding>>, TError,void, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof partnerPayoutsOnboarding>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getPartnerPayoutsOnboardingMutationOptions(options), queryClient);
+    }
+    export const getPartnerPayoutsDashboardUrl = () => {
+
+
+
+
+  return `/partner/payout-account/dashboard`
+}
+
+export const partnerPayoutsDashboard = async ( options?: Parameters<typeof http>[1]): Promise<PartnerPayoutsDashboard201> => {
+
+  return http<PartnerPayoutsDashboard201>(getPartnerPayoutsDashboardUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getPartnerPayoutsDashboardMutationKey = () => ['partnerPayoutsDashboard'] as const;
+
+export const getPartnerPayoutsDashboardMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof partnerPayoutsDashboard>>, TError,void, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof partnerPayoutsDashboard>>, TError,void, TContext> => {
+
+const mutationKey = getPartnerPayoutsDashboardMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof partnerPayoutsDashboard>>, void> = () => {
+
+
+          return  partnerPayoutsDashboard(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PartnerPayoutsDashboardMutationResult = NonNullable<Awaited<ReturnType<typeof partnerPayoutsDashboard>>>
+
+    export type PartnerPayoutsDashboardMutationError = unknown
+
+
+    export const usePartnerPayoutsDashboard = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof partnerPayoutsDashboard>>, TError,void, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof partnerPayoutsDashboard>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getPartnerPayoutsDashboardMutationOptions(options), queryClient);
     }
     export const getPartnerSummaryUrl = () => {
 

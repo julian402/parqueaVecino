@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { offerInputSchema, plateSchema, registerSchema, upsertOffersSchema } from './index';
+import {
+  guestBookingSchema,
+  offerInputSchema,
+  plateSchema,
+  registerSchema,
+  upsertOffersSchema,
+} from './index';
 
 describe('esquemas', () => {
   it('normaliza la placa', () => {
@@ -23,5 +29,22 @@ describe('esquemas', () => {
     };
     expect(offerInputSchema.parse(offer).active).toBe(true);
     expect(() => upsertOffersSchema.parse({ offers: [offer, offer] })).toThrow(/repetidas/);
+  });
+
+  it('reserva como invitado con las reglas del registro y la placa', () => {
+    const guest = {
+      fullName: 'Ana Pérez',
+      email: ' ANA@mail.com',
+      password: 'clave1234',
+      plate: 'abc-123',
+    };
+    expect(guestBookingSchema.parse(guest)).toEqual({
+      fullName: 'Ana Pérez',
+      email: 'ana@mail.com',
+      password: 'clave1234',
+      plate: 'ABC123',
+    });
+    expect(() => guestBookingSchema.parse({ ...guest, password: 'corta' })).toThrow();
+    expect(() => guestBookingSchema.parse({ ...guest, plate: '12ABC' })).toThrow();
   });
 });

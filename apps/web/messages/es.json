@@ -287,9 +287,15 @@
     "error": "No pudimos cargar este parqueadero. Intenta de nuevo.",
     "plateLabel": "Placa del vehículo",
     "platePlaceholder": "ABC123",
-    "loginToReserve": "Ingresa para reservar",
     "reserveHint": "Pago seguro con Stripe (modo de prueba). Cancelación gratuita durante las primeras {hours} horas.",
-    "chooseShift": "Elige una franja con cupos"
+    "chooseShift": "Elige una franja con cupos",
+    "guestTitle": "Reserva en un solo paso",
+    "guestHint": "Creamos tu cuenta de conductor con estos datos: la mensualidad, el recibo y el código de ingreso quedan en ella.",
+    "guestReserve": "Crear cuenta y reservar",
+    "hasAccount": "¿Ya tienes cuenta?",
+    "login": "Ingresa",
+    "emailTaken": "Ya existe una cuenta con este correo.",
+    "emailTakenAction": "Ingresa para continuar con tu reserva"
   },
   "common": {
     "close": "Cerrar",
@@ -446,7 +452,8 @@
     "partner": {
       "nav": {
         "overview": "Resumen",
-        "lots": "Mis parqueaderos"
+        "lots": "Mis parqueaderos",
+        "payouts": "Pagos"
       },
       "overview": {
         "title": "Hola, {name}",
@@ -464,6 +471,37 @@
         "recentTitle": "Últimas mensualidades",
         "recentEmpty": "Cuando un conductor compre una mensualidad la verás aquí.",
         "manageLots": "Gestionar parqueaderos"
+      },
+      "payouts": {
+        "title": "Pagos",
+        "subtitle": "Conecta tu cuenta de Stripe para recibir el valor de cada mensualidad, menos la comisión de la plataforma.",
+        "accountTitle": "Cuenta de pagos",
+        "status": {
+          "NONE": "Sin conectar",
+          "PENDING": "En verificación",
+          "ACTION_REQUIRED": "Falta información",
+          "ACTIVE": "Activa"
+        },
+        "detail": {
+          "NONE": "Mientras no la conectes, Parquea Vecino recibe los pagos de tus mensualidades.",
+          "PENDING": "Stripe está revisando tus datos. Cuando la apruebe, los pagos llegarán a tu cuenta.",
+          "ACTION_REQUIRED": "Completa la configuración en Stripe para empezar a recibir pagos.",
+          "ACTIVE": "Cada mensualidad llega a tu cuenta de Stripe menos la comisión, y Stripe la transfiere a tu banco."
+        },
+        "connect": "Conectar pagos",
+        "continue": "Continuar configuración",
+        "dashboard": "Ver mis pagos en Stripe",
+        "returned": "Volviste de Stripe: este es el estado actualizado de tu cuenta.",
+        "testMode": "Modo de prueba: en Stripe puedes usar datos ficticios (por ejemplo, el código 000-000 para verificar el teléfono).",
+        "disabled": "Los pagos no están configurados en esta plataforma.",
+        "howTitle": "Cómo funciona",
+        "how": {
+          "connect": "Conectas tu cuenta una sola vez desde aquí (unos 5 minutos en Stripe).",
+          "pay": "El conductor paga la mensualidad con tarjeta en Parquea Vecino.",
+          "split": "Stripe separa la comisión de la plataforma y deja el resto en tu cuenta.",
+          "refund": "Si el conductor cancela a tiempo, el reembolso sale de tu cuenta y la comisión se devuelve."
+        },
+        "error": "No pudimos abrir Stripe. Intenta de nuevo."
       }
     },
     "bookingStatus": {
@@ -571,7 +609,9 @@
     "goToBookings": "Ver mis mensualidades",
     "cancelledTitle": "Esta reserva ya no está activa",
     "cancelledDetail": "El cupo se liberó. Puedes buscar otro parqueadero cuando quieras.",
-    "backToSearch": "Buscar parqueadero"
+    "backToSearch": "Buscar parqueadero",
+    "payingAs": "Pagando como {name} · {email}",
+    "switchAccount": "¿No eres tú? Cambiar de cuenta"
   },
   "bookings": {
     "title": "Mis mensualidades",

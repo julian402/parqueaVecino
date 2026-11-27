@@ -34,7 +34,7 @@ Objetivo: cualquier integrante clona, corre `pnpm i && pnpm dev` y tiene todo ar
 - ☑ OpenAPI → cliente Orval en `apps/web`
 - ☑ Web: layout responsive (nav escritorio / tab bar celular), login/registro, panel aliado inicial, colores del folleto
 - ☑ `pnpm setup:local` para levantar todo en un equipo nuevo
-- ◐ **Infra:** CDK Network/Data/App/Ci/Ops; CD a AWS en cada push a `main` (OIDC)
+- ☑ **Infra:** CDK Network/Data/App/Ci/Ops; CD a AWS en cada push a `main` (OIDC con ambiente `prod` de GitHub)
 - ☑ AWS Budgets con alerta de costo
 
 **Entregable:** login funcionando en local y la app vacía desplegada en AWS.
@@ -46,7 +46,7 @@ Objetivo: cualquier integrante clona, corre `pnpm i && pnpm dev` y tiene todo ar
 - ☑ Pantalla Inicio (buscador con franja y vehículo) → `/buscar`
 - ☑ Resultados: lista + mapa MapLibre/OpenFreeMap sincronizados, pines con precio y cupos, "Lleno"
 - ☑ Detalle: bloque "Verificado", servicios, selector de franja con ahorro vs 24 h, mapa
-- ☐ Fotos del parqueadero en S3 (hoy se muestra una imagen provisional)
+- ◐ Fotos del parqueadero: campo `photos` + ilustraciones ficticias de los 13 demo (`apps/web/public/demo/parqueaderos`) ☑ · subida del aliado a S3 con URL prefirmada ☐
 - ☑ 13 parqueaderos demo con coordenadas reales de Chapinero y alrededores
 - ☐ Reseñas (lectura)
 
@@ -54,14 +54,31 @@ Objetivo: cualquier integrante clona, corre `pnpm i && pnpm dev` y tiene todo ar
 
 ## Fase 3 — Reserva y pago con Stripe (semanas 5–6) · Mockups 4, 5
 
-- ☐ Stripe Connect Express: onboarding del aliado en modo test (panel aliado → "Conectar pagos") _(hoy el cobro va a la cuenta de la plataforma y la comisión se registra en el libro)_
+- ☑ Stripe Connect (Accounts v2, panel Express): onboarding del aliado en modo test (`/aliados/pagos` → "Conectar pagos"),
+  cargo con destino + `application_fee_amount`, reembolso con reversa de transferencia (ADR 0007).
+  Sin cuenta activa cobra la plataforma. _Falta probarlo contra Stripe con una llave `sk_test` vigente._
 - ☑ Puerto `PaymentProvider` + adaptador Stripe; idempotencia; firmas de webhook
 - ◐ `bookings`: crear reserva, bloqueo atómico de cupo, máquina de estados y barrido de reservas sin pagar _(TTL en Redis pendiente; hoy un job en la API)_
 - ☑ Checkout en 3 pasos (Datos → Pago → Listo) con Stripe Payment Element
-- ◐ Comisión leída de `settings` y libro de movimientos (`payments`) _(`application_fee_amount` llega con Connect)_
+- ☑ Comisión leída de `settings` y libro de movimientos (`payments`, con la cuenta de destino de cada cobro)
 - ◐ Recibo con código de ingreso, QR y descarga en PDF (impresión del navegador) ☑ · PDF generado en el servidor y envío por correo ☐
 - ☑ Cancelación gratuita durante N horas (N desde `settings`) con reembolso
-- ☐ Pruebas de integración del webhook con eventos de Stripe CLI
+- ☑ Pruebas de integración del webhook (`test/e2e/payments.e2e.ts`): eventos firmados con la forma de
+  `stripe listen`, firma inválida → 400, idempotencia, rechazo reintentable, reembolso desde Stripe
+- ☑ Webhook de Stripe en producción (`/api/payments/webhooks/stripe`), firma inválida → 400
+- ☑ **Reservar sin cuenta (checkout como invitado → cuenta):** antes el visitante veía "Ingresa para
+  reservar" y perdía el paso si iba a registrarse. Hecho:
+  - En la ficha, sin sesión, el formulario de reserva pide nombre, correo, contraseña y placa en un
+    solo paso → registro como `DRIVER` → guarda la placa en "Mis vehículos" → crea la reserva → checkout.
+    La mensualidad, el pago, el recibo y el QR quedan en esa cuenta desde el inicio.
+  - "¿Ya tienes cuenta? Ingresa" conserva la ficha (`next`) en login **y** en registro.
+  - Correo ya registrado (409): mensaje claro con enlace a ingresar, sin perder la placa (`?placa=`).
+  - En la pestaña de pago, aviso "Pagando como {nombre} · {correo}"; "Cambiar de cuenta" anula la
+    reserva pendiente (libera el cupo), cierra sesión y vuelve a ingresar a la ficha.
+  - Validación reutilizando `registerSchema` + `plateSchema` de `contracts` (`guestBookingSchema`);
+    textos en `es.json`; e2e de API del flujo invitado → pago → "Mis mensualidades" (el e2e de
+    navegador queda para Playwright en la Fase 7).
+- ☐ Webhooks de cuentas conectadas (_thin events_ de Accounts v2); hoy el estado se consulta antes de cobrar
 
 **Entregable:** reserva pagada de punta a punta en sandbox, con comisión visible en Stripe.
 
@@ -83,13 +100,60 @@ Objetivo: cualquier integrante clona, corre `pnpm i && pnpm dev` y tiene todo ar
 - ☐ Mapa y detalle se actualizan sin recargar ("Actualizado hace 1 min")
 - ☐ Suscripción a alertas por zona/franja; notificación por correo cuando se libera un cupo
 
-## Fase 6 — Endurecimiento y AWS completo (semana 9)
+## Fase 6 — Endurecimiento, escalabilidad y AWS completo (semana 9)
 
-- ☐ Stacks completos: Redis, S3, CloudFront, Secrets Manager, Amazon Location, alarmas
-- ☐ CD: build de imágenes → ECR → migración (tarea ECS) → deploy; deploy automático al merge en `main`
-- ☐ Autoscaling, health checks, logs estructurados con `requestId`
-- ☐ Seguridad: rate limiting, Helmet, CORS por config, revisión OWASP básica, `pnpm audit`
-- ☐ Webhook de Stripe apuntando al ambiente `dev` en AWS
+Estado actual en AWS (ambiente único `prod`, Stripe en modo test): una tarea Fargate (Caddy + web + API)
+con IP pública publicada en DuckDNS, RDS `t4g.micro` en subred aislada, secretos en Secrets Manager,
+certificado Let's Encrypt en EFS, logs en CloudWatch (se conservan si un despliegue se revierte) y
+despliegue automático desde `main`. Sirve para demo; los pendientes de abajo son para escalar.
+
+### Hecho
+
+- ☑ CD: CI verde en `main` → `cdk deploy` (imágenes a ECR, migraciones y seed al arrancar)
+- ☑ Health checks por contenedor y rollback automático (circuit breaker de ECS)
+- ☑ Seguridad base: límite de intentos en auth (429), Helmet (CSP, HSTS, nosniff, frame), cookies
+  httpOnly/Secure/SameSite, HTTPS forzado, argon2, 404 en recursos ajenos, webhooks firmados,
+  `pnpm audit` sin hallazgos (override de `effect`), errores con formato estándar, sin secretos en git
+- ☑ `GET /auth/session` (sin 401 para visitantes) y mensajes claros si la API no responde
+- ☑ Rol de CI con `cloudformation:DescribeStacks` sobre los stacks del ambiente (paso "URL publicada")
+- ☑ Favicon e ícono de la app (pin del logo) en `apps/web/src/app/`
+
+### Escalabilidad (para pasar de 1 a N réplicas)
+
+- ☐ **ALB + dominio propio** con certificado ACM: varias tareas detrás del balanceador y despliegues sin
+  corte. Reemplaza Caddy/DuckDNS (DuckDNS solo admite un registro A). _≈ USD 16/mes + dominio._
+- ☐ **Redis (ElastiCache `cache.t4g.micro`)** _≈ USD 12/mes_, usado para:
+  - almacenamiento del límite de intentos (`@nestjs/throttler` con storage Redis; hoy es por réplica);
+  - caché de geocodificación y de `system_settings` compartida (hoy en memoria);
+  - bloqueo de cupo con TTL durante el pago (hoy fila en BD + barrido);
+  - adapter de Socket.IO y colas BullMQ (Fase 5).
+- ☐ **Worker aparte (BullMQ)**: barrido de reservas sin pagar, vencimientos, correos y recibos PDF.
+  Hoy el barrido corre dentro de la API; con varias réplicas correría en todas.
+- ☐ **Migraciones en una tarea ECS de un solo uso** antes del deploy (hoy al arrancar la API).
+- ☐ **Autoscaling** del servicio por CPU/peticiones (mín. 1, máx. 3) una vez exista el ALB.
+- ☐ Separar web y API en servicios distintos si el tráfico lo pide (hoy comparten tarea).
+
+### AWS completo
+
+- ☐ **S3** con URLs prefirmadas: fotos de parqueaderos, documentos de verificación y recibos PDF;
+  CloudFront delante de las imágenes.
+- ☐ **SES** para correos (confirmación, recibo, alertas de cupo) en lugar de Mailpit.
+- ☐ **Alarmas CloudWatch**: tarea caída, 5xx de la API, CPU/memoria, conexiones y almacenamiento de RDS;
+  avisos al correo del presupuesto.
+- ☐ RDS para datos reales: respaldo 7 días, `deletionProtection`, Multi-AZ opcional (hoy 1 día, sin
+  protección y una zona, por costo).
+- ☐ Logs estructurados con `requestId` de punta a punta (web → API) y retención por ambiente.
+
+### Seguridad
+
+- ☐ Desactivar Swagger en producción (`swaggerEnabled: false` en `infra/config/prod.ts`) o protegerlo con rol ADMIN.
+- ☐ Contraseñas del seed: una distinta por cuenta demo y cambio obligatorio del admin en el primer
+  ingreso; rotar `SeedSecret` (se aplica sola al reiniciar).
+- ☐ Revisión OWASP básica: CSRF (hoy mitigado con `SameSite=Lax` + JSON), validación de subida de
+  archivos (S3), límites de tamaño de cuerpo, enumeración de correos en registro.
+- ☐ Límite de peticiones general (no solo auth) y WAF básico frente al ALB.
+- ☐ Dependabot/Renovate y `pnpm audit` en CI; escaneo de imágenes en ECR.
+- ☐ Rotación periódica de llaves (JWT, Stripe test) documentada en el README.
 
 ## Fase 7 — QA, demo y cierre (semana 10)
 

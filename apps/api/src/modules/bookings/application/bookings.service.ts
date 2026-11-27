@@ -102,6 +102,7 @@ export class BookingsService implements OnModuleInit, OnModuleDestroy {
       });
       const { clientSecret } = await this.payments.startCharge({
         bookingId: booking.id,
+        payeeId: offer.partnerId,
         amountMinor: booking.priceMinor,
         currency: booking.currency,
         description: `Mensualidad ${booking.shift} · ${booking.parkingLot.name} · ${booking.plate}`,
@@ -151,6 +152,7 @@ export class BookingsService implements OnModuleInit, OnModuleDestroy {
     try {
       const { clientSecret } = await this.payments.startCharge({
         bookingId: renewal.id,
+        payeeId: offer.partnerId,
         amountMinor: renewal.priceMinor,
         currency: renewal.currency,
         description: `Renovación ${renewal.shift} · ${renewal.parkingLot.name} · ${renewal.plate}`,

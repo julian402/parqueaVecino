@@ -179,6 +179,8 @@ export class AppStack extends Stack {
         RUN_SEED_ON_START: String(app.runSeedOnStart),
         SEED_ADMIN_EMAIL: appSettings.seedAdminEmail,
         SEED_DEMO_DATA: String(app.seedDemoData),
+        WEB_URL: `https://${domain.name}`,
+        STRIPE_CONNECT_COUNTRY: appSettings.stripeConnectCountry,
         GEOCODER_URL: geocoder.url,
         GEOCODER_USER_AGENT: geocoder.userAgent,
         GEOCODER_COUNTRY_CODES: geocoder.countryCodes,

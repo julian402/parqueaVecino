@@ -1,6 +1,7 @@
 import { z } from 'zod';
-import { BookingStatus, PaymentStatus, Shift, VehicleType } from './enums';
+import { BookingStatus, PaymentStatus, PayoutAccountStatus, Shift, VehicleType } from './enums';
 import { revenueSummarySchema } from './admin';
+import { registerSchema } from './auth';
 import { plateSchema } from './parking';
 
 /** Reservar una mensualidad: cupo elegido (franja + vehículo) y placa del vehículo. */
@@ -9,6 +10,15 @@ export const createBookingSchema = z.object({
   plate: plateSchema,
 });
 export type CreateBookingInput = z.infer<typeof createBookingSchema>;
+
+/**
+ * Reservar sin cuenta (ficha del parqueadero): en un solo paso se crea la cuenta de conductor
+ * y se aparta el cupo. Reutiliza las reglas del registro y de la placa.
+ */
+export const guestBookingSchema = registerSchema
+  .pick({ fullName: true, email: true, password: true })
+  .extend({ plate: plateSchema });
+export type GuestBookingInput = z.infer<typeof guestBookingSchema>;
 
 export const bookingSchema = z.object({
   id: z.uuid(),
@@ -71,3 +81,15 @@ export const bookingReceiptSchema = z.object({
   issuedAt: z.iso.datetime(),
 });
 export type BookingReceipt = z.infer<typeof bookingReceiptSchema>;
+
+/** Cuenta de pagos del aliado (Stripe Connect). `status` null = aún no la conecta. */
+export const payoutAccountSchema = z.object({
+  /** false si la plataforma no tiene pagos configurados. */
+  paymentsEnabled: z.boolean(),
+  status: z.enum(PayoutAccountStatus).nullable(),
+});
+export type PayoutAccount = z.infer<typeof payoutAccountSchema>;
+
+/** Enlace de un solo uso a la pasarela (onboarding o panel de la cuenta conectada). */
+export const providerLinkSchema = z.object({ url: z.url() });
+export type ProviderLink = z.infer<typeof providerLinkSchema>;

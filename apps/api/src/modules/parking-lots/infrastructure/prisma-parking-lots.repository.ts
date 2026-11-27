@@ -33,6 +33,7 @@ interface SearchRow {
   longitude: number;
   verified: boolean;
   amenities: Amenity[];
+  photo: string | null;
   distance_meters: number;
   shift: Shift;
   vehicle_type: VehicleType;
@@ -75,6 +76,7 @@ function toRecord(row: ParkingLotRow): ParkingLotRecord {
     longitude: row.longitude,
     description: row.description,
     amenities: row.amenities,
+    photos: row.photos,
     status: row.status,
     verified: row.verifiedAt !== null,
     offers: row.offers.map((offer) => ({
@@ -115,7 +117,7 @@ export class PrismaParkingLotsRepository extends ParkingLotsRepository {
     const rows = await this.prisma.$queryRaw<SearchRow[]>`
       SELECT p.id, p.name, p.address, p.neighborhood, p.latitude, p.longitude,
              p.verified_at IS NOT NULL AS verified,
-             p.amenities::text[] AS amenities,
+             p.amenities::text[] AS amenities, p.photos[1] AS photo,
              ROUND(ST_Distance(${LOT_POINT}, ${center}))::int AS distance_meters,
              o.shift::text AS shift, o.vehicle_type::text AS vehicle_type,
              o.available_spots, o.total_spots, o.monthly_price_minor, o.currency
@@ -141,6 +143,7 @@ export class PrismaParkingLotsRepository extends ParkingLotsRepository {
       longitude: row.longitude,
       verified: row.verified,
       amenities: row.amenities,
+      photo: row.photo,
       distanceMeters: row.distance_meters,
       offer: {
         shift: row.shift,
@@ -282,12 +285,13 @@ export class PrismaParkingLotsRepository extends ParkingLotsRepository {
   async findOffer(offerId: string): Promise<(ReservedOffer & { available: boolean }) | null> {
     const offer = await this.prisma.offer.findUnique({
       where: { id: offerId },
-      include: { parkingLot: { select: { status: true } } },
+      include: { parkingLot: { select: { status: true, partnerId: true } } },
     });
     if (!offer) return null;
     return {
       offerId: offer.id,
       parkingLotId: offer.parkingLotId,
+      partnerId: offer.parkingLot.partnerId,
       shift: offer.shift,
       vehicleType: offer.vehicleType,
       monthlyPriceMinor: offer.monthlyPriceMinor,
@@ -308,10 +312,14 @@ export class PrismaParkingLotsRepository extends ParkingLotsRepository {
       data: { availableSpots: { decrement: 1 } },
     });
     if (count === 0) return null;
-    const offer = await this.prisma.offer.findUniqueOrThrow({ where: { id: offerId } });
+    const offer = await this.prisma.offer.findUniqueOrThrow({
+      where: { id: offerId },
+      include: { parkingLot: { select: { partnerId: true } } },
+    });
     return {
       offerId: offer.id,
       parkingLotId: offer.parkingLotId,
+      partnerId: offer.parkingLot.partnerId,
       shift: offer.shift,
       vehicleType: offer.vehicleType,
       monthlyPriceMinor: offer.monthlyPriceMinor,

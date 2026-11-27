@@ -61,6 +61,8 @@ export interface EnvironmentConfig {
     jwtAccessTtl: string;
     jwtRefreshTtl: string;
     seedAdminEmail: string;
+    /** País de las cuentas Stripe Connect de los aliados (Colombia no está en Connect). */
+    stripeConnectCountry: string;
     /** Estilo del mapa de la web (MapLibre). */
     mapStyleUrl: string;
     /** Llave publicable de Stripe (pk_test_...). Es pública: va en la web al compilar. */

@@ -142,6 +142,10 @@ type DemoLot = {
   offers: DemoOffer[];
 };
 
+/** Ilustración ficticia de cada parqueadero demo (apps/web/public/demo/parqueaderos). */
+const demoPhoto = (index: number) =>
+  `/demo/parqueaderos/${String(index + 1).padStart(2, '0')}.webp`;
+
 /** Parqueaderos de demostración con ubicaciones reales de Bogotá (datos ficticios). */
 const demoLots: DemoLot[] = [
   {
@@ -333,10 +337,16 @@ async function seedDemo(password: string) {
     role: 'DRIVER',
   });
 
-  for (const lot of demoLots) {
-    const existing = await prisma.parkingLot.findFirst({
+  for (const [index, lot] of demoLots.entries()) {
+    const photos = [demoPhoto(index)];
+    const found = await prisma.parkingLot.findFirst({
       where: { partnerId: partner.id, name: lot.name },
     });
+    // Los ya creados (p. ej. en AWS) reciben la ilustración si aún no tienen fotos.
+    const existing =
+      found && found.photos.length === 0
+        ? await prisma.parkingLot.update({ where: { id: found.id }, data: { photos } })
+        : found;
     const parkingLot =
       existing ??
       (await prisma.parkingLot.create({
@@ -350,6 +360,7 @@ async function seedDemo(password: string) {
           longitude: lot.longitude,
           description: lot.description,
           amenities: lot.amenities,
+          photos,
           status: 'ACTIVE',
           verifiedAt: new Date(),
         },

@@ -4,12 +4,13 @@ import { Badge, Button, buttonVariants, Card, Skeleton, Stepper } from '@parquea
 import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
 import { loadStripe, type Appearance } from '@stripe/stripe-js';
 import { useQueryClient } from '@tanstack/react-query';
-import { CircleCheck, CircleX, Info, Lock, MapPin, SearchX } from 'lucide-react';
+import { CircleCheck, CircleX, Info, Lock, MapPin, SearchX, UserRound } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useMemo, useState, type FormEvent } from 'react';
 import { env } from '@/env';
+import { useSession, useSignOut } from '@/features/auth/hooks/use-session';
 import {
   getBookingsCheckoutQueryKey,
   getBookingsListQueryKey,
@@ -181,6 +182,46 @@ function Success({ booking }: { booking: BookingsCheckout200Booking }) {
   );
 }
 
+/**
+ * "Pagando como {nombre} · {correo}": la mensualidad queda en esta cuenta. Cambiar de cuenta
+ * anula la reserva pendiente (libera el cupo), cierra sesión y vuelve a ingresar a la ficha.
+ */
+function PayingAs({ booking }: { booking: BookingsCheckout200Booking }) {
+  const t = useTranslations('checkout');
+  const router = useRouter();
+  const { user } = useSession();
+  const cancel = useBookingsCancel();
+  const signOut = useSignOut();
+  const [switching, setSwitching] = useState(false);
+  if (!user) return null;
+
+  const switchAccount = async () => {
+    setSwitching(true);
+    try {
+      await cancel.mutateAsync({ id: booking.id });
+      await signOut();
+      const lot = routes.parkingLot(booking.parkingLot.id);
+      router.push(`${routes.login}?next=${encodeURIComponent(lot)}`);
+    } catch {
+      setSwitching(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-line p-3 text-sm">
+      <span className="inline-flex min-w-0 items-center gap-2">
+        <UserRound aria-hidden className="size-4 shrink-0 text-muted" />
+        <span className="truncate">
+          {t('payingAs', { name: user.fullName, email: user.email })}
+        </span>
+      </span>
+      <Button variant="ghost" size="sm" disabled={switching} onClick={() => void switchAccount()}>
+        {t('switchAccount')}
+      </Button>
+    </div>
+  );
+}
+
 /** Checkout en 3 pasos (mockups 4 y 5): Datos → Pago → Listo. */
 export function CheckoutPage({ id }: { id: string }) {
   const t = useTranslations('checkout');
@@ -252,6 +293,7 @@ export function CheckoutPage({ id }: { id: string }) {
                 <h1 className="text-2xl font-bold">{t('title')}</h1>
                 <Badge tone="warning">{t('holdNotice')}</Badge>
               </div>
+              <PayingAs booking={booking} />
               <p className="flex gap-2 rounded-md bg-cream p-3 text-sm">
                 <Info aria-hidden className="size-4 shrink-0 text-brand-text" />
                 {t('testCard')}

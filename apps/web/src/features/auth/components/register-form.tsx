@@ -91,7 +91,10 @@ export function RegisterForm() {
       </form>
       <p className="text-sm text-muted">
         {t('hasAccount')}{' '}
-        <Link href={routes.login} className="font-bold text-ink underline">
+        <Link
+          href={next ? `${routes.login}?next=${encodeURIComponent(next)}` : routes.login}
+          className="font-bold text-ink underline"
+        >
           {t('goLogin')}
         </Link>
       </p>

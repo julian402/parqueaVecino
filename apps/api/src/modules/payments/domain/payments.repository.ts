@@ -14,6 +14,8 @@ export interface PaymentRecord {
   commissionMinor: number;
   currency: string;
   status: PaymentStatus;
+  /** Cuenta conectada que recibió el pago (null = cobro de la plataforma). */
+  destinationRef: string | null;
   paidAt: Date | null;
 }
 

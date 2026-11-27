@@ -9,9 +9,13 @@ import { AppConfigService } from '../../../config/app-config.service';
 import {
   PaymentProvider,
   type CreatePaymentCommand,
+  type CreatePayoutAccountCommand,
+  type OnboardingUrls,
   type PaymentEvent,
   type ProviderPayment,
   type ProviderPaymentStatus,
+  type ProviderPayoutStatus,
+  type RefundOptions,
 } from '../domain/payment-provider';
 
 function toStatus(status: Stripe.PaymentIntent.Status): ProviderPaymentStatus {
@@ -30,6 +34,21 @@ function toProviderPayment(intent: Stripe.PaymentIntent): ProviderPayment {
   return { id: intent.id, status: toStatus(intent.status), clientSecret: intent.client_secret };
 }
 
+type TransfersStatus = 'active' | 'pending' | 'rejected' | 'restricted' | 'unsupported';
+
+/** Capacidad de recibir transferencias (Accounts v2) → estado del dominio. */
+export function toPayoutStatus(status: TransfersStatus | undefined): ProviderPayoutStatus {
+  switch (status) {
+    case 'active':
+      return 'active';
+    case 'pending':
+      return 'pending';
+    default:
+      // Sin pedir aún, restringida o rechazada: el aliado debe completar o corregir datos.
+      return 'action_required';
+  }
+}
+
 /** Adaptador de Stripe (solo modo test). Único lugar del código que usa el SDK de Stripe. */
 @Injectable()
 export class StripePaymentProvider extends PaymentProvider {
@@ -38,11 +57,14 @@ export class StripePaymentProvider extends PaymentProvider {
   private readonly client: Stripe | null;
   private readonly webhookSecret: string | undefined;
 
+  private readonly connectCountry: string | undefined;
+
   constructor(config: AppConfigService) {
     super();
     const key = config.get('STRIPE_SECRET_KEY');
     this.client = key ? new Stripe(key) : null;
     this.webhookSecret = config.get('STRIPE_WEBHOOK_SECRET') || undefined;
+    this.connectCountry = config.get('STRIPE_CONNECT_COUNTRY');
   }
 
   get enabled(): boolean {
@@ -64,6 +86,11 @@ export class StripePaymentProvider extends PaymentProvider {
         description: command.description,
         automatic_payment_methods: { enabled: true },
         metadata: { ...command.metadata, commissionMinor: String(command.commissionMinor) },
+        // Cargo con destino (marketplace): el aliado recibe el pago y la plataforma su comisión.
+        ...(command.destinationAccountId && {
+          application_fee_amount: command.commissionMinor,
+          transfer_data: { destination: command.destinationAccountId },
+        }),
       },
       { idempotencyKey: command.idempotencyKey },
     );
@@ -83,8 +110,80 @@ export class StripePaymentProvider extends PaymentProvider {
     }
   }
 
-  async refundPayment(id: string, idempotencyKey: string): Promise<void> {
-    await this.stripe.refunds.create({ payment_intent: id }, { idempotencyKey });
+  async refundPayment(id: string, idempotencyKey: string, options: RefundOptions): Promise<void> {
+    await this.stripe.refunds.create(
+      {
+        payment_intent: id,
+        // El dinero vuelve desde la cuenta del aliado y la plataforma devuelve su comisión.
+        ...(options.reverseTransfer && { reverse_transfer: true, refund_application_fee: true }),
+      },
+      { idempotencyKey },
+    );
+  }
+
+  /** Errores de Stripe en Connect → 503 con mensaje claro (llave vencida, Connect sin activar…). */
+  private async connect<T>(action: () => Promise<T>): Promise<T> {
+    try {
+      return await action();
+    } catch (error) {
+      if (!(error instanceof Stripe.errors.StripeError)) throw error;
+      this.logger.error({ err: error, code: error.code }, 'Falló una llamada a Stripe Connect');
+      throw new ServiceUnavailableException('No pudimos conectar con Stripe. Intenta más tarde.');
+    }
+  }
+
+  async createPayoutAccount(command: CreatePayoutAccountCommand): Promise<string> {
+    // Accounts v2, marketplace: panel Express, la plataforma cobra las tarifas y asume pérdidas.
+    const account = await this.connect(() =>
+      this.stripe.v2.core.accounts.create(
+        {
+          contact_email: command.email,
+          display_name: command.displayName,
+          dashboard: 'express',
+          ...(this.connectCountry && { identity: { country: this.connectCountry } }),
+          defaults: {
+            responsibilities: { fees_collector: 'application', losses_collector: 'application' },
+          },
+          configuration: {
+            recipient: {
+              capabilities: { stripe_balance: { stripe_transfers: { requested: true } } },
+            },
+          },
+          metadata: command.metadata,
+        },
+        { idempotencyKey: command.idempotencyKey },
+      ),
+    );
+    return account.id;
+  }
+
+  async getPayoutStatus(accountId: string): Promise<ProviderPayoutStatus> {
+    const account = await this.stripe.v2.core.accounts.retrieve(accountId, {
+      include: ['configuration.recipient'],
+    });
+    return toPayoutStatus(
+      account.configuration?.recipient?.capabilities?.stripe_balance?.stripe_transfers?.status,
+    );
+  }
+
+  async createOnboardingLink(accountId: string, urls: OnboardingUrls): Promise<string> {
+    const link = await this.connect(() =>
+      this.stripe.v2.core.accountLinks.create({
+        account: accountId,
+        use_case: {
+          type: 'account_onboarding',
+          account_onboarding: {
+            refresh_url: urls.refreshUrl,
+            return_url: urls.returnUrl,
+          },
+        },
+      }),
+    );
+    return link.url;
+  }
+
+  async createDashboardLink(accountId: string): Promise<string> {
+    return (await this.connect(() => this.stripe.accounts.createLoginLink(accountId))).url;
   }
 
   parseWebhook(rawBody: Buffer, signature: string): PaymentEvent | null {
@@ -105,6 +204,7 @@ export class StripePaymentProvider extends PaymentProvider {
       case 'payment_intent.succeeded':
         return { type: 'payment.succeeded', paymentId: event.data.object.id };
       case 'payment_intent.payment_failed':
+        return { type: 'payment.declined', paymentId: event.data.object.id };
       case 'payment_intent.canceled':
         return { type: 'payment.failed', paymentId: event.data.object.id };
       case 'charge.refunded': {

@@ -23,6 +23,7 @@ const recordSelect = {
   commissionMinor: true,
   currency: true,
   status: true,
+  destinationRef: true,
   paidAt: true,
 } satisfies Prisma.PaymentSelect;
 

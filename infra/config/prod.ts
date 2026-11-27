@@ -53,6 +53,7 @@ export const prod: EnvironmentConfig = {
     jwtAccessTtl: '15m',
     jwtRefreshTtl: '7d',
     seedAdminEmail: 'admin@parqueavecino.local',
+    stripeConnectCountry: 'US',
     mapStyleUrl: 'https://tiles.openfreemap.org/styles/positron',
     // Llave publicable (pública por diseño). La secreta va en Secrets Manager, nunca aquí.
     stripePublishableKey:

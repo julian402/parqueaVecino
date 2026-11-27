@@ -89,6 +89,17 @@ export const envSchema = z.object({
     .string()
     .optional()
     .transform((value) => (value && value !== 'disabled' ? value : undefined)),
+  /**
+   * País de las cuentas conectadas de los aliados (Stripe Connect), p. ej. US. Vacío = Stripe lo
+   * pregunta en el onboarding. Colombia no está disponible en Connect: en modo test se usa US.
+   */
+  STRIPE_CONNECT_COUNTRY: z
+    .string()
+    .optional()
+    .transform((value) => value?.trim().toUpperCase() || undefined)
+    .pipe(z.string().length(2).optional()),
+  /** URL pública de la web: a ella vuelve el aliado al terminar el onboarding de pagos. */
+  WEB_URL: z.url().optional(),
   /** Cada cuánto se liberan cupos de reservas sin pagar y se vencen mensualidades (0 = nunca). */
   BOOKINGS_SWEEP_INTERVAL_SECONDS: z.coerce.number().int().min(0).default(60),
 

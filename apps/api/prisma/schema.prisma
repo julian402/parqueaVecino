@@ -53,6 +53,13 @@ enum PaymentStatus {
   REFUNDED
 }
 
+/// Estado de la cuenta conectada del aliado (Stripe Connect) para recibir transferencias.
+enum PayoutAccountStatus {
+  PENDING
+  ACTION_REQUIRED
+  ACTIVE
+}
+
 enum ParkingLotStatus {
   DRAFT
   PENDING_VERIFICATION
@@ -77,6 +84,7 @@ model User {
   vehicles      Vehicle[]
   parkingLots   ParkingLot[]
   bookings      Booking[]
+  payoutAccount PayoutAccount?
 
   @@index([role])
 
@@ -123,6 +131,8 @@ model ParkingLot {
   longitude    Float
   description  String?
   amenities    Amenity[]        @default([])
+  /// URLs de las fotos (hoy ilustraciones demo servidas por la web; luego S3).
+  photos       String[]         @default([])
   status       ParkingLotStatus @default(DRAFT)
   verifiedAt   DateTime?        @map("verified_at")
   createdAt    DateTime         @default(now()) @map("created_at")
@@ -213,6 +223,8 @@ model Payment {
   commissionMinor Int           @map("commission_minor")
   currency        String        @db.Char(3)
   status          PaymentStatus @default(PENDING)
+  /// Cuenta conectada que recibe el pago menos la comisión (null = cobro de la plataforma).
+  destinationRef  String?       @map("destination_ref")
   paidAt          DateTime?     @map("paid_at")
   createdAt       DateTime      @default(now()) @map("created_at")
   updatedAt       DateTime      @updatedAt @map("updated_at")
@@ -222,4 +234,20 @@ model Payment {
   @@index([bookingId])
   @@index([status, createdAt])
   @@map("payments")
+}
+
+/// Cuenta conectada del aliado en la pasarela (Stripe Connect): recibe sus pagos menos la comisión.
+model PayoutAccount {
+  id          String              @id @default(uuid()) @db.Uuid
+  userId      String              @unique @map("user_id") @db.Uuid
+  provider    String
+  /// Id de la cuenta en la pasarela (acct_... en Stripe).
+  providerRef String              @unique @map("provider_ref")
+  status      PayoutAccountStatus @default(PENDING)
+  createdAt   DateTime            @default(now()) @map("created_at")
+  updatedAt   DateTime            @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("payout_accounts")
 }
