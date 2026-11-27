@@ -84,6 +84,9 @@ export interface EnvironmentConfig {
     deployBranch: string;
     /** Ambiente de GitHub del job de despliegue (`environment:` en deploy.yml). */
     deployEnvironment: string;
+    /** IDs numéricos del dueño y del repo (GitHub los incluye en el `sub` del token OIDC). */
+    ownerId: number;
+    repoId: number;
   };
 
   /** Alerta de AWS Budgets, en USD por mes. */

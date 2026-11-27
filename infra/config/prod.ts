@@ -73,6 +73,8 @@ export const prod: EnvironmentConfig = {
     repo: 'parqueaVecino',
     deployBranch: 'main',
     deployEnvironment: 'prod',
+    ownerId: 101749051,
+    repoId: 1473453037,
   },
 
   monthlyBudgetUsd: 30,

@@ -8,7 +8,7 @@ import 'dotenv/config';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { settingsSchemas, type SettingKey, type SettingValue } from '@parqueavecino/contracts';
 import { toMinorUnits } from '@parqueavecino/utils';
-import { hash } from 'argon2';
+import { hash, verify } from 'argon2';
 import { z } from 'zod';
 import { buildPoolConfig } from './common/database/prisma.service';
 import { PrismaClient } from './generated/prisma/client';
@@ -102,6 +102,15 @@ async function upsertUser(data: {
   role: 'ADMIN' | 'PARTNER' | 'DRIVER';
   phone?: string;
 }) {
+  // Las cuentas del seed siempre usan la contraseña del entorno (en AWS, del secreto): si el
+  // secreto cambia, se actualiza aquí en el siguiente arranque.
+  const existing = await prisma.user.findUnique({ where: { email: data.email } });
+  if (existing && !(await verify(existing.passwordHash, data.password))) {
+    return prisma.user.update({
+      where: { id: existing.id },
+      data: { passwordHash: await hash(data.password) },
+    });
+  }
   return prisma.user.upsert({
     where: { email: data.email },
     create: {
