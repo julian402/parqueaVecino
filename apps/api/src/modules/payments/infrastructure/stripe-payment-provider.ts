@@ -1,4 +1,9 @@
-import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import Stripe from 'stripe';
 import { AppConfigService } from '../../../config/app-config.service';
 import {
@@ -86,8 +91,16 @@ export class StripePaymentProvider extends PaymentProvider {
     if (!this.webhookSecret) {
       throw new ServiceUnavailableException('Falta STRIPE_WEBHOOK_SECRET');
     }
-    // Lanza si la firma no corresponde: nunca se procesa un evento sin verificar.
-    const event = this.stripe.webhooks.constructEvent(rawBody, signature, this.webhookSecret);
+    // Si la firma no corresponde se rechaza (400): nunca se procesa un evento sin verificar.
+    let event: Stripe.Event;
+    try {
+      event = this.stripe.webhooks.constructEvent(rawBody, signature, this.webhookSecret);
+    } catch (error) {
+      if (error instanceof Stripe.errors.StripeSignatureVerificationError) {
+        throw new BadRequestException('Firma de webhook inválida');
+      }
+      throw error;
+    }
     switch (event.type) {
       case 'payment_intent.succeeded':
         return { type: 'payment.succeeded', paymentId: event.data.object.id };

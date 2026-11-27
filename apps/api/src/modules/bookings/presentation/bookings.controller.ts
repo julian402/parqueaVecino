@@ -119,14 +119,8 @@ export class PaymentWebhooksController {
     @Headers('stripe-signature') signature: string | undefined,
   ): Promise<{ received: true }> {
     if (!req.rawBody || !signature) throw new BadRequestException('Webhook sin firma');
-    try {
-      await this.bookings.handlePaymentWebhook(req.rawBody, signature);
-    } catch (error) {
-      if (error instanceof Error && error.name === 'StripeSignatureVerificationError') {
-        throw new BadRequestException('Firma de webhook inválida');
-      }
-      throw error;
-    }
+    // Una firma inválida la rechaza el adaptador de pagos con 400.
+    await this.bookings.handlePaymentWebhook(req.rawBody, signature);
     return { received: true };
   }
 }
