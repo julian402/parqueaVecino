@@ -1,3 +1,5 @@
+// Primero: configura los mensajes de Zod en español.
+export * from './fields';
 export * from './enums';
 export * from './common';
 export * from './auth';

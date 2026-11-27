@@ -1,7 +1,8 @@
 /**
  * Seed idempotente: se puede ejecutar varias veces sin duplicar datos.
  *  - Siempre: parámetros de negocio (system_settings) y el usuario administrador.
- *  - Si SEED_DEMO_DATA=true: aliado, conductor y parqueaderos de demostración (Chapinero).
+ *  - Si SEED_DEMO_DATA=true: aliado, conductor y parqueaderos de demostración en Bogotá con carro, moto
+ *    y bici en las franjas día, noche y 24 h (se agregan sin tocar lo ya creado).
  * Contraseñas y correos vienen de variables de entorno, nunca del código.
  */
 import 'dotenv/config';
@@ -143,8 +144,9 @@ type DemoLot = {
 };
 
 /** Ilustración ficticia de cada parqueadero demo (apps/web/public/demo/parqueaderos). */
+const DEMO_PHOTO_COUNT = 13;
 const demoPhoto = (index: number) =>
-  `/demo/parqueaderos/${String(index + 1).padStart(2, '0')}.webp`;
+  `/demo/parqueaderos/${String((index % DEMO_PHOTO_COUNT) + 1).padStart(2, '0')}.webp`;
 
 /** Parqueaderos de demostración con ubicaciones reales de Bogotá (datos ficticios). */
 const demoLots: DemoLot[] = [
@@ -162,6 +164,10 @@ const demoLots: DemoLot[] = [
       { shift: 'FULL', total: 10, free: 1, price: 340_000 },
       { shift: 'NIGHT', vehicle: 'MOTORCYCLE', total: 15, free: 6, price: 85_000 },
       { shift: 'DAY', vehicle: 'BICYCLE', total: 20, free: 12, price: 35_000 },
+      { shift: 'DAY', vehicle: 'MOTORCYCLE', total: 15, free: 4, price: 95_000 },
+      { shift: 'FULL', vehicle: 'MOTORCYCLE', total: 6, free: 2, price: 140_000 },
+      { shift: 'NIGHT', vehicle: 'BICYCLE', total: 20, free: 15, price: 30_000 },
+      { shift: 'FULL', vehicle: 'BICYCLE', total: 8, free: 3, price: 55_000 },
     ],
   },
   {
@@ -175,6 +181,9 @@ const demoLots: DemoLot[] = [
       { shift: 'NIGHT', total: 25, free: 2, price: 190_000 },
       { shift: 'DAY', total: 25, free: 0, price: 210_000 },
       { shift: 'FULL', total: 8, free: 2, price: 360_000 },
+      { shift: 'NIGHT', vehicle: 'MOTORCYCLE', total: 12, free: 5, price: 90_000 },
+      { shift: 'DAY', vehicle: 'BICYCLE', total: 10, free: 6, price: 35_000 },
+      { shift: 'NIGHT', vehicle: 'BICYCLE', total: 10, free: 8, price: 28_000 },
     ],
   },
   {
@@ -187,6 +196,10 @@ const demoLots: DemoLot[] = [
     offers: [
       { shift: 'NIGHT', total: 30, free: 7, price: 160_000 },
       { shift: 'DAY', total: 30, free: 3, price: 180_000 },
+      { shift: 'FULL', total: 8, free: 2, price: 320_000 },
+      { shift: 'DAY', vehicle: 'MOTORCYCLE', total: 12, free: 3, price: 90_000 },
+      { shift: 'NIGHT', vehicle: 'MOTORCYCLE', total: 12, free: 7, price: 75_000 },
+      { shift: 'NIGHT', vehicle: 'BICYCLE', total: 15, free: 10, price: 28_000 },
     ],
   },
   {
@@ -213,6 +226,8 @@ const demoLots: DemoLot[] = [
       { shift: 'DAY', total: 30, free: 6, price: 230_000 },
       { shift: 'NIGHT', total: 30, free: 9, price: 180_000 },
       { shift: 'FULL', total: 10, free: 3, price: 390_000 },
+      { shift: 'FULL', vehicle: 'MOTORCYCLE', total: 6, free: 1, price: 145_000 },
+      { shift: 'DAY', vehicle: 'BICYCLE', total: 15, free: 9, price: 45_000 },
     ],
   },
   {
@@ -227,6 +242,9 @@ const demoLots: DemoLot[] = [
       { shift: 'NIGHT', total: 18, free: 10, price: 150_000 },
       { shift: 'DAY', vehicle: 'MOTORCYCLE', total: 10, free: 3, price: 95_000 },
       { shift: 'NIGHT', vehicle: 'BICYCLE', total: 15, free: 9, price: 30_000 },
+      { shift: 'FULL', total: 5, free: 1, price: 330_000 },
+      { shift: 'NIGHT', vehicle: 'MOTORCYCLE', total: 10, free: 6, price: 80_000 },
+      { shift: 'DAY', vehicle: 'BICYCLE', total: 15, free: 7, price: 35_000 },
     ],
   },
   {
@@ -240,6 +258,9 @@ const demoLots: DemoLot[] = [
       { shift: 'DAY', total: 35, free: 11, price: 170_000 },
       { shift: 'NIGHT', total: 35, free: 14, price: 140_000 },
       { shift: 'NIGHT', vehicle: 'MOTORCYCLE', total: 20, free: 8, price: 75_000 },
+      { shift: 'DAY', vehicle: 'MOTORCYCLE', total: 20, free: 6, price: 85_000 },
+      { shift: 'FULL', vehicle: 'MOTORCYCLE', total: 8, free: 3, price: 130_000 },
+      { shift: 'FULL', vehicle: 'BICYCLE', total: 10, free: 4, price: 50_000 },
     ],
   },
   {
@@ -254,6 +275,9 @@ const demoLots: DemoLot[] = [
       { shift: 'DAY', total: 50, free: 1, price: 210_000 },
       { shift: 'NIGHT', total: 50, free: 22, price: 130_000 },
       { shift: 'DAY', vehicle: 'BICYCLE', total: 40, free: 15, price: 40_000 },
+      { shift: 'NIGHT', vehicle: 'BICYCLE', total: 40, free: 30, price: 28_000 },
+      { shift: 'DAY', vehicle: 'MOTORCYCLE', total: 25, free: 2, price: 90_000 },
+      { shift: 'NIGHT', vehicle: 'MOTORCYCLE', total: 25, free: 14, price: 70_000 },
     ],
   },
   {
@@ -267,6 +291,10 @@ const demoLots: DemoLot[] = [
       { shift: 'DAY', total: 28, free: 7, price: 160_000 },
       { shift: 'NIGHT', total: 28, free: 12, price: 135_000 },
       { shift: 'FULL', total: 6, free: 2, price: 290_000 },
+      { shift: 'DAY', vehicle: 'MOTORCYCLE', total: 15, free: 5, price: 85_000 },
+      { shift: 'NIGHT', vehicle: 'MOTORCYCLE', total: 15, free: 9, price: 70_000 },
+      { shift: 'FULL', vehicle: 'MOTORCYCLE', total: 6, free: 2, price: 125_000 },
+      { shift: 'DAY', vehicle: 'BICYCLE', total: 20, free: 11, price: 35_000 },
     ],
   },
   {
@@ -279,6 +307,9 @@ const demoLots: DemoLot[] = [
     offers: [
       { shift: 'NIGHT', total: 22, free: 5, price: 145_000 },
       { shift: 'NIGHT', vehicle: 'BICYCLE', total: 25, free: 20, price: 30_000 },
+      { shift: 'DAY', total: 22, free: 3, price: 165_000 },
+      { shift: 'DAY', vehicle: 'BICYCLE', total: 25, free: 12, price: 35_000 },
+      { shift: 'FULL', vehicle: 'BICYCLE', total: 10, free: 6, price: 50_000 },
     ],
   },
   {
@@ -291,7 +322,10 @@ const demoLots: DemoLot[] = [
     offers: [
       { shift: 'DAY', total: 60, free: 8, price: 260_000 },
       { shift: 'NIGHT', total: 60, free: 15, price: 210_000 },
-      { shift: 'FULL', total: 15, free: 4, price: 420_000 },
+      { shift: 'FULL', total: 15, free: 4, price: 395_000 },
+      { shift: 'NIGHT', vehicle: 'MOTORCYCLE', total: 20, free: 7, price: 110_000 },
+      { shift: 'DAY', vehicle: 'BICYCLE', total: 30, free: 10, price: 50_000 },
+      { shift: 'NIGHT', vehicle: 'BICYCLE', total: 30, free: 18, price: 40_000 },
     ],
   },
   {
@@ -305,6 +339,10 @@ const demoLots: DemoLot[] = [
       { shift: 'DAY', total: 45, free: 5, price: 280_000 },
       { shift: 'NIGHT', total: 45, free: 18, price: 220_000 },
       { shift: 'DAY', vehicle: 'MOTORCYCLE', total: 15, free: 5, price: 110_000 },
+      { shift: 'FULL', total: 12, free: 3, price: 398_000 },
+      { shift: 'NIGHT', vehicle: 'MOTORCYCLE', total: 15, free: 9, price: 95_000 },
+      { shift: 'FULL', vehicle: 'MOTORCYCLE', total: 6, free: 2, price: 150_000 },
+      { shift: 'DAY', vehicle: 'BICYCLE', total: 20, free: 8, price: 50_000 },
     ],
   },
   {
@@ -319,6 +357,105 @@ const demoLots: DemoLot[] = [
       { shift: 'DAY', vehicle: 'BICYCLE', total: 60, free: 25, price: 45_000 },
       { shift: 'NIGHT', vehicle: 'BICYCLE', total: 60, free: 40, price: 30_000 },
       { shift: 'FULL', vehicle: 'BICYCLE', total: 20, free: 8, price: 60_000 },
+    ],
+  },
+  {
+    name: 'Motoparqueadero Calle 45',
+    address: 'Cl 45 # 13-40',
+    neighborhood: 'Palermo',
+    latitude: 4.6326,
+    longitude: -74.067,
+    description: 'Solo motos. Casilleros para cascos y techo en todo el lote.',
+    amenities: ['ROOF', 'CAMERAS'],
+    offers: [
+      { shift: 'DAY', vehicle: 'MOTORCYCLE', total: 40, free: 12, price: 80_000 },
+      { shift: 'NIGHT', vehicle: 'MOTORCYCLE', total: 40, free: 25, price: 65_000 },
+      { shift: 'FULL', vehicle: 'MOTORCYCLE', total: 15, free: 5, price: 120_000 },
+    ],
+  },
+  {
+    name: 'Parqueadero Usaquén Plaza',
+    address: 'Cra 6 # 119-24',
+    neighborhood: 'Usaquén',
+    latitude: 4.6951,
+    longitude: -74.0307,
+    description: 'A dos cuadras del parque de Usaquén. Carros, motos y bicis en todas las franjas.',
+    amenities: ['ROOF', 'SECURITY_24H', 'CAMERAS', 'BIKE_SPOT', 'EV_CHARGER'],
+    offers: [
+      { shift: 'DAY', total: 30, free: 6, price: 240_000 },
+      { shift: 'NIGHT', total: 30, free: 11, price: 190_000 },
+      { shift: 'FULL', total: 10, free: 2, price: 380_000 },
+      { shift: 'DAY', vehicle: 'MOTORCYCLE', total: 12, free: 4, price: 100_000 },
+      { shift: 'NIGHT', vehicle: 'MOTORCYCLE', total: 12, free: 7, price: 85_000 },
+      { shift: 'FULL', vehicle: 'MOTORCYCLE', total: 6, free: 2, price: 140_000 },
+      { shift: 'DAY', vehicle: 'BICYCLE', total: 20, free: 9, price: 45_000 },
+      { shift: 'NIGHT', vehicle: 'BICYCLE', total: 20, free: 14, price: 35_000 },
+      { shift: 'FULL', vehicle: 'BICYCLE', total: 8, free: 3, price: 58_000 },
+    ],
+  },
+  {
+    name: 'Parking Cedritos',
+    address: 'Cl 140 # 15-30',
+    neighborhood: 'Cedritos',
+    latitude: 4.723,
+    longitude: -74.043,
+    description: 'Amplio y descubierto, ideal para quien trabaja de noche en la 140.',
+    amenities: ['SECURITY_24H', 'CAMERAS'],
+    offers: [
+      { shift: 'DAY', total: 45, free: 15, price: 150_000 },
+      { shift: 'NIGHT', total: 45, free: 28, price: 120_000 },
+      { shift: 'FULL', total: 12, free: 4, price: 260_000 },
+      { shift: 'DAY', vehicle: 'MOTORCYCLE', total: 20, free: 8, price: 70_000 },
+      { shift: 'NIGHT', vehicle: 'MOTORCYCLE', total: 20, free: 13, price: 60_000 },
+    ],
+  },
+  {
+    name: 'Parqueadero Ciudad Salitre',
+    address: 'Av Cra 68 # 24-50',
+    neighborhood: 'Ciudad Salitre',
+    latitude: 4.651,
+    longitude: -74.109,
+    description: 'Junto a la ciclorruta de la 68 y a 10 minutos del aeropuerto.',
+    amenities: ['ROOF', 'CAMERAS', 'BIKE_SPOT'],
+    offers: [
+      { shift: 'DAY', total: 35, free: 9, price: 170_000 },
+      { shift: 'NIGHT', total: 35, free: 20, price: 140_000 },
+      { shift: 'FULL', total: 10, free: 3, price: 300_000 },
+      { shift: 'DAY', vehicle: 'BICYCLE', total: 30, free: 12, price: 40_000 },
+      { shift: 'NIGHT', vehicle: 'BICYCLE', total: 30, free: 22, price: 30_000 },
+      { shift: 'FULL', vehicle: 'BICYCLE', total: 12, free: 5, price: 55_000 },
+    ],
+  },
+  {
+    name: 'Estacionamiento La Candelaria',
+    address: 'Cl 12 # 4-31',
+    neighborhood: 'La Candelaria',
+    latitude: 4.5975,
+    longitude: -74.073,
+    description: 'En el centro histórico, cerca de universidades y del Eje Ambiental.',
+    amenities: ['SECURITY_24H', 'CAMERAS', 'BIKE_SPOT'],
+    offers: [
+      { shift: 'DAY', total: 25, free: 0, price: 180_000 },
+      { shift: 'NIGHT', total: 25, free: 10, price: 120_000 },
+      { shift: 'DAY', vehicle: 'MOTORCYCLE', total: 15, free: 3, price: 85_000 },
+      { shift: 'NIGHT', vehicle: 'MOTORCYCLE', total: 15, free: 9, price: 65_000 },
+      { shift: 'DAY', vehicle: 'BICYCLE', total: 30, free: 6, price: 38_000 },
+    ],
+  },
+  {
+    name: 'Parqueadero Chicó Norte',
+    address: 'Cl 97 # 11-20',
+    neighborhood: 'Chicó',
+    latitude: 4.678,
+    longitude: -74.048,
+    description: 'Edificio con vigilancia, carga para eléctricos y acceso por placa.',
+    amenities: ['ROOF', 'SECURITY_24H', 'CAMERAS', 'EV_CHARGER', 'BIKE_SPOT'],
+    offers: [
+      { shift: 'DAY', total: 50, free: 7, price: 270_000 },
+      { shift: 'NIGHT', total: 50, free: 21, price: 210_000 },
+      { shift: 'FULL', total: 15, free: 3, price: 399_000 },
+      { shift: 'FULL', vehicle: 'MOTORCYCLE', total: 10, free: 4, price: 145_000 },
+      { shift: 'FULL', vehicle: 'BICYCLE', total: 15, free: 6, price: 60_000 },
     ],
   },
 ];

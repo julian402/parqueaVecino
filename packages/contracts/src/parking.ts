@@ -1,19 +1,18 @@
 import { z } from 'zod';
 import { Amenity, ParkingLotStatus, Shift, VehicleType } from './enums';
+import { plateError, plateSchema } from './fields';
 
-/** Placa colombiana: carro ABC123, moto ABC12D. Se guarda sin espacios y en mayúscula. */
-export const plateSchema = z
-  .string()
-  .trim()
-  .toUpperCase()
-  .transform((value) => value.replace(/[\s-]/g, ''))
-  .pipe(z.string().regex(/^[A-Z]{3}\d{2}[A-Z\d]$/, 'Placa inválida'));
-
-export const vehicleInputSchema = z.object({
-  plate: plateSchema,
-  type: z.enum(VehicleType),
-  nickname: z.string().trim().max(40).optional(),
-});
+/** Vehículo del conductor: la placa debe tener el formato de su tipo (carro, moto o bici). */
+export const vehicleInputSchema = z
+  .object({
+    plate: plateSchema,
+    type: z.enum(VehicleType),
+    nickname: z.string().trim().max(40, 'Máximo 40 caracteres').optional(),
+  })
+  .superRefine(({ plate, type }, ctx) => {
+    const message = plateError(type, plate);
+    if (message) ctx.addIssue({ code: 'custom', path: ['plate'], message });
+  });
 export type VehicleInput = z.infer<typeof vehicleInputSchema>;
 
 export const vehicleSchema = z.object({

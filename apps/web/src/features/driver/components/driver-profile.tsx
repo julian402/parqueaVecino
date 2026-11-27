@@ -23,6 +23,7 @@ import {
   useVehiclesRemove,
 } from '@/lib/api/generated/vehicles/vehicles';
 import { HttpError } from '@/lib/api/http';
+import { maskPlate, plateFieldProps, withMask } from '@/lib/form-fields';
 import { VEHICLE_ICONS } from '@/lib/icons';
 
 /** Datos de la cuenta y vehículos (placas) del conductor. */
@@ -74,6 +75,9 @@ function VehiclesPanel() {
     resolver: zodResolver(vehicleInputSchema),
     defaultValues: { type: 'CAR' },
   });
+  const tFields = useTranslations('fields');
+  const vehicleType = form.watch('type');
+  const plateField = form.register('plate');
   const refresh = () => queryClient.invalidateQueries({ queryKey: getVehiclesListQueryKey() });
 
   const submit = form.handleSubmit(async (data) => {
@@ -135,11 +139,12 @@ function VehiclesPanel() {
         className="grid gap-3 border-t border-line pt-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.2fr)_auto] sm:items-end"
       >
         <Input
-          label={t('plate')}
-          autoCapitalize="characters"
+          label={tFields(`plate.${vehicleType}.label`)}
+          {...plateFieldProps(vehicleType)}
           error={form.formState.errors.plate?.message}
-          className="py-2 uppercase"
-          {...form.register('plate')}
+          className="py-2 font-bold tracking-widest uppercase"
+          {...plateField}
+          onChange={withMask((value) => maskPlate(value, vehicleType), plateField.onChange)}
         />
         <Select label={t('type')} className="py-2" {...form.register('type')}>
           {VEHICLE_TYPES.map((type) => (

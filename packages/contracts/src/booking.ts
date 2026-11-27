@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { BookingStatus, PaymentStatus, PayoutAccountStatus, Shift, VehicleType } from './enums';
 import { revenueSummarySchema } from './admin';
 import { registerSchema } from './auth';
-import { plateSchema } from './parking';
+import { plateSchema } from './fields';
 
 /** Reservar una mensualidad: cupo elegido (franja + vehículo) y placa del vehículo. */
 export const createBookingSchema = z.object({

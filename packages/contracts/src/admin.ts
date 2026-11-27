@@ -1,12 +1,7 @@
 import { z } from 'zod';
-import { emailSchema, passwordSchema } from './auth';
+import { emailSchema, passwordSchema, personNameSchema, phoneSchema } from './fields';
 import { BookingStatus, ParkingLotStatus, PaymentStatus, UserRole } from './enums';
 import { parkingLotSchema } from './parking';
-
-const phoneSchema = z
-  .string()
-  .trim()
-  .regex(/^\+?\d{7,15}$/);
 
 /** Paginación y búsqueda de texto de los listados del panel. */
 export const pageQuerySchema = z.object({
@@ -44,7 +39,7 @@ export type AdminUserPage = z.infer<typeof adminUserPageSchema>;
 
 /** El admin sí puede crear otros admin (el registro público no). */
 export const adminUserCreateSchema = z.object({
-  fullName: z.string().trim().min(2).max(120),
+  fullName: personNameSchema,
   email: emailSchema,
   password: passwordSchema,
   phone: phoneSchema.optional(),
@@ -53,7 +48,7 @@ export const adminUserCreateSchema = z.object({
 export type AdminUserCreateInput = z.infer<typeof adminUserCreateSchema>;
 
 export const adminUserUpdateSchema = z.object({
-  fullName: z.string().trim().min(2).max(120).optional(),
+  fullName: personNameSchema.optional(),
   phone: phoneSchema.nullable().optional(),
   role: z.enum(UserRole).optional(),
   isActive: z.boolean().optional(),

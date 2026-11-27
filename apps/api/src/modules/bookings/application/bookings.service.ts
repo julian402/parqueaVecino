@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import {
   BookingStatus,
+  plateError,
   type Booking,
   type BookingCheckout,
   type BookingReceipt,
@@ -89,6 +90,9 @@ export class BookingsService implements OnModuleInit, OnModuleDestroy {
     const offer = await this.lots.reserveSpot(input.offerId);
     let booking: BookingRecord | undefined;
     try {
+      // Carro ABC123, moto ABC12D, bici serial: la placa debe ser del tipo de vehículo del cupo.
+      const invalidPlate = plateError(offer.vehicleType, input.plate);
+      if (invalidPlate) throw new BadRequestException(invalidPlate);
       await this.users.ensureVehicle(driverId, { plate: input.plate, type: offer.vehicleType });
       booking = await this.repository.create({
         driverId,

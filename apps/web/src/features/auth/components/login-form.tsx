@@ -10,6 +10,7 @@ import { useForm } from 'react-hook-form';
 import type { z } from 'zod';
 import { useAuthLogin } from '@/lib/api/generated/auth/auth';
 import { HttpError } from '@/lib/api/http';
+import { emailFieldProps } from '@/lib/form-fields';
 import { homeForRole, routes, safeNext } from '@/lib/routes';
 import { useSetSessionUser } from '../hooks/use-session';
 
@@ -38,8 +39,7 @@ export function LoginForm() {
       <form className="flex flex-col gap-4" onSubmit={(e) => void onSubmit(e)} noValidate>
         <Input
           label={t('email')}
-          type="email"
-          autoComplete="email"
+          {...emailFieldProps}
           error={form.formState.errors.email?.message}
           {...form.register('email')}
         />

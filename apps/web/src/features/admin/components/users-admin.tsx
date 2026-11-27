@@ -1,6 +1,6 @@
 'use client';
 
-import { USER_ROLES, type AdminUser, type UserRole } from '@parqueavecino/contracts';
+import { formatPhone, USER_ROLES, type AdminUser, type UserRole } from '@parqueavecino/contracts';
 import { Badge, Button, Dialog, EmptyState, Pill, Skeleton } from '@parqueavecino/ui';
 import { useQueryClient } from '@tanstack/react-query';
 import { Pencil, Plus, Trash2, UserRoundX, Users } from 'lucide-react';
@@ -154,7 +154,9 @@ export function UsersAdmin() {
                     <Td>
                       <Badge tone={ROLE_TONE[user.role]}>{tRoles(user.role)}</Badge>
                     </Td>
-                    <Td className="hidden text-muted md:table-cell">{user.phone ?? '—'}</Td>
+                    <Td className="hidden text-muted md:table-cell">
+                      {user.phone ? formatPhone(user.phone) : '—'}
+                    </Td>
                     <Td>
                       <Badge tone={user.isActive ? 'success' : 'danger'}>
                         {user.isActive ? t('active') : t('inactive')}

@@ -5,11 +5,15 @@ import { cn } from '../lib/cn';
 export type InputProps = ComponentProps<'input'> & {
   label?: string;
   error?: string;
+  /** Ayuda bajo el campo (formato esperado); el error la reemplaza. */
+  hint?: string;
 };
 
-export function Input({ label, error, className, id, ...props }: InputProps) {
+export function Input({ label, error, hint, className, id, ...props }: InputProps) {
   const generatedId = useId();
   const inputId = id ?? generatedId;
+  const helpId = `${inputId}-help`;
+  const help = error ?? hint;
   return (
     <div className="flex flex-col gap-1">
       {label && (
@@ -20,6 +24,7 @@ export function Input({ label, error, className, id, ...props }: InputProps) {
       <input
         id={inputId}
         aria-invalid={Boolean(error)}
+        aria-describedby={help ? helpId : undefined}
         className={cn(
           'rounded-md border-2 border-line bg-surface px-4 py-3 text-ink transition-colors placeholder:text-soft focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/25',
           error && 'border-danger',
@@ -27,7 +32,11 @@ export function Input({ label, error, className, id, ...props }: InputProps) {
         )}
         {...props}
       />
-      {error && <span className="text-xs text-danger">{error}</span>}
+      {help && (
+        <span id={helpId} className={cn('text-xs', error ? 'text-danger' : 'text-muted')}>
+          {help}
+        </span>
+      )}
     </div>
   );
 }

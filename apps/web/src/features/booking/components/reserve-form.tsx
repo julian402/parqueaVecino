@@ -1,13 +1,19 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { guestBookingSchema, plateSchema, type GuestBookingInput } from '@parqueavecino/contracts';
+import {
+  guestBookingSchema,
+  plateError,
+  plateSchemaFor,
+  type GuestBookingInput,
+  type VehicleType,
+} from '@parqueavecino/contracts';
 import { Button, Input } from '@parqueavecino/ui';
 import { Lock } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { useState, type FormEvent } from 'react';
+import { useMemo, useState, type FormEvent } from 'react';
 import { useForm } from 'react-hook-form';
 import type { z } from 'zod';
 import { useSession, useSetSessionUser } from '@/features/auth/hooks/use-session';
@@ -17,6 +23,13 @@ import type { ParkingLotsGet200OffersItem } from '@/lib/api/generated/model';
 import { useSettingsGetPublic } from '@/lib/api/generated/settings/settings';
 import { useVehiclesList } from '@/lib/api/generated/vehicles/vehicles';
 import { HttpError } from '@/lib/api/http';
+import {
+  emailFieldProps,
+  maskPlate,
+  nameFieldProps,
+  plateFieldProps,
+  withMask,
+} from '@/lib/form-fields';
 import { routes } from '@/lib/routes';
 
 /** Parámetro de la ficha que conserva la placa al ir a ingresar o registrarse y volver. */
@@ -55,28 +68,9 @@ function CreateError({ create }: { create: CreateBooking }) {
   );
 }
 
-function PlateInput({
-  value,
-  onChange,
-  error,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-  error?: string;
-}) {
-  const t = useTranslations('lot');
-  return (
-    <Input
-      label={t('plateLabel')}
-      placeholder={t('platePlaceholder')}
-      value={value}
-      onChange={(event) => onChange(event.target.value.toUpperCase())}
-      error={error}
-      autoComplete="off"
-      className="font-bold tracking-widest uppercase"
-    />
-  );
-}
+/** Tipo de vehículo del cupo elegido (carro mientras no haya uno). */
+const vehicleOf = (offer: ParkingLotsGet200OffersItem | null): VehicleType =>
+  offer?.vehicleType ?? 'CAR';
 
 /**
  * Sin sesión: nombre, correo, contraseña y placa en un solo paso. Crea la cuenta de conductor
@@ -95,12 +89,19 @@ function GuestReserveForm({
 }) {
   const t = useTranslations('lot');
   const tAuth = useTranslations('auth');
+  const tFields = useTranslations('fields');
   const router = useRouter();
   const setUser = useSetSessionUser();
   const register = useAuthRegister();
-  const form = useForm<z.input<typeof guestBookingSchema>, unknown, GuestBookingInput>({
-    resolver: zodResolver(guestBookingSchema),
-    defaultValues: { plate },
+  const vehicle = vehicleOf(offer);
+  // La placa se valida con el formato del vehículo del cupo (carro, moto o bici).
+  const schema = useMemo(
+    () => guestBookingSchema.extend({ plate: plateSchemaFor(vehicle) }),
+    [vehicle],
+  );
+  const form = useForm<z.input<typeof schema>, unknown, GuestBookingInput>({
+    resolver: zodResolver(schema),
+    defaultValues: { plate: maskPlate(plate, vehicle) },
   });
   const errors = form.formState.errors;
   const loginUrl = `${routes.login}?next=${encodeURIComponent(useReturnUrl(plate))}`;
@@ -132,14 +133,15 @@ function GuestReserveForm({
       </div>
       <Input
         label={tAuth('fullName')}
-        autoComplete="name"
+        placeholder={tFields('namePlaceholder')}
+        {...nameFieldProps}
         error={errors.fullName?.message}
         {...form.register('fullName')}
       />
       <Input
         label={tAuth('email')}
-        type="email"
-        autoComplete="email"
+        placeholder={tFields('emailPlaceholder')}
+        {...emailFieldProps}
         error={errors.email?.message}
         {...form.register('email')}
       />
@@ -147,22 +149,23 @@ function GuestReserveForm({
         label={tAuth('password')}
         type="password"
         autoComplete="new-password"
-        placeholder={tAuth('passwordHint')}
+        hint={tAuth('passwordHint')}
         error={errors.password?.message}
         {...form.register('password')}
       />
       <Input
-        label={t('plateLabel')}
-        placeholder={t('platePlaceholder')}
-        autoComplete="off"
-        className="font-bold tracking-widest uppercase"
+        label={tFields(`plate.${vehicle}.label`)}
+        hint={tFields(`plate.${vehicle}.hint`)}
+        {...plateFieldProps(vehicle)}
         error={errors.plate?.message}
         {...plateField}
-        onChange={(event) => {
-          event.target.value = event.target.value.toUpperCase();
-          onPlate(event.target.value);
-          void plateField.onChange(event);
-        }}
+        onChange={withMask(
+          (value) => maskPlate(value, vehicle),
+          (event) => {
+            onPlate(event.target.value);
+            return plateField.onChange(event);
+          },
+        )}
       />
       {emailTaken ? (
         <p role="alert" className="rounded-md bg-danger/10 px-3 py-2 text-sm text-danger">
@@ -213,34 +216,37 @@ function MemberReserveForm({
   create: CreateBooking;
 }) {
   const t = useTranslations('lot');
+  const tFields = useTranslations('fields');
   const router = useRouter();
   const vehicles = useVehiclesList();
-  const [plateError, setPlateError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const vehicle = vehicleOf(offer);
 
   // Placa sugerida: el primer vehículo registrado del mismo tipo.
-  const suggested =
-    vehicles.data?.find((vehicle) => vehicle.type === offer?.vehicleType)?.plate ?? '';
-  const value = plate ?? suggested;
+  const suggested = vehicles.data?.find((item) => item.type === vehicle)?.plate ?? '';
+  const value = maskPlate(plate ?? suggested, vehicle);
   const canReserve = offer !== null && offer.availableSpots > 0;
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (!offer) return;
-    const parsed = plateSchema.safeParse(value);
-    if (!parsed.success) {
-      setPlateError(parsed.error.issues[0]?.message ?? null);
-      return;
-    }
-    setPlateError(null);
-    const checkout = await create.mutateAsync({
-      data: { offerId: offer.id, plate: parsed.data },
-    });
+    const invalid = plateError(vehicle, value);
+    setError(invalid);
+    if (invalid) return;
+    const checkout = await create.mutateAsync({ data: { offerId: offer.id, plate: value } });
     router.push(routes.checkout(checkout.booking.id));
   };
 
   return (
     <form onSubmit={(event) => void submit(event)} className="flex flex-col gap-3" noValidate>
-      <PlateInput value={value} onChange={onPlate} error={plateError ?? undefined} />
+      <Input
+        label={tFields(`plate.${vehicle}.label`)}
+        hint={tFields(`plate.${vehicle}.hint`)}
+        {...plateFieldProps(vehicle)}
+        value={value}
+        onChange={(event) => onPlate(maskPlate(event.target.value, vehicle))}
+        error={error ?? undefined}
+      />
       <CreateError create={create} />
       <Button
         type="submit"

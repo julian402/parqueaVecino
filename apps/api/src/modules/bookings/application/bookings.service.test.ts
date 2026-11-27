@@ -134,6 +134,14 @@ describe('BookingsService', () => {
     );
   });
 
+  it('rechaza una placa que no es del tipo de vehículo del cupo y devuelve el cupo', async () => {
+    await expect(service.create('d1', { offerId: 'o1', plate: 'ABC12D' })).rejects.toThrow(
+      /Placa de carro/,
+    );
+    expect(lots.releaseSpot).toHaveBeenCalledWith('o1');
+    expect(repo.rows).toHaveLength(0);
+  });
+
   it('aparta el cupo, crea la reserva pendiente y devuelve el secreto de pago', async () => {
     const checkout = await service.create('d1', { offerId: 'o1', plate: 'ABC123' });
     expect(lots.reserveSpot).toHaveBeenCalledWith('o1');

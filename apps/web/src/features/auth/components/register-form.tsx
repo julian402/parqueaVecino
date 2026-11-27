@@ -10,11 +10,19 @@ import { useForm } from 'react-hook-form';
 import type { z } from 'zod';
 import { useAuthRegister } from '@/lib/api/generated/auth/auth';
 import { HttpError } from '@/lib/api/http';
+import {
+  emailFieldProps,
+  maskPhone,
+  nameFieldProps,
+  phoneFieldProps,
+  withMask,
+} from '@/lib/form-fields';
 import { homeForRole, routes, safeNext } from '@/lib/routes';
 import { useSetSessionUser } from '../hooks/use-session';
 
 export function RegisterForm() {
   const t = useTranslations('auth');
+  const tFields = useTranslations('fields');
   const router = useRouter();
   const next = safeNext(useSearchParams().get('next'));
   const setUser = useSetSessionUser();
@@ -24,6 +32,7 @@ export function RegisterForm() {
     defaultValues: { role: 'DRIVER' },
   });
   const role = form.watch('role');
+  const phoneField = form.register('phone', { setValueAs: (v: string) => v || undefined });
   const errors = form.formState.errors;
 
   const onSubmit = form.handleSubmit(async (values) => {
@@ -54,29 +63,32 @@ export function RegisterForm() {
         </fieldset>
         <Input
           label={t('fullName')}
-          autoComplete="name"
+          placeholder={tFields('namePlaceholder')}
+          {...nameFieldProps}
           error={errors.fullName?.message}
           {...form.register('fullName')}
         />
         <Input
           label={t('email')}
-          type="email"
-          autoComplete="email"
+          placeholder={tFields('emailPlaceholder')}
+          {...emailFieldProps}
           error={errors.email?.message}
           {...form.register('email')}
         />
         <Input
           label={t('phone')}
-          type="tel"
-          autoComplete="tel"
+          placeholder={tFields('phonePlaceholder')}
+          hint={tFields('phoneHint')}
+          {...phoneFieldProps}
           error={errors.phone?.message}
-          {...form.register('phone', { setValueAs: (v: string) => v || undefined })}
+          {...phoneField}
+          onChange={withMask(maskPhone, phoneField.onChange)}
         />
         <Input
           label={t('password')}
           type="password"
           autoComplete="new-password"
-          placeholder={t('passwordHint')}
+          hint={t('passwordHint')}
           error={errors.password?.message}
           {...form.register('password')}
         />

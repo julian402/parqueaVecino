@@ -10,8 +10,8 @@ type Server = Parameters<typeof request>[0];
 
 const API = '/api';
 const password = 'clave1234';
-const driver = { fullName: 'Conductor E2E', email: 'driver@e2e.test', password, role: 'DRIVER' };
-const partner = { fullName: 'Aliado E2E', email: 'partner@e2e.test', password, role: 'PARTNER' };
+const driver = { fullName: 'Conductor Prueba', email: 'driver@e2e.test', password, role: 'DRIVER' };
+const partner = { fullName: 'Aliado Prueba', email: 'partner@e2e.test', password, role: 'PARTNER' };
 
 const lotInput = {
   name: 'Parqueadero E2E',

@@ -285,8 +285,6 @@
     "metaTitle": "Parqueadero · Parquea Vecino",
     "perMonth": "al mes",
     "error": "No pudimos cargar este parqueadero. Intenta de nuevo.",
-    "plateLabel": "Placa del vehículo",
-    "platePlaceholder": "ABC123",
     "reserveHint": "Pago seguro con Stripe (modo de prueba). Cancelación gratuita durante las primeras {hours} horas.",
     "chooseShift": "Elige una franja con cupos",
     "guestTitle": "Reserva en un solo paso",
@@ -666,5 +664,25 @@
   "errors": {
     "unavailable": "No pudimos conectar con el servidor. Intenta de nuevo en unos segundos.",
     "unexpected": "Algo salió mal. Intenta de nuevo."
+  },
+  "fields": {
+    "namePlaceholder": "Nombre y apellido",
+    "emailPlaceholder": "nombre@correo.com",
+    "phonePlaceholder": "300 123 4567",
+    "phoneHint": "Celular de 10 dígitos",
+    "plate": {
+      "CAR": {
+        "label": "Placa del carro",
+        "hint": "3 letras y 3 números, por ejemplo ABC123"
+      },
+      "MOTORCYCLE": {
+        "label": "Placa de la moto",
+        "hint": "3 letras, 2 números y una letra, por ejemplo ABC12D"
+      },
+      "BICYCLE": {
+        "label": "Serial de la bicicleta",
+        "hint": "Está grabado debajo del marco, entre los pedales"
+      }
+    }
   }
 }

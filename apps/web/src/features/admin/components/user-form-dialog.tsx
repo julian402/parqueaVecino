@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import {
   adminUserCreateSchema,
   adminUserUpdateSchema,
+  formatPhone,
   USER_ROLES,
   type AdminUser,
   type AdminUserCreateInput,
@@ -21,6 +22,13 @@ import {
   useAdminUpdateUser,
 } from '@/lib/api/generated/admin/admin';
 import { HttpError } from '@/lib/api/http';
+import {
+  emailFieldProps,
+  maskPhone,
+  nameFieldProps,
+  phoneFieldProps,
+  withMask,
+} from '@/lib/form-fields';
 
 /** Campos opcionales vacíos → sin valor (el esquema de contracts no acepta strings vacíos). */
 const emptyToUndefined = (value: unknown) => (value === '' ? undefined : value);
@@ -28,6 +36,7 @@ const emptyToUndefined = (value: unknown) => (value === '' ? undefined : value);
 function CreateForm({ onDone }: { onDone: () => void }) {
   const t = useTranslations('panel.admin.users.form');
   const tRoles = useTranslations('panel.roles');
+  const tFields = useTranslations('fields');
   const create = useAdminCreateUser();
   const form = useForm<z.input<typeof adminUserCreateSchema>, unknown, AdminUserCreateInput>({
     resolver: zodResolver(adminUserCreateSchema),
@@ -38,6 +47,7 @@ function CreateForm({ onDone }: { onDone: () => void }) {
     onDone();
   });
   const errors = form.formState.errors;
+  const createPhone = form.register('phone', { setValueAs: emptyToUndefined });
   return (
     <form
       id="user-form"
@@ -47,12 +57,15 @@ function CreateForm({ onDone }: { onDone: () => void }) {
     >
       <Input
         label={t('fullName')}
+        {...nameFieldProps}
+        autoComplete="off"
         error={errors.fullName?.message}
         {...form.register('fullName')}
       />
       <Input
         label={t('email')}
-        type="email"
+        placeholder={tFields('emailPlaceholder')}
+        {...emailFieldProps}
         autoComplete="off"
         error={errors.email?.message}
         {...form.register('email')}
@@ -67,9 +80,12 @@ function CreateForm({ onDone }: { onDone: () => void }) {
         </Select>
         <Input
           label={t('phone')}
-          inputMode="tel"
+          placeholder={tFields('phonePlaceholder')}
+          {...phoneFieldProps}
+          autoComplete="off"
           error={errors.phone?.message}
-          {...form.register('phone', { setValueAs: emptyToUndefined })}
+          {...createPhone}
+          onChange={withMask(maskPhone, createPhone.onChange)}
         />
       </div>
       <Input
@@ -87,12 +103,13 @@ function CreateForm({ onDone }: { onDone: () => void }) {
 function EditForm({ user, onDone }: { user: AdminUser; onDone: () => void }) {
   const t = useTranslations('panel.admin.users.form');
   const tRoles = useTranslations('panel.roles');
+  const tFields = useTranslations('fields');
   const update = useAdminUpdateUser();
   const form = useForm<z.input<typeof adminUserUpdateSchema>, unknown, AdminUserUpdateInput>({
     resolver: zodResolver(adminUserUpdateSchema),
     defaultValues: {
       fullName: user.fullName,
-      phone: user.phone ?? undefined,
+      phone: user.phone ? formatPhone(user.phone) : undefined,
       role: user.role,
       isActive: user.isActive,
     },
@@ -102,6 +119,9 @@ function EditForm({ user, onDone }: { user: AdminUser; onDone: () => void }) {
     onDone();
   });
   const errors = form.formState.errors;
+  const editPhone = form.register('phone', {
+    setValueAs: (v: unknown) => (v === '' ? null : v),
+  });
   return (
     <form
       id="user-form"
@@ -112,6 +132,8 @@ function EditForm({ user, onDone }: { user: AdminUser; onDone: () => void }) {
       <Input label={t('email')} value={user.email} disabled readOnly />
       <Input
         label={t('fullName')}
+        {...nameFieldProps}
+        autoComplete="off"
         error={errors.fullName?.message}
         {...form.register('fullName')}
       />
@@ -125,9 +147,12 @@ function EditForm({ user, onDone }: { user: AdminUser; onDone: () => void }) {
         </Select>
         <Input
           label={t('phone')}
-          inputMode="tel"
+          placeholder={tFields('phonePlaceholder')}
+          {...phoneFieldProps}
+          autoComplete="off"
           error={errors.phone?.message}
-          {...form.register('phone', { setValueAs: (v: unknown) => (v === '' ? null : v) })}
+          {...editPhone}
+          onChange={withMask(maskPhone, editPhone.onChange)}
         />
       </div>
       <Input
